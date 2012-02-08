@@ -73,8 +73,6 @@ class SkautIS_WS extends SoapClient {
             foreach ($matches as $value) {
                 $args = array($value => $args);
             }
-            //dump($args);            
-            //$args = array(array($arguments[1] => $args));
         } else {
             $function_name = strtolower(substr($function_name, 0, 1)) . substr($function_name, 1); //nahrazuje lcfirst
             $args = array(array($function_name . "Input" => $args));
@@ -83,10 +81,6 @@ class SkautIS_WS extends SoapClient {
         try {
             if ($this->timer)
                 Debugger::timer ("WS-" . $function_name);
-            
-            //$args[0]["userDetailInput"]["ID_Unit"] = "23506";
-            //dump($fname);dump($args);
-            
             
             $ret = NULL;
             $ret = parent::__soapCall($fname, $args);
@@ -106,7 +100,7 @@ class SkautIS_WS extends SoapClient {
             //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
             $ret = $this->arrayHash ? $this->toArrayHash($ret) : $ret;
             if (isset($ret->{$fname . "Result"})) {
-                if ($ret->{$fname . "Result"}->{$fname . "Output"}) {
+                if (isset($ret->{$fname . "Result"}->{$fname . "Output"})) {
                     if($ret->{$fname . "Result"}->{$fname . "Output"} instanceof stdClass){ //vraci pouze jednu hodnotu misto pole?
                         return array($ret->{$fname . "Result"}->{$fname . "Output"}); //vraci pole se stdClass
                     }
@@ -150,6 +144,7 @@ class SkautIS_WS extends SoapClient {
     /**
      * prevede stdClass na ArrayHash
      * @param mixed $obj 
+     * @deprecated - dependecy on Nette
      */
     function toArrayHash($obj) {
         $obj = ArrayHash::from((array) $obj);

@@ -1,10 +1,13 @@
 <?php
 
+@(include_once 'SkautIS_WS.php');
+@(include_once 'SkautIS_exceptions.php');
+
 /**
  * @author sinacek
  * Singleton
  */
-class SkautIS_Mapper {
+class SkautIS {
 // <editor-fold defaultstate="collapsed" desc="vars">
     const APP_ID = "ID_Application";
     const TOKEN = "ID_Login";
@@ -13,7 +16,7 @@ class SkautIS_Mapper {
 
     /**
      * sigleton
-     * @var SkautIS_Mapper 
+     * @var SkautIS 
      */
     private static $instance;
 
@@ -22,24 +25,35 @@ class SkautIS_Mapper {
      * @var type 
      */
     private $temp;
+    
+    /**
+     * aliasy pro wdsl
+     * @var array
+     */
+    private $aliases = array(
+        "user" => "UserManagement",
+        "usr" => "UserManagement",
+        "org" => "OrganizationUnit",
+        "app" => "ApplicationManagement",
+    );
 
     /**
-     * seznam všech dostupných WSDL
+     * dostupné WSDL SkautISu
      * @var array
      */
     private $wsdl = array(
-        "user" => array("wsdl" => "UserManagement"),
-        "org" => array("wsdl" => "OrganizationUnit"),
-        "events" => array("wsdl" => "Events"),
-        "app" => array("wsdl" => "ApplicationManagement"),
-        "evaluation" => array("wsdl" => "Evaluation"),
-        "exports" => array("wsdl" => "Exports"),
-        "journal" => array("wsdl" => "Journal"),
-        "message" => array("wsdl" => "Message"),
-        "reports" => array("wsdl" => "Reports"),
-        "summary" => array("wsdl" => "Summary"),
-        "tel" => array("wsdl" => "Telephony"),
-        "welcome" => array("wsdl" => "Welcome")
+        "UserManagement" => null,
+        "OrganizationUnit" => null,
+        "Events" => null,
+        "ApplicationManagement" => null,
+        "Evaluation" => null,
+        "Exports" => null,
+        "Journal" => null,
+        "Message" => null,
+        "Reports" => null,
+        "Summary" => null,
+        "Telephony" => null,
+        "Welcome" => null,
     );
 
     /**
@@ -61,7 +75,7 @@ class SkautIS_Mapper {
     private $isTestMode = TRUE;
 
     /**
-     * persistatnt array
+     * persistentní pole
      * ['init'] - obsahuje self::APP_ID a self::TOKEN
      * ['data'] - obsahuje cokoliv dalšího
      * @var array 
@@ -97,7 +111,7 @@ class SkautIS_Mapper {
     public function getAppId() {
         return $this->perStorage->init[self::APP_ID];
     }
-    
+
     public function isSetAppId() {
         return $this->getAppId() != NULL ? TRUE : FALSE;
     }
@@ -137,27 +151,31 @@ class SkautIS_Mapper {
         $this->perStorage->data[self::ID_UNIT] = (int) $unitId;
         return $this;
     }
-    
+
     public function setStorage(&$storage) {
         $this->perStorage = $storage;
     }
+
 // </editor-fold>
-    
+
     private function __construct() {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
     }
-    
+
     /**
      * Singleton
      * @var bool $appId možnost rovnou nastavit appId
-     * @return SkautIS_Mapper
+     * @var bool $testMode umožnuje nastavit zda jde o testovací provoz - výchozí je testovací mode
+     * @return SkautIS
      */
-    public static function getInstance($appId = FALSE) {
+    public static function getInstance($appId = NULL, $testMode = NULL) {
         if (!(self::$instance instanceof self)) {
             self::$instance = new self;
         }
-        if($appId)
+        if ($appId)
             self::$instance->setAppId($appId);
+        if ($testMode)
+            self::$instance->setTestMode($testMode);
         return self::$instance;
     }
 
@@ -166,16 +184,26 @@ class SkautIS_Mapper {
             throw new SkautIS_AbortException("ID_Application is not set");
         }
 
-        $name = strtolower($name);
-        if (!array_key_exists($name, $this->wsdl)) {
-            throw new SkautIS_WsdlException('Invalid WSDL: "' . $name . '"');
-        }
+        $wsdlName = $this->getWsdl($name);
 
-        if (!isset($this->active[$name])) {
-            $wsdl = ($this->isTestMode ? "http://test-is" : "https://is") . ".skaut.cz/JunakWebservice/" . $this->wsdl[$name]["wsdl"] . ".asmx?WSDL";
-            $this->active[$name] = new SkautIS_WS($wsdl, $this->perStorage->init, $this->compression);
+        if (!isset($this->active[$wsdlName])) {
+            $wsdl = ($this->isTestMode ? "http://test-is" : "https://is") . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
+            $this->active[$wsdlName] = new SkautIS_WS($wsdl, $this->perStorage->init, $this->compression);
         }
-        return $this->active[$name];
+        return $this->active[$wsdlName];
+    }
+
+    public function getWsdl($name) {
+//        dump($name);
+//        dump($this->aliases);
+//        dump($this->wsdl);die();
+        if (array_key_exists($name, $this->wsdl)) { //hleda podle celeho nazvu
+            return $name;
+        }
+        if((array_key_exists($name, $this->aliases))) {//podle aliasu
+            return $this->aliases[$name];
+        }
+        throw new SkautIS_WsdlException('Invalid WSDL: "' . $name . '"');
     }
 
     /**
@@ -207,8 +235,8 @@ class SkautIS_Mapper {
 
     /**
      * vrací informace o přihlášené osobě
-     * @param bool $noStoradged
-     * @return type 
+     * @param bool $noStoradged - nepoužívat storage?
+     * @return stdClass 
      */
     public function getMyDetail($noStoradged = FALSE) {
         if (!isset($this->temp[__METHOD__]) || $noStoradged)
@@ -225,17 +253,16 @@ class SkautIS_Mapper {
         $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
         return $this->perStorage->data['logoutTime'] += $time;
     }
-    
+
     /**
      * list of WSDL
      */
     public function getWsdlList() {
         $ret = array();
         foreach ($this->wsdl as $key => $value) {
-            $ret[$key] = $value["wsdl"];
+            $ret[$key] = $key;
         }
         return $ret;
     }
-
 
 }
