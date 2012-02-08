@@ -251,7 +251,7 @@ class SkautIS {
      */
     function updateLogoutTime($time = 1800) {
         $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
-        return $this->perStorage->data['logoutTime'] += $time;
+        //return $this->perStorage->data['logoutTime'] += $time;
     }
 
     /**
