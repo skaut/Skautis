@@ -160,6 +160,8 @@ class SkautIS {
 
     private function __construct() {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
+        if(defined("SkautIS_ID_Application"))
+            $this->setAppId (SkautIS_ID_Application);
     }
 
     /**
@@ -176,6 +178,8 @@ class SkautIS {
             self::$instance->setAppId($appId);
         if ($testMode)
             self::$instance->setTestMode($testMode);
+        
+            
         return self::$instance;
     }
 
@@ -203,7 +207,7 @@ class SkautIS {
         if((array_key_exists($name, $this->aliases))) {//podle aliasu
             return $this->aliases[$name];
         }
-        throw new SkautIS_WsdlException('Invalid WSDL: "' . $name . '"');
+        throw new SkautIS_WsdlException("Invalid WSDL: " . $name);
     }
 
     /**
