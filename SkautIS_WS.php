@@ -49,9 +49,9 @@ class SkautIS_WS extends SoapClient {
     public function __soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null) {
         //public function __call($function_name, $arguments) {
         $fname = ucfirst($function_name);
-
+        
         if (!isset($arguments[0]) || !is_array($arguments[0])) {
-            $arguments = array(array());
+            $arguments[0] = array();
         }
 
         //Debugger::barDump($arguments);
@@ -81,7 +81,6 @@ class SkautIS_WS extends SoapClient {
         try {
             if ($this->timer)
                 Debugger::timer ("WS-" . $function_name);
-            
             $ret = NULL;
             $ret = parent::__soapCall($fname, $args);
             //dump($ret);die();

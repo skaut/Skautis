@@ -35,6 +35,8 @@ class SkautIS {
         "usr" => "UserManagement",
         "org" => "OrganizationUnit",
         "app" => "ApplicationManagement",
+        "event" => "Events",
+        "events" => "Events",
     );
 
     /**
