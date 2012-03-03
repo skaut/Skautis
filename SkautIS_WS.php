@@ -50,6 +50,8 @@ class SkautIS_WS extends SoapClient {
         //public function __call($function_name, $arguments) {
         $fname = ucfirst($function_name);
         
+        //dump($arguments);
+        
         if (!isset($arguments[0]) || !is_array($arguments[0])) {
             $arguments[0] = array();
         }
@@ -58,10 +60,10 @@ class SkautIS_WS extends SoapClient {
         //die();
 
         $args = array_merge($this->init, $arguments[0]); //k argumentum připoji vlastni informace o aplikaci a uzivateli
-        foreach ($args as $key => $value) {//smaže hodnotu kdyz není vyplněna
-            if ($value == NULL)
-                unset($args[$key]);
-        }
+//        foreach ($args as $key => $value) {//smaže hodnotu kdyz není vyplněna
+//            if ($value == NULL)
+//                unset($args[$key]);
+//        }
 
         //cover
         if (isset($arguments[1]) && $arguments[1] !== null) {//pokud je zadan druhy parametr tak lze prejmenovat obal dat
@@ -81,7 +83,7 @@ class SkautIS_WS extends SoapClient {
         try {
             if ($this->timer)
                 Debugger::timer ("WS-" . $function_name);
-            $ret = NULL;
+            //$ret = NULL;
             $ret = parent::__soapCall($fname, $args);
             //dump($ret);die();
             //dump($ret);
