@@ -168,8 +168,8 @@ class SkautIS {
 
     /**
      * Singleton
-     * @var bool $appId možnost rovnou nastavit appId
-     * @var bool $testMode umožnuje nastavit zda jde o testovací provoz - výchozí je testovací mode
+     * @var bool $appId nastavení appId (nepovinné)
+     * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
      * @return SkautIS
      */
     public static function getInstance($appId = NULL, $testMode = NULL) {
@@ -180,7 +180,6 @@ class SkautIS {
             self::$instance->setAppId($appId);
         if ($testMode)
             self::$instance->setTestMode($testMode);
-        
             
         return self::$instance;
     }
@@ -226,7 +225,7 @@ class SkautIS {
      * @return url
      */
     public function getLogoutUrl() {
-        throw new NotImplementedException();
+        return ($this->isTestMode ? "http://test-is" : "https://is") . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=".$this->getToken() ;
     }
 
     /**
@@ -241,13 +240,10 @@ class SkautIS {
 
     /**
      * vrací informace o přihlášené osobě
-     * @param bool $noStoradged - nepoužívat storage?
      * @return stdClass 
      */
-    public function getMyDetail($noStoradged = FALSE) {
-        if (!isset($this->temp[__METHOD__]) || $noStoradged)
-            return $this->temp[__METHOD__] = $this->user->userDetail();
-        return $this->temp[__METHOD__];
+    public function getMyDetail() {
+        return $this->user->userDetail();
     }
 
     /**
