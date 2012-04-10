@@ -19,12 +19,6 @@ class SkautIS {
      * @var SkautIS 
      */
     private static $instance;
-
-    /**
-     * uchovává data pouze během jednoho požadavku
-     * @var type 
-     */
-    private $temp;
     
     /**
      * aliasy pro wdsl
@@ -59,7 +53,7 @@ class SkautIS {
     );
 
     /**
-     * pole aktivních WS
+     * pole aktivních SkautIS_WS
      * @var array(SkautIS_WS)
      */
     private $active = array();
@@ -198,10 +192,7 @@ class SkautIS {
         return $this->active[$wsdlName];
     }
 
-    public function getWsdl($name) {
-//        dump($name);
-//        dump($this->aliases);
-//        dump($this->wsdl);die();
+    protected function getWsdl($name) {
         if (array_key_exists($name, $this->wsdl)) { //hleda podle celeho nazvu
             return $name;
         }
@@ -257,7 +248,8 @@ class SkautIS {
     }
 
     /**
-     * list of WSDL
+     * vrací seznam WSDL, které podporuje
+     * @return array
      */
     public function getWsdlList() {
         $ret = array();
