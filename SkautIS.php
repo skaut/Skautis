@@ -13,6 +13,9 @@ class SkautIS {
     const TOKEN = "ID_Login";
     const ID_ROLE = "ID_Role";
     const ID_UNIT = "ID_Unit";
+    
+    const HTTP_PREFIX_TEST = "http://test-is";
+    const HTTP_PREFIX = "https://is";
 
     /**
      * sigleton
@@ -208,7 +211,7 @@ class SkautIS {
      * @return url 
      */
     public function getLoginUrl($backlink) {
-        return ($this->isTestMode ? "http://test-is" : "https://is") . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
+        return ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
     /**
@@ -216,7 +219,7 @@ class SkautIS {
      * @return url
      */
     public function getLogoutUrl() {
-        return ($this->isTestMode ? "http://test-is" : "https://is") . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=".$this->getToken() ;
+        return ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=".$this->getToken() ;
     }
 
     /**
@@ -224,27 +227,17 @@ class SkautIS {
      * @return bool 
      */
     public function isLoggedIn() {
-        if ($this->getToken() != NULL && $this->user->UserDetail()->ID != NULL)
+        if ($this->getToken() != NULL && $this->user->userDetail()->ID != NULL)
             return TRUE;
         return FALSE;
     }
 
     /**
-     * vrací informace o přihlášené osobě
-     * @return stdClass 
-     */
-    public function getMyDetail() {
-        return $this->user->userDetail();
-    }
-
-    /**
-     * prodloužení přihlášení
+     * prodloužení přihlášení o 30 min
      * @param int $time
-     * @return int - čas nového odhlášení
      */
-    function updateLogoutTime($time = 1800) {
+    function updateLogoutTime() {
         $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
-        //return $this->perStorage->data['logoutTime'] += $time;
     }
 
     /**
