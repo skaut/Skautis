@@ -189,7 +189,7 @@ class SkautIS {
         $wsdlName = $this->getWsdl($name);
 
         if (!isset($this->active[$wsdlName])) {
-            $wsdl = ($this->isTestMode ? "http://test-is" : "https://is") . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
+            $wsdl = ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
             $this->active[$wsdlName] = new SkautIS_WS($wsdl, $this->perStorage->init, $this->compression);
         }
         return $this->active[$wsdlName];
