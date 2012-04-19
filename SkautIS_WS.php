@@ -82,7 +82,7 @@ class SkautIS_WS extends SoapClient {
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new SkautIS_AuthenticationException();
             }
-            throw new SkautIS_Exception($e->getMessage(), $e->getCode(), $e);
+            throw new SkautIS_Exception($e->getMessage());
         }
     }
 
