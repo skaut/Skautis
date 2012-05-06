@@ -13,7 +13,7 @@ class SkautIS {
     const TOKEN = "ID_Login";
     const ID_ROLE = "ID_Role";
     const ID_UNIT = "ID_Unit";
-    
+
     const HTTP_PREFIX_TEST = "http://test-is";
     const HTTP_PREFIX = "https://is";
 
@@ -22,7 +22,7 @@ class SkautIS {
      * @var SkautIS 
      */
     private static $instance;
-    
+
     /**
      * aliasy pro wdsl
      * @var array
@@ -159,8 +159,8 @@ class SkautIS {
 
     private function __construct() {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
-        if(defined("SkautIS_ID_Application"))
-            $this->setAppId (SkautIS_ID_Application);
+        if (defined("SkautIS_ID_Application"))
+            $this->setAppId(SkautIS_ID_Application);
     }
 
     /**
@@ -169,15 +169,14 @@ class SkautIS {
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
      * @return SkautIS
      */
-    public static function getInstance($appId = NULL, $testMode = NULL) {
+    public static function getInstance($appId = NULL, $testMode = false) {
         if (!(self::$instance instanceof self)) {
             self::$instance = new self;
         }
-        if ($appId)
+        if ($appId !== NULL)
             self::$instance->setAppId($appId);
-        if ($testMode)
-            self::$instance->setTestMode($testMode);
-            
+        self::$instance->setTestMode($testMode);
+
         return self::$instance;
     }
 
@@ -199,7 +198,7 @@ class SkautIS {
         if (array_key_exists($name, $this->wsdl)) { //hleda podle celeho nazvu
             return $name;
         }
-        if((array_key_exists($name, $this->aliases))) {//podle aliasu
+        if ((array_key_exists($name, $this->aliases))) {//podle aliasu
             return $this->aliases[$name];
         }
         throw new SkautIS_WsdlException("Invalid WSDL: " . $name);
@@ -219,7 +218,7 @@ class SkautIS {
      * @return url
      */
     public function getLogoutUrl() {
-        return ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=".$this->getToken() ;
+        return ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
     }
 
     /**
