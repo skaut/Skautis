@@ -47,7 +47,7 @@ class SkautIS_WS extends SoapClient {
 //            if ($value == NULL)
 //                unset($args[$key]);
 //        }
-
+//Debugger::log(Debugger::dump($args,true), "My");
         //cover
         if (isset($arguments[1]) && $arguments[1] !== null) {//pokud je zadan druhy parametr tak lze prejmenovat obal dat
             $matches = preg_split('~/~', $arguments[1]); //rozdeli to na stringy podle /
@@ -65,6 +65,8 @@ class SkautIS_WS extends SoapClient {
 
         try {
             $ret = parent::__soapCall($fname, $args);
+//            if(Strings::startsWith($fname, "EventCamp"))
+//                Debugger::log(Debugger::dump($args, TRUE), "to");
 
             //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
             if (isset($ret->{$fname . "Result"})) {
