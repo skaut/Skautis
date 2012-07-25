@@ -210,7 +210,7 @@ class SkautIS {
      * @return url 
      */
     public function getLoginUrl($backlink) {
-        return ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
+        return $this->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
     /**
@@ -218,7 +218,15 @@ class SkautIS {
      * @return url
      */
     public function getLogoutUrl() {
-        return ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
+        return $this->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
+    }
+    
+    /**
+     * vrací začátek URL adresy
+     * @return string
+     */
+    public function getHttpPrefix(){
+        return $this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX;
     }
 
     /**
