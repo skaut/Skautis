@@ -158,7 +158,9 @@ class SkautIS {
 // </editor-fold>
 
     private function __construct() {
-        $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
+        //@todo: předělat bez závislosti na Nette - hledání vadného přihlašování
+//        $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
+        $this->perStorage = Environment::getSession()->getNamespace("__" . __CLASS__); //defaultni persistentní uloziste
         if (defined("SkautIS_ID_Application"))
             $this->setAppId(SkautIS_ID_Application);
     }
