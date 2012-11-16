@@ -9,11 +9,11 @@
  */
 class SkautIS {
 // <editor-fold defaultstate="collapsed" desc="vars">
+
     const APP_ID = "ID_Application";
     const TOKEN = "ID_Login";
     const ID_ROLE = "ID_Role";
     const ID_UNIT = "ID_Unit";
-
     const HTTP_PREFIX_TEST = "http://test-is";
     const HTTP_PREFIX = "https://is";
 
@@ -159,8 +159,8 @@ class SkautIS {
 
     private function __construct() {
         //@todo: předělat bez závislosti na Nette - hledání vadného přihlašování
-//        $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
-        $this->perStorage = Environment::getSession()->getSection("__" . __CLASS__); //defaultni persistentní uloziste
+        $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
+//        $this->perStorage = Environment::getSession()->getSection("__" . __CLASS__); //defaultni persistentní uloziste
         if (defined("SkautIS_ID_Application"))
             $this->setAppId(SkautIS_ID_Application);
     }
@@ -222,12 +222,12 @@ class SkautIS {
     public function getLogoutUrl() {
         return $this->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
     }
-    
+
     /**
      * vrací začátek URL adresy
      * @return string
      */
-    public function getHttpPrefix(){
+    public function getHttpPrefix() {
         return $this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX;
     }
 
@@ -247,6 +247,19 @@ class SkautIS {
      */
     function updateLogoutTime() {
         $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
+    }
+
+    /**
+     * zkontroluje platnost tokenu a prodlouží přihlášení o 30 min
+     * @return bool
+     */
+    function checkLoginToken() {
+        try {
+            $this->updateLogoutTime();
+        } catch (SkautIS_Exception $ex) {
+            return false;
+        }
+        return true;
     }
 
     /**
