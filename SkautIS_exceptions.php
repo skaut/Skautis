@@ -11,7 +11,7 @@ class SkautIS_Exception extends Exception {}
  */
 class SkautIS_WsdlException extends Exception {}
 
-class SkautIS_AbortException extends AbortException {}
+class SkautIS_AbortException extends Exception {}
 
 class SkautIS_InvalidArgumentException extends InvalidArgumentException {}
 

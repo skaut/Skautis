@@ -1,7 +1,7 @@
 <?php
-
-@(include_once 'SkautIS_WS.php');
-@(include_once 'SkautIS_exceptions.php');
+$filepath = dirname(__FILE__).'/';
+@(include_once $filepath . 'SkautIS_WS.php');
+@(include_once $filepath . 'SkautIS_exceptions.php');
 
 /**
  * @author sinacek
@@ -19,7 +19,7 @@ class SkautIS {
 
     /**
      * sigleton
-     * @var SkautIS 
+     * @var SkautIS
      */
     private static $instance;
 
@@ -77,7 +77,7 @@ class SkautIS {
      * persistentní pole
      * ['init'] - obsahuje self::APP_ID a self::TOKEN
      * ['data'] - obsahuje cokoliv dalšího
-     * @var array 
+     * @var array
      */
     private $perStorage;
 
@@ -127,7 +127,7 @@ class SkautIS {
 
     /**
      * alias of getToken()
-     * @return type 
+     * @return type
      */
     public function getLoginId() {
         return $this->getToken();
@@ -209,7 +209,7 @@ class SkautIS {
     /**
      * vrací url na přihlášení
      * @param string $backlink
-     * @return url 
+     * @return url
      */
     public function getLoginUrl($backlink) {
         return $this->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
@@ -233,7 +233,7 @@ class SkautIS {
 
     /**
      * kontoluje jestli je přihlášení platné
-     * @return bool 
+     * @return bool
      */
     public function isLoggedIn() {
         if ($this->getToken() != NULL && $this->user->userDetail()->ID != NULL)
