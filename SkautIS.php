@@ -211,7 +211,7 @@ class SkautIS {
      * @param string $backlink
      * @return url
      */
-    public function getLoginUrl($backlink) {
+    public function getLoginUrl($backlink = null) {
         return $this->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
