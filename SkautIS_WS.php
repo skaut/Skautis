@@ -32,12 +32,12 @@ class SkautIS_WS extends SoapClient {
      *
      * @param string $function_name
      * @param array $arguments ([0]=args [1]=cover)
-     * @return type 
+     * @return type
      */
     public function __soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null) {
         //public function __call($function_name, $arguments) {
         $fname = ucfirst($function_name);
-        
+
         if (!isset($arguments[0]) || !is_array($arguments[0])) {
             $arguments[0] = array();
         }
@@ -80,7 +80,7 @@ class SkautIS_WS extends SoapClient {
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
-            $presenter = Environment::getApplication()->getPresenter();
+            //$presenter = Environment::getApplication()->getPresenter();
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new SkautIS_AuthenticationException();
             }
