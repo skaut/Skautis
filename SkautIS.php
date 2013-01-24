@@ -47,6 +47,7 @@ class SkautIS {
         "ApplicationManagement" => null,
         "Evaluation" => null,
         "Exports" => null,
+        "GoogleApps" => null,
         "Journal" => null,
         "Message" => null,
         "Reports" => null,
@@ -54,7 +55,7 @@ class SkautIS {
         "Telephony" => null,
         "Welcome" => null,
     );
-
+    
     /**
      * pole aktivních SkautIS_WS
      * @var array(SkautIS_WS)
