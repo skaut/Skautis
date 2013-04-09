@@ -65,7 +65,3 @@ Argumenty zadáváme v asociativním poli "nazev_atributu"=>"hodnota_atributu". 
 <?php
 $data = $skautIS->user->UserDetail(array("ID"=>1940)); //1940 je ID uzivatele okres blansko
 ```
-## Návratové hodnoty
-Data se vrací jako object třídy [stdClass](http://php.net/manual/en/reserved.classes.php) nebo jako pole, pokud třída vrací $nazevTridy.Output. (např. [RoleAllOutput](https://is.skaut.cz/JunakWebservice/UserManagement.asmx?op=RoleAll))
-
-
