@@ -1,0 +1,16 @@
+{
+    "name": "skautis/skautis",
+    "description": "Library for API calls to SkautIS",
+    "minimum-stability": "stable",
+    "type": "library",
+    "keywords": ["skautis", "api"],
+
+    "support": {
+        "wiki": "http://is.skaut.cz/napoveda/",
+        "source": "https://github.com/sinacek/SkautIS"
+    },
+
+    "autoload": {
+        "files": ["SkautIS.php"]
+    }
+}

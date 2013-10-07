@@ -4,6 +4,23 @@ SkautIS
 knihovna pro připojení do SkautISu
 
 # Jak připojit knihovnu?
+## Instalace
+Před používáním knihovny je potřeba knihovnu nainstalovat do webové aplikace. K dispozici jsou dva způsoby
+
+### Klasický způsob
+Stáhnout zdrojové kódy a pomocí ``include``/``require`` vložit do webové aplikace
+
+### S použitím balíčkovacího systému composer
+Composer je balíčkovací systém usnadňující práci s knihovnami, Detailnější informace najdete na http://getcomposer.org/doc/
+
+#### Krátký návod
+
+* stáhněte composer z getcomposer.com
+* pomocí konzole spusťte příkaz ``composer require skautis/skautis:1.*``
+* pomocí konzole nainstalujte závislosti ``composer install``
+
+
+
 ## Základní nastavení
 Před prvním dotazem na SkautIS musíme nastavit **Application_ID** jedinečné pro naši aplikaci. Jako druhý argument můžeme uvést jestli aplikace běží v **testovacím režimu**. Výchozí nastavení je TRUE.
 
