@@ -1,9 +1,17 @@
 <?php
 
+namespace SkautIS;
+
+use SkautIS\Exception\AuthenticationException;
+use SoapFault;
+use stdClass;
+use SoapClient;
+use Exception;
+
 /**
  * @author sinacek
  */
-class SkautIS_WS extends SoapClient {
+class WS extends SoapClient {
 
     /**
      * základní údaje volané při každém požadavku
@@ -82,10 +90,10 @@ class SkautIS_WS extends SoapClient {
         } catch (SoapFault $e) {
             //$presenter = Environment::getApplication()->getPresenter();
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
-                throw new SkautIS_AuthenticationException();
+                throw new AuthenticationException();
             }
             //dump($e);
-            throw new SkautIS_Exception($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 
