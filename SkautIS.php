@@ -128,7 +128,7 @@ class SkautIS {
 
     /**
      * alias of getToken()
-     * @return type
+     * @return string
      */
     public function getLoginId() {
         return $this->getToken();
@@ -152,20 +152,26 @@ class SkautIS {
         return $this;
     }
 
-    public function setStorage(&$storage) {
+    public function setStorage(&$storage, $leaveValues = false) {
+        if($leaveValues){
+            $storage->init[self::APP_ID] = $this->getAppId();
+            $storage->init[self::TOKEN] = $this->getToken();
+            $storage->data[self::ID_ROLE] = $this->getRoleId();
+            $storage->data[self::ID_UNIT] = $this->getUnitId();
+        }
         $this->perStorage = $storage;
     }
-
+    
 // </editor-fold>
 
     private function __construct() {
         //@todo: předělat bez závislosti na Nette - hledání vadného přihlašování
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
-//        $this->perStorage = Environment::getSession()->getSection("__" . __CLASS__); //defaultni persistentní uloziste
+//        $this->perStorage = \Nette\Environment::getSession()->getSection("__" . __CLASS__); //defaultni persistentní uloziste
         if (defined("SkautIS_ID_Application"))
             $this->setAppId(SkautIS_ID_Application);
     }
-
+    
     /**
      * Singleton
      * @var bool $appId nastavení appId (nepovinné)
