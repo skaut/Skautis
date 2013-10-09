@@ -1,7 +1,10 @@
 <?php
-$filepath = dirname(__FILE__).'/';
-@(include_once $filepath . 'SkautIS_WS.php');
-@(include_once $filepath . 'SkautIS_exceptions.php');
+
+namespace SkautIS;
+
+use SkautIS\Exception\AbortException;
+use SkautIS\Exception\WsdlException;
+use Exception;
 
 /**
  * @author sinacek
@@ -191,14 +194,14 @@ class SkautIS {
 
     public function __get($name) {
         if (!isset($this->perStorage->init[self::APP_ID])) {
-            throw new SkautIS_AbortException("ID_Application is not set");
+            throw new AbortException("ID_Application is not set");
         }
 
         $wsdlName = $this->getWsdl($name);
 
         if (!isset($this->active[$wsdlName])) {
             $wsdl = ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
-            $this->active[$wsdlName] = new SkautIS_WS($wsdl, $this->perStorage->init, $this->compression);
+            $this->active[$wsdlName] = new WS($wsdl, $this->perStorage->init, $this->compression);
         }
         return $this->active[$wsdlName];
     }
@@ -210,7 +213,7 @@ class SkautIS {
         if ((array_key_exists($name, $this->aliases))) {//podle aliasu
             return $this->aliases[$name];
         }
-        throw new SkautIS_WsdlException("Invalid WSDL: " . $name);
+        throw new WsdlException("Invalid WSDL: " . $name);
     }
 
     /**
@@ -263,7 +266,7 @@ class SkautIS {
     function checkLoginToken() {
         try {
             $this->updateLogoutTime();
-        } catch (SkautIS_Exception $ex) {
+        } catch (Exception $ex) {
             return false;
         }
         return true;
