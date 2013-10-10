@@ -112,7 +112,7 @@ class SkautIS {
     }
 
     public function getAppId() {
-        return $this->perStorage->init[self::APP_ID];
+        return isset($this->perStorage->init[self::APP_ID]) ? $this->perStorage->init[self::APP_ID] : null;
     }
 
     public function isSetAppId() {
@@ -120,7 +120,7 @@ class SkautIS {
     }
 
     public function getToken() {
-        return $this->perStorage->init[self::TOKEN];
+        return isset($this->perStorage->init[self::TOKEN]) ? $this->perStorage->init[self::TOKEN] : null;
     }
 
     public function setToken($token) {
