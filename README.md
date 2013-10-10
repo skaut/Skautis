@@ -56,11 +56,9 @@ Po úspěšném přihlášení jsme přesměrováni na předem nastavenou adresu
 (ID_Login, ID_Role, ID_Unit). Ty nastavíme knihovně, která si je zapamatuje.
 ```php
 <?php
-$skautIS->setInit(array(
-                "token" => $_POST['skautIS_Token'],
-                "roleId" => $_POST['skautIS_IDRole'],
-                "unitId" => $_POST['skautIS_IDUnit']
-            ));
+$skautIS->setToken($_POST['skautIS_Token']);
+$skautIS->setRoleId($_POST['skautIS_IDRole']);
+$skautIS->setUnitId($_POST['skautIS_IDUnit']);
 ```
 ## Získání dat ze SkautISu
 ```php
