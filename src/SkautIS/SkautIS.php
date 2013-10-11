@@ -155,7 +155,13 @@ class SkautIS {
         return $this;
     }
 
-    public function setStorage(&$storage, $leaveValues = false) {
+    /**
+     * nastavuje trvalé úložiště
+     * příklad použití: $skautIS->setStorage(&\Nette\Environment::getSession()->getSection("__" . __CLASS__), TRUE);
+     * @param type $storage
+     * @param type $leaveValues
+     */
+    public function setStorage($storage, $leaveValues = false) {
         if($leaveValues){
             $storage->init[self::APP_ID] = $this->getAppId();
             $storage->init[self::TOKEN] = $this->getToken();
@@ -168,9 +174,7 @@ class SkautIS {
 // </editor-fold>
 
     private function __construct() {
-        //@todo: předělat bez závislosti na Nette - hledání vadného přihlašování
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
-//        $this->perStorage = \Nette\Environment::getSession()->getSection("__" . __CLASS__); //defaultni persistentní uloziste
         if (defined("SkautIS_ID_Application"))
             $this->setAppId(SkautIS_ID_Application);
     }
