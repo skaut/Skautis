@@ -2,8 +2,6 @@
 
 namespace SkautIS\Exception;
 
-use Exception;
-
-class AbortException extends Exception
-{
+class AbortException extends BaseException {
+    
 }
