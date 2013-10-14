@@ -157,11 +157,11 @@ class SkautIS {
 
     /**
      * nastavuje trvalé úložiště
-     * příklad použití pro Nette: $skautIS->setStorage(\Nette\Environment::getSession()->getSection("__" . __CLASS__), TRUE);
+     * příklad použití pro Nette: $storage = \Nette\Environment::getSession()->getSection("__" . __CLASS__);$this->context->skautIS->setStorage($storage, TRUE);
      * @param array|ArrayAccess $storage 
      * @param boolean $leaveValues
      */
-    public function setStorage($storage, $leaveValues = false) {
+    public function setStorage(&$storage, $leaveValues = false) {
         if($leaveValues){
             $storage->init[self::APP_ID] = $this->getAppId();
             $storage->init[self::TOKEN] = $this->getToken();
