@@ -138,7 +138,7 @@ class SkautIS {
     }
 
     public function getRoleId() {
-        return $this->perStorage->data[self::ID_ROLE];
+        return isset($this->perStorage->data[self::ID_ROLE]) ? $this->perStorage->data[self::ID_ROLE] : NULL;
     }
 
     public function setRoleId($roleId) {
@@ -147,7 +147,7 @@ class SkautIS {
     }
 
     public function getUnitId() {
-        return $this->perStorage->data[self::ID_UNIT];
+        return isset($this->perStorage->data[self::ID_UNIT]) ? $this->perStorage->data[self::ID_UNIT] : NULL;
     }
 
     public function setUnitId($unitId) {
