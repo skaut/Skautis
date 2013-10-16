@@ -298,11 +298,10 @@ class SkautIS {
      * @return array
      */
     public function getWsdlList() {
-        $ret = array();
-        foreach ($this->wsdl as $key => $value) {
-            $ret[$key] = $key;
-        }
-        return $ret;
+
+        $wsdlNames = array_keys($this->wsdl);
+
+        return array_combine($wsdlNames, $wsdlNames);
     }
 
 }
