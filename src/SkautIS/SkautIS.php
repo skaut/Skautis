@@ -183,8 +183,10 @@ class SkautIS {
 
     private function __construct() {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
-        if (defined("SkautIS_ID_Application"))
+
+        if (defined("SkautIS_ID_Application")) {
             $this->setAppId(SkautIS_ID_Application);
+        }
     }
     
     /**
@@ -197,8 +199,12 @@ class SkautIS {
         if (!(self::$instance instanceof self)) {
             self::$instance = new self;
         }
-        if ($appId !== NULL)
+
+        if ($appId !== NULL) {
             self::$instance->setAppId($appId);
+        }
+
+        // FIXME: Kdyz se vola getInstance ve vice mistech aplikace jednou $testMode=true a jednou = false, dochazi ke kolizi a problemum viz __get()
         self::$instance->setTestMode($testMode);
 
         return self::$instance;

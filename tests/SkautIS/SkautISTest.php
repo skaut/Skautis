@@ -6,6 +6,13 @@ use SkautIS\SkautIS;
 
 class SkautISTest extends \PHPUnit_Framework_TestCase {
 
+    public function testSingleton()
+    {
+        $skautISA = SkautIS::getInstance();
+        $skautISB = SkautIS::getInstance();
+
+        $this->assertSame($skautISA, $skautISB);
+    }
 
     public function testGetWsdlList() {
 
