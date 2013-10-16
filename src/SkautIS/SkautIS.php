@@ -3,6 +3,7 @@
 namespace SkautIS;
 
 use SkautIS\Exception\AbortException;
+use SkautIS\Exception\InvalidArgumentException;
 use SkautIS\Exception\WsdlException;
 use Exception;
 
@@ -81,7 +82,7 @@ class SkautIS {
      * persistentní pole
      * ['init'] - obsahuje self::APP_ID a self::TOKEN
      * ['data'] - obsahuje cokoliv dalšího
-     * @var array
+     * @var array|\ArrayAccess
      */
     private $perStorage;
 
@@ -158,10 +159,17 @@ class SkautIS {
     /**
      * nastavuje trvalé úložiště
      * příklad použití pro Nette: $storage = \Nette\Environment::getSession()->getSection("__" . __CLASS__);$this->context->skautIS->setStorage($storage, TRUE);
-     * @param array|ArrayAccess $storage 
+     * @param array|\ArrayAccess $storage
      * @param boolean $leaveValues
+     * @throws InvalidArgumentException
      */
     public function setStorage(&$storage, $leaveValues = false) {
+
+        $isTypeOk = gettype($storage) === "array" || $storage instanceof \ArrayAccess;
+        if (!$isTypeOk) {
+            throw new InvalidArgumentException();
+        }
+        
         if($leaveValues){
             $storage->init[self::APP_ID] = $this->getAppId();
             $storage->init[self::TOKEN] = $this->getToken();
@@ -175,13 +183,15 @@ class SkautIS {
 
     private function __construct() {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
-        if (defined("SkautIS_ID_Application"))
+
+        if (defined("SkautIS_ID_Application")) {
             $this->setAppId(SkautIS_ID_Application);
+        }
     }
     
     /**
      * Singleton
-     * @var bool $appId nastavení appId (nepovinné)
+     * @var string $appId nastavení appId (nepovinné)
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
      * @return SkautIS
      */
@@ -189,13 +199,22 @@ class SkautIS {
         if (!(self::$instance instanceof self)) {
             self::$instance = new self;
         }
-        if ($appId !== NULL)
+
+        if ($appId !== NULL) {
             self::$instance->setAppId($appId);
+        }
+
+        // FIXME: Kdyz se vola getInstance ve vice mistech aplikace jednou $testMode=true a jednou = false, dochazi ke kolizi a problemum viz __get()
         self::$instance->setTestMode($testMode);
 
         return self::$instance;
     }
 
+    /**
+     * @param string $name
+     * @return WS
+     * @throws AbortException
+     */
     public function __get($name) {
         if (!isset($this->perStorage->init[self::APP_ID])) {
             throw new AbortException("ID_Application is not set");
@@ -210,6 +229,11 @@ class SkautIS {
         return $this->active[$wsdlName];
     }
 
+    /**
+     * @param string $name
+     * @return string
+     * @throws WsdlException
+     */
     protected function getWsdl($name) {
         if (array_key_exists($name, $this->wsdl)) { //hleda podle celeho nazvu
             return $name;
@@ -223,7 +247,7 @@ class SkautIS {
     /**
      * vrací url na přihlášení
      * @param string $backlink
-     * @return url
+     * @return string url
      */
     public function getLoginUrl($backlink = null) {
         return $this->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
@@ -231,7 +255,7 @@ class SkautIS {
 
     /**
      * vrací url na odhlášení
-     * @return url
+     * @return string url
      */
     public function getLogoutUrl() {
         return $this->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
@@ -257,7 +281,6 @@ class SkautIS {
 
     /**
      * prodloužení přihlášení o 30 min
-     * @param int $time
      */
     function updateLogoutTime() {
         $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
@@ -281,11 +304,10 @@ class SkautIS {
      * @return array
      */
     public function getWsdlList() {
-        $ret = array();
-        foreach ($this->wsdl as $key => $value) {
-            $ret[$key] = $key;
-        }
-        return $ret;
+
+        $wsdlNames = array_keys($this->wsdl);
+
+        return array_combine($wsdlNames, $wsdlNames);
     }
 
 }
