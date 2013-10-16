@@ -3,6 +3,7 @@
 namespace SkautIS;
 
 use SkautIS\Exception\AbortException;
+use SkautIS\Exception\InvalidArgumentException;
 use SkautIS\Exception\WsdlException;
 use Exception;
 
@@ -160,8 +161,15 @@ class SkautIS {
      * příklad použití pro Nette: $storage = \Nette\Environment::getSession()->getSection("__" . __CLASS__);$this->context->skautIS->setStorage($storage, TRUE);
      * @param array|\ArrayAccess $storage
      * @param boolean $leaveValues
+     * @throws InvalidArgumentException
      */
     public function setStorage(&$storage, $leaveValues = false) {
+
+        $isTypeOk = gettype($storage) === "array" || $storage instanceof \ArrayAccess;
+        if (!$isTypeOk) {
+            throw new InvalidArgumentException();
+        }
+        
         if($leaveValues){
             $storage->init[self::APP_ID] = $this->getAppId();
             $storage->init[self::TOKEN] = $this->getToken();
