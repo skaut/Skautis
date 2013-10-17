@@ -27,4 +27,20 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         }
     }
 
+    public function test__get() {
+
+        $skautIS = \SkautIS\SkautIS::getInstance("123");
+
+
+        $skautIS->setTestMode(true);
+        $userA = $skautIS->user;
+        $this->assertSame($userA, $skautIS->user);
+
+        $skautIS->setTestMode(false);
+        $this->assertNotSame($userA, $skautIS->user);
+
+        $skautIS->setTestMode(true);
+        $this->assertSame($userA, $skautIS->user);
+    }
+
 }
