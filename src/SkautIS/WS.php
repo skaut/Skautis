@@ -2,11 +2,12 @@
 
 namespace SkautIS;
 
-use SkautIS\Exception\AuthenticationException;
-use SoapFault;
-use stdClass;
-use SoapClient;
-use Exception;
+use SkautIS\Exception\AuthenticationException,
+    SkautIS\Exception\AbortException,
+    SkautIS\Exception\WsdlException,
+    SoapFault,
+    stdClass,
+    SoapClient;
 
 /**
  * @author sinacek
@@ -23,7 +24,7 @@ class WS extends SoapClient {
     public function __construct($wsdl, array $init, $compression = TRUE) {
         $this->init = $init;
         if (!isset($wsdl))
-            throw new Exception("WSDL musí být nastaven");
+            throw new AbortException("WSDL musí být nastaven");
         $soapOpts['encoding'] = 'utf-8';
         $soapOpts['soap_version'] = SOAP_1_2;
         if ($compression === TRUE)
@@ -32,7 +33,6 @@ class WS extends SoapClient {
     }
 
     public function __call($function_name, $arguments) {
-        //dump($arguments);
         return $this->__soapCall($function_name, $arguments);
     }
 
@@ -75,11 +75,10 @@ class WS extends SoapClient {
             $ret = parent::__soapCall($fname, $args);
 //            if(Strings::startsWith($fname, "EventCamp"))
 //                Debugger::log(Debugger::dump($args, TRUE), "to");
-
             //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
             if (isset($ret->{$fname . "Result"})) {
                 if (isset($ret->{$fname . "Result"}->{$fname . "Output"})) {
-                    if($ret->{$fname . "Result"}->{$fname . "Output"} instanceof stdClass){ //vraci pouze jednu hodnotu misto pole?
+                    if ($ret->{$fname . "Result"}->{$fname . "Output"} instanceof stdClass) { //vraci pouze jednu hodnotu misto pole?
                         return array($ret->{$fname . "Result"}->{$fname . "Output"}); //vraci pole se stdClass
                     }
                     return $ret->{$fname . "Result"}->{$fname . "Output"}; //vraci pole se stdClass
@@ -93,7 +92,7 @@ class WS extends SoapClient {
                 throw new AuthenticationException();
             }
             //dump($e);
-            throw new Exception($e->getMessage());
+            throw new WsdlException($e->getMessage());
         }
     }
 
