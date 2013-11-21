@@ -204,7 +204,6 @@ class SkautIS {
             self::$instance->setAppId($appId);
         }
 
-        // FIXME: Kdyz se vola getInstance ve vice mistech aplikace jednou $testMode=true a jednou = false, dochazi ke kolizi a problemum viz __get()
         self::$instance->setTestMode($testMode);
 
         return self::$instance;
@@ -222,11 +221,16 @@ class SkautIS {
 
         $wsdlName = $this->getWsdl($name);
 
-        if (!isset($this->active[$wsdlName])) {
-            $wsdl = ($this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX) . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
-            $this->active[$wsdlName] = new WS($wsdl, $this->perStorage->init, $this->compression);
+        $wsdlKey = $wsdlName;
+        if ($this->isTestMode) {
+            $wsdlKey .= '_Test';
         }
-        return $this->active[$wsdlName];
+
+        if (!isset($this->active[$wsdlKey])) {
+            $wsdl = $this->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
+            $this->active[$wsdlKey] = new WS($wsdl, $this->perStorage->init, $this->compression);
+        }
+        return $this->active[$wsdlKey];
     }
 
     /**
