@@ -278,9 +278,13 @@ class SkautIS {
      * @return bool
      */
     public function isLoggedIn() {
-        if ($this->getToken() != NULL && $this->user->userDetail()->ID != NULL)
+        try{
+            $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
             return TRUE;
-        return FALSE;
+        }
+        catch(SkautIS\Exception $e){
+            return FALSE;
+        }
     }
 
     /**
