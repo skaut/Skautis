@@ -279,12 +279,12 @@ class SkautIS {
      */
     public function isLoggedIn() {
         try{
-            $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
-            return TRUE;
+            $this->updateLogoutTime();
         }
         catch(SkautIS\Exception $e){
-            return FALSE;
+            return false;
         }
+        return true;
     }
 
     /**
@@ -299,12 +299,23 @@ class SkautIS {
      * @return bool
      */
     function checkLoginToken() {
-        try {
-            $this->updateLogoutTime();
-        } catch (Exception $ex) {
-            return false;
-        }
-        return true;
+        return isLoggedIn();
+    }
+    
+    /**
+     * hromadne nastaveni po prihlaseni
+     */
+    public function setLoginData($token = NULL, $roleId = NULL, $unitId = NULL){
+        $this->setToken($token);
+        $this->setRoleId($roleId);
+        $this->setUnitId($unitId);
+    }
+    
+    /**
+     * hromadny reset dat po odhlaseni
+     */
+    public function resetLoginData(){
+        $this->setLoginData();
     }
 
     /**
