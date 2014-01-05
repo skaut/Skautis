@@ -281,7 +281,7 @@ class SkautIS {
         try{
             $this->updateLogoutTime();
         }
-        catch(SkautIS\Exception $e){
+        catch(Exception $ex){
             return false;
         }
         return true;
@@ -299,7 +299,7 @@ class SkautIS {
      * @return bool
      */
     function checkLoginToken() {
-        return isLoggedIn();
+        return $this->isLoggedIn();
     }
     
     /**
