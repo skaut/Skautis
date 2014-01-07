@@ -19,6 +19,7 @@ Composer je balíčkovací systém usnadňující práci s knihovnami, Detailně
 * pomocí konzole spusťte příkaz ``composer require skautis/skautis:1.*``
 * pomocí konzole nainstalujte závislosti ``composer install``
 
+(do souboru ``composer.json`` stačí přidat ``"skautis/skautis": "dev-master"``)
 
 
 ## Základní nastavení
@@ -60,6 +61,12 @@ $skautIS->setToken($_POST['skautIS_Token']);
 $skautIS->setRoleId($_POST['skautIS_IDRole']);
 $skautIS->setUnitId($_POST['skautIS_IDUnit']);
 ```
+nebo 
+```php
+<?php
+$skautIS->setLoginData($_POST['skautIS_Token'], $_POST['skautIS_IDRole'], $_POST['skautIS_IDUnit']);
+```
+
 ## Získání dat ze SkautISu
 ```php
 <?php

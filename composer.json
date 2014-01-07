@@ -2,8 +2,16 @@
     "name": "skautis/skautis",
     "description": "Library for API calls to SkautIS",
     "minimum-stability": "stable",
+    "homepage": "https://github.com/sinacek/SkautIS",
     "type": "library",
     "keywords": ["skautis", "api"],
+    
+    "authors": [
+		{
+			"name": "František Hána",
+			"homepage": "http://sinacek.cz"
+		}
+	],
 
     "support": {
         "wiki": "http://is.skaut.cz/napoveda/",
