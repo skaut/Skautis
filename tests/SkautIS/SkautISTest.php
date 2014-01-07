@@ -6,8 +6,7 @@ use SkautIS\SkautIS;
 
 class SkautISTest extends \PHPUnit_Framework_TestCase {
 
-    public function testSingleton()
-    {
+    public function testSingleton() {
         $skautISA = SkautIS::getInstance();
         $skautISB = SkautIS::getInstance();
 
@@ -22,7 +21,7 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         $this->assertInternalType('array', $wdlList);
         $this->assertTrue(count($wdlList) > 0);
 
-        foreach ($wdlList    as $key => $value) {
+        foreach ($wdlList as $key => $value) {
             $this->assertSame($key, $value);
         }
     }
@@ -41,6 +40,33 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
 
         $skautIS->setTestMode(true);
         $this->assertSame($userA, $skautIS->user);
+    }
+
+    public function testSetLoginData() {
+        $skautIS = SkautIS::getInstance();
+        $skautIS->setLoginData("token", 33, 100);
+        $this->assertEquals("token", $skautIS->getToken());
+        $this->assertEquals(33, $skautIS->getRoleId());
+        $this->assertEquals(100, $skautIS->getUnitId());
+
+        $skautIS->setUnitId(11);
+        $this->assertEquals(11, $skautIS->getUnitId());
+
+        $skautIS->setRoleId(44);
+        $this->assertEquals(44, $skautIS->getRoleId());
+
+        $skautIS->setUnitId(200);
+        $this->assertEquals(200, $skautIS->getUnitId());
+        
+        $skautIS->resetLoginData();
+        $this->assertNull($skautIS->getToken());
+        $this->assertEquals(0, $skautIS->getRoleId());
+        $this->assertEquals(0, $skautIS->getUnitId());
+    }
+
+    public function testIsLoggedIn() {
+        $skautIS = SkautIS::getInstance();
+        $this->assertFalse($skautIS->isLoggedIn());
     }
 
 }
