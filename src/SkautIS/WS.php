@@ -5,6 +5,7 @@ namespace SkautIS;
 use SkautIS\Exception\AuthenticationException,
     SkautIS\Exception\AbortException,
     SkautIS\Exception\WsdlException,
+    SkautIS\Exception\PermissionException,
     SoapFault,
     stdClass,
     SoapClient;
@@ -90,6 +91,9 @@ class WS extends SoapClient {
             //$presenter = Environment::getApplication()->getPresenter();
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException();
+            }
+            if (preg_match('/Nemáte oprávnění/', $e->getMessage())) {
+                throw new PermissionException($e->getMessage(), $e->getCode(), $e->getPrevious());
             }
             //dump($e);
             throw new WsdlException($e->getMessage());
