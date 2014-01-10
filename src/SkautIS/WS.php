@@ -10,7 +10,7 @@ use SkautIS\Exception\AuthenticationException,
     SoapClient;
 
 /**
- * @author sinacek
+ * @author Hána František <sinacek@gmail.com>
  */
 class WS extends SoapClient {
 

@@ -2,11 +2,10 @@
 
 namespace SkautIS\Exception;
 
-
 /**
- * @todo nevyuzita trida
+ * @author Hána František <sinacek@gmail.com>
  * nepovolený přístup ze strany SkautISu
  */
-class PermissionException extends BaseException
-{
+class PermissionException extends BaseException {
+    
 }

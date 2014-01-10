@@ -8,7 +8,7 @@ use SkautIS\Exception\WsdlException;
 use Exception;
 
 /**
- * @author sinacek
+ * @author Hána František <sinacek@gmail.com>
  * Singleton
  */
 class SkautIS {
@@ -59,7 +59,7 @@ class SkautIS {
         "Telephony" => null,
         "Welcome" => null,
     );
-    
+
     /**
      * pole aktivních SkautIS_WS
      * @var array(SkautIS_WS)
@@ -169,8 +169,8 @@ class SkautIS {
         if (!$isTypeOk) {
             throw new InvalidArgumentException();
         }
-        
-        if($leaveValues){
+
+        if ($leaveValues) {
             $storage->init[self::APP_ID] = $this->getAppId();
             $storage->init[self::TOKEN] = $this->getToken();
             $storage->data[self::ID_ROLE] = $this->getRoleId();
@@ -178,7 +178,7 @@ class SkautIS {
         }
         $this->perStorage = $storage;
     }
-    
+
 // </editor-fold>
 
     private function __construct() {
@@ -188,7 +188,7 @@ class SkautIS {
             $this->setAppId(SkautIS_ID_Application);
         }
     }
-    
+
     /**
      * Singleton
      * @var string $appId nastavení appId (nepovinné)
@@ -278,10 +278,9 @@ class SkautIS {
      * @return bool
      */
     public function isLoggedIn() {
-        try{
+        try {
             $this->updateLogoutTime();
-        }
-        catch(Exception $ex){
+        } catch (Exception $ex) {
             return false;
         }
         return true;
@@ -301,20 +300,20 @@ class SkautIS {
     function checkLoginToken() {
         return $this->isLoggedIn();
     }
-    
+
     /**
      * hromadne nastaveni po prihlaseni
      */
-    public function setLoginData($token = NULL, $roleId = NULL, $unitId = NULL){
+    public function setLoginData($token = NULL, $roleId = NULL, $unitId = NULL) {
         $this->setToken($token);
         $this->setRoleId($roleId);
         $this->setUnitId($unitId);
     }
-    
+
     /**
      * hromadny reset dat po odhlaseni
      */
-    public function resetLoginData(){
+    public function resetLoginData() {
         $this->setLoginData();
     }
 
