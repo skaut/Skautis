@@ -12,6 +12,7 @@ use Exception;
  * Singleton
  */
 class SkautIS {
+
 // <editor-fold defaultstate="collapsed" desc="vars">
 
     const APP_ID = "ID_Application";
@@ -45,18 +46,21 @@ class SkautIS {
      * @var array
      */
     private $wsdl = array(
-        "UserManagement" => null,
-        "OrganizationUnit" => null,
-        "Events" => null,
         "ApplicationManagement" => null,
+        "ContentManagement" => null,
         "Evaluation" => null,
+        "Events" => null,
         "Exports" => null,
         "GoogleApps" => null,
         "Journal" => null,
         "Message" => null,
+        "OrganizationUnit" => null,
+        "Power" => null,
         "Reports" => null,
         "Summary" => null,
         "Telephony" => null,
+        "UserManagement" => null,
+        "Vivant" => null,
         "Welcome" => null,
     );
 
