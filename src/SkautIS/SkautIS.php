@@ -53,6 +53,7 @@ class SkautIS {
         "Exports" => null,
         "GoogleApps" => null,
         "Journal" => null,
+        "Material" => null,
         "Message" => null,
         "OrganizationUnit" => null,
         "Power" => null,
