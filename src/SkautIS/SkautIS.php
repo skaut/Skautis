@@ -90,6 +90,20 @@ class SkautIS {
      * @var array|\ArrayAccess
      */
     private $perStorage;
+    
+    /**
+     *
+     * @var array
+     */
+    public $onEvent;
+    
+    /**
+     *
+     * @var bool
+     */
+    public $profiler;
+    
+    
 
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="getters & setters">
@@ -200,7 +214,7 @@ class SkautIS {
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
      * @return SkautIS
      */
-    public static function getInstance($appId = NULL, $testMode = false) {
+    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE) {
         if (!(self::$instance instanceof self)) {
             self::$instance = new self;
         }
@@ -210,6 +224,7 @@ class SkautIS {
         }
 
         self::$instance->setTestMode($testMode);
+        self::$instance->profiler = $profiler;
 
         return self::$instance;
     }
@@ -233,7 +248,10 @@ class SkautIS {
 
         if (!isset($this->active[$wsdlKey])) {
             $wsdl = $this->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
-            $this->active[$wsdlKey] = new WS($wsdl, $this->perStorage->init, $this->compression);
+            $this->active[$wsdlKey] = new WS($wsdl, $this->perStorage->init, $this->compression, $this->profiler);
+            if($this->profiler){
+                $this->active[$wsdlKey]->onEvent = $this->onEvent;
+            }
         }
         return $this->active[$wsdlKey];
     }

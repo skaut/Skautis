@@ -6,6 +6,7 @@ use SkautIS\Exception\AuthenticationException,
     SkautIS\Exception\AbortException,
     SkautIS\Exception\WsdlException,
     SkautIS\Exception\PermissionException,
+    SkautIS\Nette\SkautisQuery,
     SoapFault,
     stdClass,
     SoapClient;
@@ -21,19 +22,30 @@ class WS extends SoapClient {
      * @var array
      */
     private $init;
+    public $onEvent;
+    public $profiler;
 
-    public function __construct($wsdl, array $init, $compression = TRUE) {
+    public function __construct($wsdl, array $init, $compression = TRUE, $profiler = FALSE) {
         $this->init = $init;
-        if (!isset($wsdl))
+        $this->profiler = $profiler;
+        if (!isset($wsdl)) {
             throw new AbortException("WSDL musí být nastaven");
+        }
         $soapOpts['encoding'] = 'utf-8';
         $soapOpts['soap_version'] = SOAP_1_2;
-        if ($compression === TRUE)
+        if ($compression === TRUE) {
             $soapOpts['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
+        }
         parent::__construct($wsdl, $soapOpts);
     }
 
     public function __call($function_name, $arguments) {
+        if (array_key_exists($function_name, get_class_vars(__CLASS__))) {
+            foreach ($this->onEvent as $f) {
+                call_user_func_array($f, $arguments);
+            }
+            return;
+        }
         return $this->__soapCall($function_name, $arguments);
     }
 
@@ -52,11 +64,6 @@ class WS extends SoapClient {
         }
 
         $args = array_merge($this->init, $arguments[0]); //k argumentum připoji vlastni informace o aplikaci a uzivateli
-//        foreach ($args as $key => $value) {//smaže hodnotu kdyz není vyplněna
-//            if ($value == NULL)
-//                unset($args[$key]);
-//        }
-//Debugger::log(Debugger::dump($args,true), "My");
         //cover
         if (isset($arguments[1]) && $arguments[1] !== null) {//pokud je zadan druhy parametr tak lze prejmenovat obal dat
             $matches = preg_split('~/~', $arguments[1]); //rozdeli to na stringy podle /
@@ -73,29 +80,34 @@ class WS extends SoapClient {
         }
 
         try {
+            if($this->profiler){
+                $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            }
             $ret = parent::__soapCall($fname, $args);
-//            if(Strings::startsWith($fname, "EventCamp"))
-//                Debugger::log(Debugger::dump($args, TRUE), "to");
+
             //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
             if (isset($ret->{$fname . "Result"})) {
                 if (isset($ret->{$fname . "Result"}->{$fname . "Output"})) {
                     if ($ret->{$fname . "Result"}->{$fname . "Output"} instanceof stdClass) { //vraci pouze jednu hodnotu misto pole?
-                        return array($ret->{$fname . "Result"}->{$fname . "Output"}); //vraci pole se stdClass
+                        $ret = array($ret->{$fname . "Result"}->{$fname . "Output"}); //vraci pole se stdClass
+                    } else {
+                        $ret = $ret->{$fname . "Result"}->{$fname . "Output"}; //vraci pole se stdClass
                     }
-                    return $ret->{$fname . "Result"}->{$fname . "Output"}; //vraci pole se stdClass
+                } else {
+                    $ret = $ret->{$fname . "Result"}; //neobsahuje $fname.Output
                 }
-                return $ret->{$fname . "Result"}; //neobsahuje $fname.Output
+            }
+            if($this->profiler){
+                $this->onEvent($query->done($ret));
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
-            //$presenter = Environment::getApplication()->getPresenter();
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException();
             }
             if (preg_match('/Nemáte oprávnění/', $e->getMessage())) {
                 throw new PermissionException($e->getMessage(), $e->getCode(), $e->getPrevious());
             }
-            //dump($e);
             throw new WsdlException($e->getMessage());
         }
     }
