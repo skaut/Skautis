@@ -1,0 +1,9 @@
+extensions:
+    skautis: SkautIS\Nette\SkautisExtension22 # yourNameOfExtension : SkautIS\Nette\SkautisExtension22
+
+skautis:
+    applicationId : abcd-...-abcd #ID_Aplication assigned by skautis administrator
+    testMode : true #using http://test-is.skaut.cz/
+    profiler: true
+
+# using in presenter: $this->context->skautis->... , where skautis is your name of extension(yourNameOfExtension) => $this->context->yourNameOfExtension->...

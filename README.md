@@ -16,10 +16,10 @@ Composer je balíčkovací systém usnadňující práci s knihovnami, Detailně
 #### Krátký návod
 
 * stáhněte composer z getcomposer.com
-* pomocí konzole spusťte příkaz ``composer require skautis/skautis:dev-master``
+* pomocí konzole spusťte příkaz ``composer require skautis/skautis:1.1``
 * pomocí konzole nainstalujte závislosti ``composer install``
 
-(do souboru ``composer.json`` stačí přidat ``"skautis/skautis": "dev-master"``)
+(do souboru ``composer.json`` stačí přidat ``"skautis/skautis": "1.1"``)
 
 
 ## Základní nastavení
