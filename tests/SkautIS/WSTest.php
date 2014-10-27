@@ -4,14 +4,11 @@ namespace Test\SkautIS;
 
 class WSTest extends \PHPUnit_Framework_TestCase {
 
-  public function testWSConstructMissingWsdl() {
-    try {
-      $ws = new \SkautIS\WS();
-    }
-    catch (\Exception $e) {
-      return;
-    }
 
-    $this->fail('Ws se vytvori i bez $WSDL');
+  /**
+   * @expectedException SkautIS\Exception\AbortException
+   */
+  public function testWSConstructMissingWsdl() {
+    $ws = new \SkautIS\WS("", array());
   }
 }
