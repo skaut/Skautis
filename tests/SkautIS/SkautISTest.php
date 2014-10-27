@@ -57,7 +57,7 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
 
         $skautIS->setUnitId(200);
         $this->assertEquals(200, $skautIS->getUnitId());
-        
+
         $skautIS->resetLoginData();
         $this->assertNull($skautIS->getToken());
         $this->assertEquals(0, $skautIS->getRoleId());

@@ -90,20 +90,20 @@ class SkautIS {
      * @var array|\ArrayAccess
      */
     private $perStorage;
-    
+
     /**
      *
      * @var array
      */
     public $onEvent;
-    
+
     /**
      *
      * @var bool
      */
     public $profiler;
-    
-    
+
+
 
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="getters & setters">
