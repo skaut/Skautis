@@ -13,26 +13,20 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($skautISA, $skautISB);
     }
 
+    /**
+     * @expectedException SkautIS\Exception\InvalidArgumentException
+     * @expectedExceptionRegExp / .*test.*mode.* /
+     */
     public function testWrongArgumentTestMode() {
-	try {
-	  $SkautIS = SkautIS::getInstance("app_id", "wrong arg");
-	}
-	catch (\Exception $e) {
-	  return;
-	}
-
-	$this->fail('SkautIS::getInstance accepts wrong $testMode argument');
+       $skautis = SkautIS::getInstance("app_id", "wrong arg");
     }
 
+    /**
+     * @expectedException SkautIS\Exception\InvalidArgumentException
+     * @expectedExceptionRegExp / .*profiler.* /
+     */
     public function testWrongArgumentProfiler() {
-	try {
-	  $SkautIS = SkautIS::getInstance("app_id", false, "asd");
-	}
-	catch (\Exception $e) {
-	  return;
-	}
-
-	$this->fail('SkautIS::getInstance accepts wrong $profiler argument');
+       $SkautIS = SkautIS::getInstance("app_id", false, "asd");
     }
 
 

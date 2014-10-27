@@ -34,7 +34,7 @@ class WS extends SoapClient {
     public function __construct($wsdl, array $init, $compression = TRUE, $profiler = FALSE) {
         $this->init = $init;
         $this->profiler = $profiler;
-        if (!isset($wsdl)) {
+        if (empty($wsdl)) {
             throw new AbortException("WSDL musí být nastaven");
         }
         $soapOpts['encoding'] = 'utf-8';
