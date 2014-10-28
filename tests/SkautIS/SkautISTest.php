@@ -13,6 +13,23 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($skautISA, $skautISB);
     }
 
+    /**
+     * @expectedException SkautIS\Exception\InvalidArgumentException
+     * @expectedExceptionRegExp / .*test.*mode.* /
+     */
+    public function testWrongArgumentTestMode() {
+       $skautis = SkautIS::getInstance("app_id", "wrong arg");
+    }
+
+    /**
+     * @expectedException SkautIS\Exception\InvalidArgumentException
+     * @expectedExceptionRegExp / .*profiler.* /
+     */
+    public function testWrongArgumentProfiler() {
+       $SkautIS = SkautIS::getInstance("app_id", false, "asd");
+    }
+
+
     public function testGetWsdlList() {
 
         $skautIS = SkautIS::getInstance();
@@ -57,7 +74,7 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
 
         $skautIS->setUnitId(200);
         $this->assertEquals(200, $skautIS->getUnitId());
-        
+
         $skautIS->resetLoginData();
         $this->assertNull($skautIS->getToken());
         $this->assertEquals(0, $skautIS->getRoleId());

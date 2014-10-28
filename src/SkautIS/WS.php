@@ -25,10 +25,16 @@ class WS extends SoapClient {
     public $onEvent;
     public $profiler;
 
+    /**
+     * @var mixed $wdl Odkaz na WSDL soubor
+     * @var array $init Zakladni informace pro vsechny pozadavky
+     * @var bool $compression Ma pouzivat kompresi na prenasena data?
+     * @var bool $profiler Ma uklada data pro profilovani?
+     */
     public function __construct($wsdl, array $init, $compression = TRUE, $profiler = FALSE) {
         $this->init = $init;
         $this->profiler = $profiler;
-        if (!isset($wsdl)) {
+        if (empty($wsdl)) {
             throw new AbortException("WSDL musí být nastaven");
         }
         $soapOpts['encoding'] = 'utf-8';
