@@ -22,7 +22,7 @@ class WS extends SoapClient {
      * @var array
      */
     private $init;
-    public $onEvent;
+    public $onEvent = array();
     public $profiler;
 
     /**
