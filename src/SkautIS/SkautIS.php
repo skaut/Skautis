@@ -90,20 +90,20 @@ class SkautIS {
      * @var array|\ArrayAccess
      */
     private $perStorage;
-    
+
     /**
      *
      * @var array
      */
     public $onEvent;
-    
+
     /**
      *
      * @var bool
      */
     public $profiler;
-    
-    
+
+
 
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="getters & setters">
@@ -212,9 +212,20 @@ class SkautIS {
      * Singleton
      * @var string $appId nastavení appId (nepovinné)
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
+     * @var bool $profiler ma uchovavat data pro profilovani?
+     *
      * @return SkautIS
+     * @throws InvalidArgumentException
      */
     public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE) {
+        if (!is_bool($testMode)) {
+	    throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode));
+	}
+
+	if (!is_bool($profiler)) {
+	    throw new InvalidArgumentException('Argument $profiler ma spatnou hodnotu: ' . print_r($profiler));
+	}
+
         if (!(self::$instance instanceof self)) {
             self::$instance = new self;
         }
