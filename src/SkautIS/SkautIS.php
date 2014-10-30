@@ -95,7 +95,7 @@ class SkautIS {
      *
      * @var array
      */
-    public $onEvent;
+    public $onEvent = array();
 
     /**
      *
