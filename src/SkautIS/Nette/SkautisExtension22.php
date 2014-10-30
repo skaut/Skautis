@@ -13,12 +13,12 @@ class SkautisExtension22 extends Nette\DI\CompilerExtension {
 
     public function loadConfiguration() {
         $container = $this->getContainerBuilder();
-        $config = $this->getConfig(array("applicationId"=>NULL, "testMode"=>NULL, "profiler"=>NULL));
+        $config = $this->getConfig(array("applicationId"=>NULL, "testMode"=>NULL, "profiler"=>true));
         
         $skautisService = $container->addDefinition("skautis")
                 ->setFactory('SkautIS\SkautIS::getInstance', array($config['applicationId'], $config['testMode'], $config['profiler']));
 
-        if (class_exists('Tracy\Debugger') && $container->parameters['debugMode']) {
+        if (class_exists('Tracy\Debugger') && $container->parameters['debugMode'] && $config['profiler'] != false) {
             $panel = $container->addDefinition($this->prefix('panel'))
                     ->setClass('SkautIS\Nette\Tracy\Panel');
             $skautisService->addSetup(array($panel, 'register'), array($skautisService));
