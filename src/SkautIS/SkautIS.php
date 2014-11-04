@@ -219,11 +219,11 @@ class SkautIS {
      */
     public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE) {
         if (!is_bool($testMode)) {
-	    throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode));
+	    throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
 	}
 
 	if (!is_bool($profiler)) {
-	    throw new InvalidArgumentException('Argument $profiler ma spatnou hodnotu: ' . print_r($profiler));
+	    throw new InvalidArgumentException('Argument $profiler ma spatnou hodnotu: ' . print_r($profiler, TRUE));
 	}
 
         if (!(self::$instance instanceof self)) {
