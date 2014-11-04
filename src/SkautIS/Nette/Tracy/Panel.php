@@ -10,7 +10,7 @@ use Tracy,
  *
  * @author     Hána František
  */
-class Panel extends \DibiObject implements Tracy\IBarPanel {
+class Panel extends \Nette\Object implements Tracy\IBarPanel {
 
     /** @var array */
     private $queries = array();
