@@ -258,13 +258,16 @@ class SkautIS {
         }
 
         if (!isset($this->active[$wsdlKey])) {
-            $wsdl = $this->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
-            $this->active[$wsdlKey] = new WS($wsdl, $this->perStorage->init, $this->compression, $this->profiler);
-            if($this->profiler){
+            $this->active[$wsdlKey] = new WS($this->getWsdlUri($wsdlName), $this->perStorage->init, $this->compression, $this->profiler);
+            if ($this->profiler) {
                 $this->active[$wsdlKey]->onEvent = $this->onEvent;
             }
         }
         return $this->active[$wsdlKey];
+    }
+
+    protected function getWsdlUri($wsdlName) {
+        return $this->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
     }
 
     /**
@@ -360,6 +363,17 @@ class SkautIS {
         $wsdlNames = array_keys($this->wsdl);
 
         return array_combine($wsdlNames, $wsdlNames);
+    }
+
+    /**
+     * ověřuje, zda je skautis odstaven pro údržbu
+     * @return boolean
+     */
+    public function isMaintenance() {
+        if ((@simplexml_load_file($this->getWsdlUri("UserManagement"))->wsdl) === null) {
+            return TRUE;
+        }
+        return FALSE;
     }
 
 }
