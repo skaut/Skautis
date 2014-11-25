@@ -103,8 +103,6 @@ class SkautIS {
      */
     public $profiler;
 
-
-
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="getters & setters">
 
@@ -219,12 +217,12 @@ class SkautIS {
      */
     public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE) {
         if (!is_bool($testMode)) {
-	    throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
-	}
+            throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
+        }
 
-	if (!is_bool($profiler)) {
-	    throw new InvalidArgumentException('Argument $profiler ma spatnou hodnotu: ' . print_r($profiler, TRUE));
-	}
+        if (!is_bool($profiler)) {
+            throw new InvalidArgumentException('Argument $profiler ma spatnou hodnotu: ' . print_r($profiler, TRUE));
+        }
 
         if (!(self::$instance instanceof self)) {
             self::$instance = new self;
@@ -359,9 +357,7 @@ class SkautIS {
      * @return array
      */
     public function getWsdlList() {
-
         $wsdlNames = array_keys($this->wsdl);
-
         return array_combine($wsdlNames, $wsdlNames);
     }
 
