@@ -2,6 +2,8 @@
 
 namespace SkautIS;
 
+use SkautIS\Factory\WSFactory;
+use SkautIS\Factory\BasicWSFactory;
 use SkautIS\Exception\AbortException;
 use SkautIS\Exception\InvalidArgumentException;
 use SkautIS\Exception\WsdlException;
@@ -103,6 +105,11 @@ class SkautIS {
      */
     public $profiler;
 
+    /**
+     * @var WSFactory
+     */
+    protected $wsFactory = NULL;
+
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="getters & setters">
 
@@ -201,6 +208,10 @@ class SkautIS {
     private function __construct() {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
 
+        if ($this->wsFactory === NULL) {
+            $this->wsFactory = new BasicWSFactory();
+        }
+
         if (defined("SkautIS_ID_Application")) {
             $this->setAppId(SkautIS_ID_Application);
         }
@@ -215,7 +226,7 @@ class SkautIS {
      * @return SkautIS
      * @throws InvalidArgumentException
      */
-    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE) {
+    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, $wsFactory = NULL) {
         if (!is_bool($testMode)) {
             throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
         }
@@ -234,6 +245,11 @@ class SkautIS {
 
         self::$instance->setTestMode($testMode);
         self::$instance->profiler = $profiler;
+
+        if ($wsFactory !== NULL) {
+            self::$instance->wsFactory = $wsFactory;
+        }
+
 
         return self::$instance;
     }
@@ -256,7 +272,7 @@ class SkautIS {
         }
 
         if (!isset($this->active[$wsdlKey])) {
-            $this->active[$wsdlKey] = new WS($this->getWsdlUri($wsdlName), $this->perStorage->init, $this->compression, $this->profiler);
+            $this->active[$wsdlKey] = $this->wsFactory->createWS($this->getWsdlUri($wsdlName), $this->perStorage->init, $this->compression, $this->profiler);
             if ($this->profiler) {
                 $this->active[$wsdlKey]->onEvent = $this->onEvent;
             }
@@ -372,4 +388,13 @@ class SkautIS {
         return FALSE;
     }
 
+    /**
+     * Nastavi WSFactory
+     *
+     * @param $wsFactory WSFactory
+     */
+    public function setWSFactory(WSFactory $wsFactory)
+    {
+        $this->wsFactory = $wsFactory;
+    }
 }
