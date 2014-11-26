@@ -5,7 +5,7 @@ namespace SkautIS\Factory;
 use SkautIS\WS;
 
 /**
- * Trida umoznujici pouziti vlastni WS tridy se trdidou SkautIS
+ * Trida umoznujici pouziti vlastni tridy WS se tridou SkautIS
  */
 abstract class WSFactory {
 

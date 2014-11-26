@@ -69,7 +69,6 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($wsB, $eventB);
     }
 
-
     public function testSetLoginData() {
         $skautIS = SkautIS::getInstance();
         $skautIS->setLoginData("token", 33, 100);
