@@ -43,21 +43,32 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         }
     }
 
-    public function test__get() {
+    public function testMagicMethodGet() {
+        $wsA = new \StdClass;
+        $wsB = new \StdClass;
+
+        $factory = \Mockery::mock("\SkautIS\Factory\WSFactory");
+        $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
 
         $skautIS = \SkautIS\SkautIS::getInstance("123");
+        $skautIS->setWSFactory($factory);
 
 
         $skautIS->setTestMode(true);
-        $userA = $skautIS->user;
-        $this->assertSame($userA, $skautIS->user);
+        $eventA = $skautIS->event;
+        $this->assertSame($eventA, $skautIS->event);
 
         $skautIS->setTestMode(false);
-        $this->assertNotSame($userA, $skautIS->user);
+        $this->assertNotSame($eventA, $skautIS->event);
+        $eventB = $skautIS->event;
 
         $skautIS->setTestMode(true);
-        $this->assertSame($userA, $skautIS->user);
+        $this->assertSame($eventA, $skautIS->event);
+
+        $this->assertSame($wsA, $eventA);
+        $this->assertSame($wsB, $eventB);
     }
+
 
     public function testSetLoginData() {
         $skautIS = SkautIS::getInstance();
@@ -82,8 +93,16 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testIsLoggedIn() {
-        $skautIS = SkautIS::getInstance();
-        $this->assertFalse($skautIS->isLoggedIn());
-    }
+        $ws = \Mockery::mock("\SkautIS\WS");
+        $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn();
 
+
+        $factory = \Mockery::mock("\SkautIS\Factory\WSFactory");
+        $factory->shouldReceive("createWS")->with()->once()->andReturn($ws);
+
+        $skautIS = SkautIS::getInstance();
+        $skautIS->setWSFactory($factory);
+
+        $this->assertTrue($skautIS->isLoggedIn());
+    }
 }
