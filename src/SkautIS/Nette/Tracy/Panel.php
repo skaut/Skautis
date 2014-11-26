@@ -86,12 +86,10 @@ class Panel extends \Nette\Object implements Tracy\IBarPanel {
     protected function prepareTrace(array $trace) {
         $s = '<a href="#"class="tracy-toggle tracy-collapsed">Trace</a><div class="tracy-collapsed">';
         $cnt = 0;
-        $previousLine = "";
         foreach ($trace as $f) {
-            $s .= "" . ++$cnt . ". " . $f['function'] . " (" . $f['class'] . ": " . $previousLine . ")" . '<br />';
-            $previousLine = $f['line'];
+            $s .= "" . ++$cnt . ". " . $f['function'] . " (" . $f['class'] . (array_key_exists("line", $f) ? ": " . $f['line'] : "") . ")" . '<br />';
         }
-        return $s."</div>";
+        return $s . "</div>";
     }
 
 }
