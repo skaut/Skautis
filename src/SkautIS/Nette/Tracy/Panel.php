@@ -63,6 +63,7 @@ class Panel extends \Nette\Object implements Tracy\IBarPanel {
      */
     public function getPanel() {
         $cnt = 0;
+        $s = "";
         foreach ($this->queries as $q) {
             $s .= "<tr><td>" . sprintf('%0.2f', $q->time * 1000) . "</td>"
                     . "<td>" . $q->fname . "(<a href='#tracy-debug-Skautis-args-row-$cnt' class='tracy-toggle tracy-collapsed' rel='#tracy-debug-Skautis-args-row-$cnt'>Args</a>)"
