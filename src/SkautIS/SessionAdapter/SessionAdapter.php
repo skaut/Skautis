@@ -17,6 +17,7 @@ class SessionAdapter implements AdapterInterface
 
     public function __construct()
     {
+	$_SESSION["__" . __CLASS__] = array();
 	$this->session = &$_SESSION["__" . __CLASS__];
     }
 

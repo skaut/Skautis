@@ -4,6 +4,8 @@ namespace SkautIS;
 
 use SkautIS\Factory\WSFactory;
 use SkautIS\Factory\BasicWSFactory;
+use SkautIS\SessionAdapter\AdapterInterface;
+use SkautIS\SessionAdapter\SessionAdapter;
 use SkautIS\Exception\AbortException;
 use SkautIS\Exception\InvalidArgumentException;
 use SkautIS\Exception\WsdlException;
@@ -23,6 +25,7 @@ class SkautIS {
     const ID_UNIT = "ID_Unit";
     const HTTP_PREFIX_TEST = "http://test-is";
     const HTTP_PREFIX = "https://is";
+    CONST SESSION_ID = "skautis_library_data";
 
     /**
      * sigleton
@@ -89,7 +92,7 @@ class SkautIS {
      * persistentní pole
      * ['init'] - obsahuje self::APP_ID a self::TOKEN
      * ['data'] - obsahuje cokoliv dalšího
-     * @var array|\ArrayAccess
+     * @var \StdClass
      */
     private $perStorage;
 
@@ -109,6 +112,11 @@ class SkautIS {
      * @var WSFactory
      */
     protected $wsFactory = NULL;
+
+    /**
+    * @var AdapterInterface
+    */
+    protected $sessionAdapter;
 
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="getters & setters">
@@ -186,35 +194,54 @@ class SkautIS {
      * @param array|\ArrayAccess $storage
      * @param boolean $leaveValues
      * @throws InvalidArgumentException
+     * @deprecated
      */
     public function setStorage(&$storage, $leaveValues = false) {
+	throw new \BadFunctionCallException("Tato funkce jiz neni podporovana, pouzijte SessionAdapter");
+    }
 
-        $isTypeOk = gettype($storage) === "array" || $storage instanceof \ArrayAccess;
-        if (!$isTypeOk) {
-            throw new InvalidArgumentException();
-        }
-
-        if ($leaveValues) {
-            $storage->init[self::APP_ID] = $this->getAppId();
-            $storage->init[self::TOKEN] = $this->getToken();
-            $storage->data[self::ID_ROLE] = $this->getRoleId();
-            $storage->data[self::ID_UNIT] = $this->getUnitId();
-        }
-        $this->perStorage = $storage;
+    /**
+     * Inicializuje $this->perStorage
+     */
+    protected function initEmptyConfig() {
+	$this->perStorage = new \StdClass();
+	$this->perStorage->init = array();
+	$this->perStorage->data = array();
     }
 
 // </editor-fold>
 
-    private function __construct() {
+    private function __construct(SessionAdapter $adapter = NULL, WSFactory $wsFactory = NULL) {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
 
-        if ($this->wsFactory === NULL) {
+        if ($wsFactory === NULL) {
             $this->wsFactory = new BasicWSFactory();
         }
 
         if (defined("SkautIS_ID_Application")) {
             $this->setAppId(SkautIS_ID_Application);
-        }
+	}
+
+
+
+	if ($adapter !== NULL) {
+	    $this->sessionAdapter = $adapter;
+
+	    if ($this->sessionAdapter->has(self::SESSION_ID)) {
+		$this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
+		return;
+	    }
+
+	    $this->initEmptyConfig();
+	    return;
+	}
+
+	$this->sessionAdapter = new SessionAdapter();
+        $this->initEmptyConfig();
+    }
+
+    function __destruct() {
+        $this->sessionAdapter->set(SELF::SESSION_ID, $this->perStorage);
     }
 
     /**
@@ -226,7 +253,7 @@ class SkautIS {
      * @return SkautIS
      * @throws InvalidArgumentException
      */
-    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, $wsFactory = NULL) {
+    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, SessionAdapter $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
         if (!is_bool($testMode)) {
             throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
         }
@@ -236,7 +263,7 @@ class SkautIS {
         }
 
         if (!(self::$instance instanceof self)) {
-            self::$instance = new self;
+            self::$instance = new self($sessionAdapter, $wsFactory);
         }
 
         if ($appId !== NULL) {
