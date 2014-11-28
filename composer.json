@@ -5,7 +5,7 @@
     "homepage": "https://github.com/sinacek/SkautIS",
     "type": "library",
     "keywords": ["skautis", "api"],
-    
+
     "authors": [
 		{
 			"name": "František Hána",
@@ -23,11 +23,18 @@
     },
 
     "require-dev": {
+	"nette/http": "2.2.*",
+	"symfony/http-foundation": "2.3.*",
         "phpunit/phpunit": "3.7.*",
         "mockery/mockery": "0.8.*"
     },
 
     "autoload": {
         "psr-0": { "SkautIS": "src/" }
+    },
+
+    "suggest": {
+	"nette/http": "Umoznuje pouziti Nette session",
+	"symfony/http-foundation": "Umoznuje pouziti Symfony session"
     }
 }
