@@ -17,33 +17,15 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 class SessionAdaptersTest extends \PHPUnit_Framework_TestCase
 {
-    public function sessionAdapterProvider()
-    {
-	$netteRequest = new Request(new UrlScript());
-	$netteResponse = new Response();
-	$netteSession = new Session($netteRequest, $netteResponse);
-	$netteAdapter = new NetteAdapter($netteSession);
-
-	$symfonySession = new SymfonySession(new MockArraySessionStorage());
-	$symfonyAdapter = new SymfonyAdapter($symfonySession);
-
-
-	$sessionAdapter = new SessionAdapter();
-
-	return array(
-		array($symfonyAdapter),
-		array($netteAdapter),
-	        array($sessionAdapter)
-	);
-    }
 
    /**
-    * @dataProvider sessionAdapterProvider
-    * Nette neumoznuje mocknout session, takze novej proces
     * @runInSeparateProcess
     */
-   public function testAdapter(AdapterInterface $adapter)
+   public function testAdapter()
    {
+
+	$adapter = new SessionAdapter();
+
 	$name = "asd";
 	$data = new \StdClass();
 
