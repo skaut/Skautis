@@ -241,7 +241,7 @@ class SkautIS {
     }
 
     function __destruct() {
-        $this->sessionAdapter->set(SELF::SESSION_ID, $this->perStorage);
+        $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
     }
 
     /**
