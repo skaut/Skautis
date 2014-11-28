@@ -14,7 +14,7 @@ Stáhnout zdrojové kódy a pomocí ``include``/``require`` vložit do webové a
 Composer je balíčkovací systém usnadňující práci s knihovnami, Detailnější informace najdete na [http://getcomposer.org/doc](http://getcomposer.org/doc/)
 
 * stáhněte composer z [http://getcomposer.com](http://getcomposer.com)
-* pomocí konzole spusťte příkaz ``composer require skautis/skautis:1.2``
+* pomocí konzole spusťte příkaz ``composer require skautis/skautis:1.2.*``
 * pomocí konzole nainstalujte závislosti ``composer install``
 
 ## Základní nastavení
