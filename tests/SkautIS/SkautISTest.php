@@ -3,6 +3,7 @@
 namespace Test\SkautIS;
 
 use SkautIS\SkautIS;
+use SkautIS\SessionAdapter\SessionAdapter;
 
 class SkautISTest extends \PHPUnit_Framework_TestCase {
 
@@ -103,5 +104,28 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         $skautIS->setWSFactory($factory);
 
         $this->assertTrue($skautIS->isLoggedIn());
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testSessionAdapter() {
+	session_start();
+	$adapter = new SessionAdapter();
+	$skautis = SkautIS::getInstance("id123", FALSE, FALSE, $adapter);
+	unset($skautis);
+
+
+	$skautis = SkautIS::getInstance(NULL, FALSE, FALSE, $adapter);
+	$this->assertSame("id123", $skautis->getAppId());
+	unset($adapter);
+
+	$sessionData = session_encode();
+	session_destroy();
+
+	session_decode($sessionData);
+	$adapterNew = new SessionAdapter();
+	$skautis = SkautIS::getInstance(NULL, FALSE, FALSE, $adapterNew);
+	$this->assertSame("id123", $skautis->getAppId());
     }
 }

@@ -5,7 +5,7 @@
     "homepage": "https://github.com/sinacek/SkautIS",
     "type": "library",
     "keywords": ["skautis", "api"],
-    
+
     "authors": [
 		{
 			"name": "František Hána",
@@ -29,5 +29,10 @@
 
     "autoload": {
         "psr-0": { "SkautIS": "src/" }
+    },
+
+    "suggest": {
+	"skautis/nette": "Integrace SkautIS do Nette",
+	"skautis/skautis-bundle": "Integrace SkautIS do Symfony"
     }
 }
