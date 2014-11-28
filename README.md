@@ -14,7 +14,7 @@ Stáhnout zdrojové kódy a pomocí ``include``/``require`` vložit do webové a
 Composer je balíčkovací systém usnadňující práci s knihovnami, Detailnější informace najdete na [http://getcomposer.org/doc](http://getcomposer.org/doc/)
 
 * stáhněte composer z [http://getcomposer.com](http://getcomposer.com)
-* pomocí konzole spusťte příkaz ``composer require skautis/skautis:1.2``
+* pomocí konzole spusťte příkaz ``composer require skautis/skautis:2.0.*``
 * pomocí konzole nainstalujte závislosti ``composer install``
 
 ## Základní nastavení
@@ -25,41 +25,8 @@ Před prvním dotazem na SkautIS musíme nastavit **Application_ID** jedinečné
 $skautis = SkautIS::getInstance("moje-application-id", $isTestMode = TRUE);
 ```
 
-nebo
-
-```php
-<?php
-$skautis = SkautIS::getInstance();
-$skautis->setAppId("moje-application-id");
-$skautis->setTestMode(FALSE);
-```
-
-nebo
-
-```php
-<?php
-define("SkautIS_ID_Application", "moje-application-id");
-$skautis = SkautIS::getInstance();
-```
-
-nebo
 ### Nette
-Pro připojení do Nette, stačí zaregistrovat rozšíření(extension) v konfiguračním souboru a nastavit ho.
-
-```
-extensions:
-    skautis: SkautIS\Nette\SkautisExtension22 # yourNameOfExtension : SkautIS\Nette\SkautisExtension22
-
-skautis:
-    applicationId : abcd-...-abcd #ID_Aplication assigned by skautis administrator
-    testMode : true #using http://test-is.skaut.cz/
-    profiler: true
-```
-Ukázkový konfigurační soubor najdete v adresáři repozitáže [src/SkautIS/Nette/config.sample.neon](https://github.com/sinacek/SkautIS/blob/master/src/SkautIS/Nette/config.sample.neon).
-
-Po registraci rozšíření se v testovacím modu Nette automaticky aktivuje skautis panel, který sleduje všechny dotazy na skautis.
-
-![Skautis panel pro ladění aplikace](skautis-panel.png)
+Pro připojení knihovny do Nette existuje rozšíření [skaut/SkautisNette](https://github.com/skaut/skautisNette), které ji při instalaci přes composer celou připojí a přidá debugovací panel.
 
 ## Přihlášení
 ```php
@@ -104,7 +71,6 @@ Již předdefinované aliasy:
 * org => OrganizationUnit
 * app => ApplicationManagement
 * event => events => Events
-* tel => Telephony
 
 Argumenty zadáváme v asociativním poli "nazev_atributu"=>"hodnota_atributu". Pokud je atribut ID_Login nastaven, je automaticky přidán ke všem požadavkům.
 
