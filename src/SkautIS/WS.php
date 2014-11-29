@@ -26,10 +26,10 @@ class WS extends SoapClient {
     public $profiler;
 
     /**
-     * @var mixed $wdl Odkaz na WSDL soubor
-     * @var array $init Zakladni informace pro vsechny pozadavky
-     * @var bool $compression Ma pouzivat kompresi na prenasena data?
-     * @var bool $profiler Ma uklada data pro profilovani?
+     * @param mixed $wdl Odkaz na WSDL soubor
+     * @param array $init Zakladni informace pro vsechny pozadavky
+     * @param bool $compression Ma pouzivat kompresi na prenasena data?
+     * @param bool $profiler Ma uklada data pro profilovani?
      */
     public function __construct($wsdl, array $init, $compression = TRUE, $profiler = FALSE) {
         $this->init = $init;
@@ -45,6 +45,9 @@ class WS extends SoapClient {
         parent::__construct($wsdl, $soapOpts);
     }
 
+    /**
+     * Magicka metoda starjici se spravne volani SOAP metod
+     */
     public function __call($function_name, $arguments) {
         if (array_key_exists($function_name, get_class_vars(__CLASS__))) {
             foreach ($this->onEvent as $f) {
@@ -56,9 +59,11 @@ class WS extends SoapClient {
     }
 
     /**
+     * Metoda provadejici SOAP pozadavek na servery SkautISu
      *
      * @param string $function_name
      * @param array $arguments ([0]=args [1]=cover)
+     *
      * @return type
      */
     public function __soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null) {

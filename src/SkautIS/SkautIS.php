@@ -386,7 +386,7 @@ class SkautIS {
     public function setLoginData($token = NULL, $roleId = NULL, $unitId = NULL) {
         $this->setToken($token);
         $this->setRoleId($roleId);
-	$this->setUnitId($unitId);
+        $this->setUnitId($unitId);
     }
 
     /**
@@ -426,6 +426,11 @@ class SkautIS {
         $this->wsFactory = $wsFactory;
     }
 
+    /**
+     * Ulozi nastaveni do session
+     *
+     * @return void
+     */
     protected function writeConfigToSession()
     {
         $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
