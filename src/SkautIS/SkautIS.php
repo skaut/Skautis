@@ -141,6 +141,7 @@ class SkautIS {
 
     public function setAppId($appId) {
         $this->perStorage->init[self::APP_ID] = $appId;
+        $this->writeConfigToSession();
         return $this;
     }
 
@@ -158,7 +159,8 @@ class SkautIS {
 
     public function setToken($token) {
         $this->perStorage->init[self::TOKEN] = $token;
-        $this->active = array(); //změnilo se přihlašování
+	$this->active = array(); //zmenilo se prihlašování
+	$this->writeConfigToSession();
         return $this;
     }
 
@@ -176,6 +178,7 @@ class SkautIS {
 
     public function setRoleId($roleId) {
         $this->perStorage->data[self::ID_ROLE] = (int) $roleId;
+        $this->writeConfigToSession();
         return $this;
     }
 
@@ -185,6 +188,7 @@ class SkautIS {
 
     public function setUnitId($unitId) {
         $this->perStorage->data[self::ID_UNIT] = (int) $unitId;
+        $this->writeConfigToSession();
         return $this;
     }
 
@@ -240,9 +244,6 @@ class SkautIS {
         $this->initEmptyConfig();
     }
 
-    function __destruct() {
-        $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
-    }
 
     /**
      * Singleton
@@ -277,7 +278,7 @@ class SkautIS {
             self::$instance->wsFactory = $wsFactory;
         }
 
-
+	self::$instance->writeConfigToSession();
         return self::$instance;
     }
 
@@ -385,7 +386,7 @@ class SkautIS {
     public function setLoginData($token = NULL, $roleId = NULL, $unitId = NULL) {
         $this->setToken($token);
         $this->setRoleId($roleId);
-        $this->setUnitId($unitId);
+	$this->setUnitId($unitId);
     }
 
     /**
@@ -423,5 +424,10 @@ class SkautIS {
     public function setWSFactory(WSFactory $wsFactory)
     {
         $this->wsFactory = $wsFactory;
+    }
+
+    protected function writeConfigToSession()
+    {
+        $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
     }
 }
