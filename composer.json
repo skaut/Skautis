@@ -36,7 +36,7 @@
     },
 
     "suggest": {
-	"skautis/nette": "Integrace SkautIS do Nette",
-	"skautis/skautis-bundle": "Integrace SkautIS do Symfony"
+	"skautis/nette": "Integrace Skautis do Nette",
+	"skautis/skautis-bundle": "Integrace Skautis do Symfony"
     }
 }
