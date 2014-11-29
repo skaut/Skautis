@@ -211,7 +211,7 @@ class SkautIS {
 
 // </editor-fold>
 
-    private function __construct(SessionAdapter $adapter = NULL, WSFactory $wsFactory = NULL) {
+    private function __construct(AdapterInterface $adapter = NULL, WSFactory $wsFactory = NULL) {
         $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
 
         if ($wsFactory === NULL) {
@@ -253,7 +253,7 @@ class SkautIS {
      * @return SkautIS
      * @throws InvalidArgumentException
      */
-    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, SessionAdapter $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
+    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
         if (!is_bool($testMode)) {
             throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
         }
