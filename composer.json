@@ -2,20 +2,24 @@
     "name": "skautis/skautis",
     "description": "Library for API calls to SkautIS",
     "minimum-stability": "stable",
-    "homepage": "https://github.com/sinacek/SkautIS",
+    "homepage": "https://github.com/skaut/Skautis",
     "type": "library",
     "keywords": ["skautis", "api"],
     
     "authors": [
 		{
 			"name": "František Hána",
-			"homepage": "http://sinacek.cz"
+			"homepage": "https://github.com/sinacek"
+		},
+                {
+			"name": "Jindřich Pilař",
+			"homepage": "https://github.com/JindrichPilar"
 		}
 	],
 
     "support": {
         "wiki": "http://is.skaut.cz/napoveda/",
-        "source": "https://github.com/sinacek/SkautIS"
+        "source": "https://github.com/skaut/SkautIS"
     },
 
     "require": {
