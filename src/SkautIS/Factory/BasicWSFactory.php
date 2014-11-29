@@ -1,20 +1,20 @@
 <?php
 
-namespace SkautIS\Factory;
+namespace Skautis\Factory;
 
-use SkautIS\Factory\WSFactory;
-use SkautIS\WS;
+use Skautis\Factory\WSFactory;
+use Skautis\WS;
 
 /**
  * @inheritdoc
  */
 class BasicWSFactory extends WSFactory {
 
-	/**
-	 * @inheritdoc
-	 */
-	public function createWS($wsdl, array $init, $compression, $profiler) {
-		return new WS($wsdl, $init, $compression, $profiler);
-	}
+    /**
+     * @inheritdoc
+     */
+    public function createWS($wsdl, array $init, $compression, $profiler) {
+        return new WS($wsdl, $init, $compression, $profiler);
+    }
 
 }

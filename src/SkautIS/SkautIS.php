@@ -1,21 +1,21 @@
 <?php
 
-namespace SkautIS;
+namespace Skautis;
 
-use SkautIS\Factory\WSFactory;
-use SkautIS\Factory\BasicWSFactory;
-use SkautIS\SessionAdapter\AdapterInterface;
-use SkautIS\SessionAdapter\SessionAdapter;
-use SkautIS\Exception\AbortException;
-use SkautIS\Exception\InvalidArgumentException;
-use SkautIS\Exception\WsdlException;
+use Skautis\Factory\WSFactory;
+use Skautis\Factory\BasicWSFactory;
+use Skautis\SessionAdapter\AdapterInterface;
+use Skautis\SessionAdapter\SessionAdapter;
+use Skautis\Exception\AbortException;
+use Skautis\Exception\InvalidArgumentException;
+use Skautis\Exception\WsdlException;
 use Exception;
 
 /**
  * @author Hána František <sinacek@gmail.com>
  * Singleton
  */
-class SkautIS {
+class Skautis {
 
 // <editor-fold defaultstate="collapsed" desc="vars">
 
@@ -29,7 +29,7 @@ class SkautIS {
 
     /**
      * sigleton
-     * @var SkautIS
+     * @var Skautis
      */
     private static $instance;
 
@@ -47,7 +47,7 @@ class SkautIS {
     );
 
     /**
-     * dostupné WSDL SkautISu
+     * dostupné WSDL Skautisu
      * @var array
      */
     private $wsdl = array(
@@ -71,8 +71,8 @@ class SkautIS {
     );
 
     /**
-     * pole aktivních SkautIS_WS
-     * @var array(SkautIS_WS)
+     * pole aktivních Skautis\WS
+     * @var array(Skautis\WS)
      */
     private $active = array();
 
@@ -83,7 +83,7 @@ class SkautIS {
     private $compression = TRUE;
 
     /**
-     * používat testovací skautIS?
+     * používat testovací Skautis?
      * @var bool
      */
     private $isTestMode = TRUE;
@@ -114,8 +114,8 @@ class SkautIS {
     protected $wsFactory = NULL;
 
     /**
-    * @var AdapterInterface
-    */
+     * @var AdapterInterface
+     */
     protected $sessionAdapter;
 
 // </editor-fold>
@@ -159,8 +159,8 @@ class SkautIS {
 
     public function setToken($token) {
         $this->perStorage->init[self::TOKEN] = $token;
-	$this->active = array(); //zmenilo se prihlašování
-	$this->writeConfigToSession();
+        $this->active = array(); //zmenilo se prihlašování
+        $this->writeConfigToSession();
         return $this;
     }
 
@@ -200,17 +200,17 @@ class SkautIS {
      * @throws InvalidArgumentException
      * @deprecated
      */
-    public function setStorage(&$storage, $leaveValues = false) {
-	throw new \BadFunctionCallException("Tato funkce jiz neni podporovana, pouzijte SessionAdapter");
+    public function setStorage(&$storage, $leaveValues = FALSE) {
+        throw new \BadFunctionCallException("Tato funkce jiz neni podporovana, pouzijte SessionAdapter");
     }
 
     /**
      * Inicializuje $this->perStorage
      */
     protected function initEmptyConfig() {
-	$this->perStorage = new \StdClass();
-	$this->perStorage->init = array();
-	$this->perStorage->data = array();
+        $this->perStorage = new \StdClass();
+        $this->perStorage->init = array();
+        $this->perStorage->data = array();
     }
 
 // </editor-fold>
@@ -224,26 +224,23 @@ class SkautIS {
 
         if (defined("SkautIS_ID_Application")) {
             $this->setAppId(SkautIS_ID_Application);
-	}
+        }
 
+        if ($adapter !== NULL) {
+            $this->sessionAdapter = $adapter;
 
+            if ($this->sessionAdapter->has(self::SESSION_ID)) {
+                $this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
+                return;
+            }
 
-	if ($adapter !== NULL) {
-	    $this->sessionAdapter = $adapter;
+            $this->initEmptyConfig();
+            return;
+        }
 
-	    if ($this->sessionAdapter->has(self::SESSION_ID)) {
-		$this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
-		return;
-	    }
-
-	    $this->initEmptyConfig();
-	    return;
-	}
-
-	$this->sessionAdapter = new SessionAdapter();
+        $this->sessionAdapter = new SessionAdapter();
         $this->initEmptyConfig();
     }
-
 
     /**
      * Singleton
@@ -251,7 +248,7 @@ class SkautIS {
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
      * @var bool $profiler ma uchovavat data pro profilovani?
      *
-     * @return SkautIS
+     * @return Skautis
      * @throws InvalidArgumentException
      */
     public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
@@ -278,7 +275,7 @@ class SkautIS {
             self::$instance->wsFactory = $wsFactory;
         }
 
-	self::$instance->writeConfigToSession();
+        self::$instance->writeConfigToSession();
         return self::$instance;
     }
 
@@ -360,9 +357,9 @@ class SkautIS {
         try {
             $this->updateLogoutTime();
         } catch (Exception $ex) {
-            return false;
+            return FALSE;
         }
-        return true;
+        return TRUE;
     }
 
     /**
@@ -406,7 +403,7 @@ class SkautIS {
     }
 
     /**
-     * ověřuje, zda je skautis odstaven pro údržbu
+     * ověřuje, zda je Skautis odstaven pro údržbu
      * @return boolean
      */
     public function isMaintenance() {
@@ -421,8 +418,7 @@ class SkautIS {
      *
      * @param $wsFactory WSFactory
      */
-    public function setWSFactory(WSFactory $wsFactory)
-    {
+    public function setWSFactory(WSFactory $wsFactory) {
         $this->wsFactory = $wsFactory;
     }
 
@@ -431,8 +427,8 @@ class SkautIS {
      *
      * @return void
      */
-    protected function writeConfigToSession()
-    {
+    protected function writeConfigToSession() {
         $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
     }
+
 }

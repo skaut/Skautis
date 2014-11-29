@@ -1,16 +1,11 @@
 <?php
 
-namespace SkautIS\SessionAdapter;
-
-use SkautIS\SessionAdapter\AdapterInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+namespace Skautis\SessionAdapter;
 
 /**
  * Interface umoznujici vytvoreni adapteru pro ruzne implementace Session
  */
-interface AdapterInterface
-{
-
+interface AdapterInterface {
 
     /**
      * Ulozi data do session
@@ -25,7 +20,6 @@ interface AdapterInterface
      * @return bool
      */
     public function has($name);
-
 
     /**
      * Ziska data ze session

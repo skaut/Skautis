@@ -1,12 +1,12 @@
 <?php
 
-namespace SkautIS;
+namespace Skautis;
 
-use SkautIS\Exception\AuthenticationException,
-    SkautIS\Exception\AbortException,
-    SkautIS\Exception\WsdlException,
-    SkautIS\Exception\PermissionException,
-    SkautIS\Nette\SkautisQuery,
+use Skautis\Exception\AuthenticationException,
+    Skautis\Exception\AbortException,
+    Skautis\Exception\WsdlException,
+    Skautis\Exception\PermissionException,
+    Skautis\Nette\SkautisQuery,
     SoapFault,
     stdClass,
     SoapClient;
@@ -59,7 +59,7 @@ class WS extends SoapClient {
     }
 
     /**
-     * Metoda provadejici SOAP pozadavek na servery SkautISu
+     * Metoda provadejici SOAP pozadavek na servery Skautisu
      *
      * @param string $function_name
      * @param array $arguments ([0]=args [1]=cover)
@@ -91,7 +91,7 @@ class WS extends SoapClient {
         }
 
         try {
-            if($this->profiler){
+            if ($this->profiler) {
                 $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
             }
             $ret = parent::__soapCall($fname, $args);
@@ -108,7 +108,7 @@ class WS extends SoapClient {
                     $ret = $ret->{$fname . "Result"}; //neobsahuje $fname.Output
                 }
             }
-            if($this->profiler){
+            if ($this->profiler) {
                 $this->onEvent($query->done($ret));
             }
             return $ret; //neobsahuje $fname.Result

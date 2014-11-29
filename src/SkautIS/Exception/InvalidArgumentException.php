@@ -1,6 +1,6 @@
 <?php
 
-namespace SkautIS\Exception;
+namespace Skautis\Exception;
 
 /**
  * @author Hána František <sinacek@gmail.com>
