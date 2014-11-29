@@ -1,39 +1,38 @@
 <?php
 
-namespace Test\SkautIS;
+namespace Test\Skautis;
 
-use SkautIS\SkautIS;
-use SkautIS\SessionAdapter\SessionAdapter;
+use Skautis\Skautis;
+use Skautis\SessionAdapter\SessionAdapter;
 
-class SkautISTest extends \PHPUnit_Framework_TestCase {
+class SkautisTest extends \PHPUnit_Framework_TestCase {
 
     public function testSingleton() {
-        $skautISA = SkautIS::getInstance();
-        $skautISB = SkautIS::getInstance();
+        $skautISA = Skautis::getInstance();
+        $skautISB = Skautis::getInstance();
 
         $this->assertSame($skautISA, $skautISB);
     }
 
     /**
-     * @expectedException SkautIS\Exception\InvalidArgumentException
+     * @expectedException Skautis\Exception\InvalidArgumentException
      * @expectedExceptionRegExp / .*test.*mode.* /
      */
     public function testWrongArgumentTestMode() {
-       $skautis = SkautIS::getInstance("app_id", "wrong arg");
+        $Skautis = Skautis::getInstance("app_id", "wrong arg");
     }
 
     /**
-     * @expectedException SkautIS\Exception\InvalidArgumentException
+     * @expectedException Skautis\Exception\InvalidArgumentException
      * @expectedExceptionRegExp / .*profiler.* /
      */
     public function testWrongArgumentProfiler() {
-       $SkautIS = SkautIS::getInstance("app_id", false, "asd");
+        $Skautis = Skautis::getInstance("app_id", false, "asd");
     }
-
 
     public function testGetWsdlList() {
 
-        $skautIS = SkautIS::getInstance();
+        $skautIS = Skautis::getInstance();
         $wdlList = $skautIS->getWsdlList();
 
         $this->assertInternalType('array', $wdlList);
@@ -48,10 +47,10 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
         $wsA = new \StdClass;
         $wsB = new \StdClass;
 
-        $factory = \Mockery::mock("\SkautIS\Factory\WSFactory");
+        $factory = \Mockery::mock("\Skautis\Factory\WSFactory");
         $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
 
-        $skautIS = \SkautIS\SkautIS::getInstance("123");
+        $skautIS = \Skautis\Skautis::getInstance("123");
         $skautIS->setWSFactory($factory);
 
 
@@ -71,7 +70,7 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testSetLoginData() {
-        $skautIS = SkautIS::getInstance();
+        $skautIS = Skautis::getInstance();
         $skautIS->setLoginData("token", 33, 100);
         $this->assertEquals("token", $skautIS->getToken());
         $this->assertEquals(33, $skautIS->getRoleId());
@@ -93,14 +92,14 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testIsLoggedIn() {
-        $ws = \Mockery::mock("\SkautIS\WS");
+        $ws = \Mockery::mock("\Skautis\WS");
         $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn();
 
 
-        $factory = \Mockery::mock("\SkautIS\Factory\WSFactory");
+        $factory = \Mockery::mock("\Skautis\Factory\WSFactory");
         $factory->shouldReceive("createWS")->with()->once()->andReturn($ws);
 
-        $skautIS = SkautIS::getInstance();
+        $skautIS = Skautis::getInstance();
         $skautIS->setWSFactory($factory);
 
         $this->assertTrue($skautIS->isLoggedIn());
@@ -110,22 +109,23 @@ class SkautISTest extends \PHPUnit_Framework_TestCase {
      * @runInSeparateProcess
      */
     public function testSessionAdapter() {
-	session_start();
-	$adapter = new SessionAdapter();
-	$skautis = SkautIS::getInstance("id123", FALSE, FALSE, $adapter);
-	unset($skautis);
+        session_start();
+        $adapter = new SessionAdapter();
+        $skautis = Skautis::getInstance("id123", FALSE, FALSE, $adapter);
+        unset($skautis);
 
 
-	$skautis = SkautIS::getInstance(NULL, FALSE, FALSE, $adapter);
-	$this->assertSame("id123", $skautis->getAppId());
-	unset($adapter);
+        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapter);
+        $this->assertSame("id123", $skautis->getAppId());
+        unset($adapter);
 
-	$sessionData = session_encode();
-	session_destroy();
+        $sessionData = session_encode();
+        session_destroy();
 
-	session_decode($sessionData);
-	$adapterNew = new SessionAdapter();
-	$skautis = SkautIS::getInstance(NULL, FALSE, FALSE, $adapterNew);
-	$this->assertSame("id123", $skautis->getAppId());
+        session_decode($sessionData);
+        $adapterNew = new SessionAdapter();
+        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapterNew);
+        $this->assertSame("id123", $skautis->getAppId());
     }
+
 }

@@ -1,49 +1,35 @@
 <?php
 
-namespace Test\SkautIS;
+namespace Test\Skautis;
 
-use SkautIS\SessionAdapter\AdapterInterface;
-use SkautIS\SessionAdapter\NetteAdapter;
-use SkautIS\SessionAdapter\SymfonyAdapter;
-use SkautIS\SessionAdapter\SessionAdapter;
+use Skautis\SessionAdapter\SessionAdapter;
 
-use Nette\Http\UrlScript;
-use Nette\Http\Response;
-use Nette\Http\Request;
-use Nette\Http\Session;
+class SessionAdaptersTest extends \PHPUnit_Framework_TestCase {
 
-use Symfony\Component\HttpFoundation\Session\Session as SymfonySession;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+    /**
+     * @runInSeparateProcess
+     */
+    public function testAdapter() {
 
-class SessionAdaptersTest extends \PHPUnit_Framework_TestCase
-{
+        $adapter = new SessionAdapter();
 
-   /**
-    * @runInSeparateProcess
-    */
-   public function testAdapter()
-   {
+        $name = "asd";
+        $data = new \StdClass();
 
-	$adapter = new SessionAdapter();
+        $data->data['user_id'] = 123;
+        $data->data['token'] = 'asdqwe';
 
-	$name = "asd";
-	$data = new \StdClass();
+        $this->assertFalse($adapter->has($name));
 
-	$data->data['user_id'] = 123;
-	$data->data['token'] = 'asdqwe';
+        $adapter->set($name, $data);
+
+        $this->assertTrue($adapter->has($name));
+        $this->assertEquals($data, $adapter->get($name));
 
 
+        $object = $adapter->get($name);
+        $this->assertEquals(123, $object->data['user_id']);
+        $this->assertEquals("asdqwe", $object->data['token']);
+    }
 
-	$this->assertFalse($adapter->has($name));
-
-	$adapter->set($name, $data);
-
-	$this->assertTrue($adapter->has($name));
-	$this->assertEquals($data, $adapter->get($name));
-
-
-	$object = $adapter->get($name);
-	$this->assertEquals(123, $object->data['user_id']);
-	$this->assertEquals("asdqwe", $object->data['token']);
-  }
 }
