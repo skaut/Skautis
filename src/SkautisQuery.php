@@ -37,7 +37,7 @@ class SkautisQuery
      * @param array  $args  Argumenty pozadavku
      * @param string $trace Zasobnik volanych funkci
      */
-    public function __construct($fname, array $args = NULL, array $trace = NULL) {
+    public function __construct($fname, array $args = array(), array $trace = array()) {
         $this->fname = $fname;
         $this->args = $args;
         $this->trace = $trace;
