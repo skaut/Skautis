@@ -112,7 +112,6 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         session_start();
         $adapter = new SessionAdapter();
         $skautis = Skautis::getInstance("id123", FALSE, FALSE, $adapter);
-        unset($skautis);
 
 
         $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapter);
@@ -128,4 +127,26 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame("id123", $skautis->getAppId());
     }
 
+    /**
+     * @runInSeparateProcess
+     */
+    public function testSessionAdapterSetter() {
+        session_start();
+        $adapter = new SessionAdapter();
+	$skautis = Skautis::getInstance("id123", FALSE, FALSE);
+	$skautis->setAdapter($adapter);
+
+
+        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapter);
+        $this->assertSame("id123", $skautis->getAppId());
+        unset($adapter);
+
+        $sessionData = session_encode();
+        session_destroy();
+
+        session_decode($sessionData);
+        $adapterNew = new SessionAdapter();
+        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapterNew);
+        $this->assertSame("id123", $skautis->getAppId());
+    }
 }

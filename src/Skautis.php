@@ -432,4 +432,17 @@ class Skautis {
         $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
     }
 
+    /**
+     * Nastavi uloziste session dat
+     *
+     * @param AdapterInterface $sessionAdapter Objekt zprostredkovavajici ukladani do session
+     *
+     * @return void
+     */
+    public function setAdapter(AdapterInterface $sessionAdapter)
+    {
+        $this->sessionAdapter = $sessionAdapter;
+        $this->writeConfigToSession();
+    }
+
 }
