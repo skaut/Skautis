@@ -97,8 +97,9 @@ class Skautis {
     private $perStorage;
 
     /**
+     * Pole callbacku ktere Skautis preda WS objektu pro debugovani pozadavku na server
      *
-     * @var array
+     * @var callable[]
      */
     public $onEvent = array();
 

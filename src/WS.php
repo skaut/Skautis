@@ -6,7 +6,7 @@ use Skautis\Exception\AuthenticationException,
     Skautis\Exception\AbortException,
     Skautis\Exception\WsdlException,
     Skautis\Exception\PermissionException,
-    Skautis\Nette\SkautisQuery,
+    Skautis\SkautisQuery,
     SoapFault,
     stdClass,
     SoapClient;
@@ -22,7 +22,19 @@ class WS extends SoapClient {
      * @var array
      */
     private $init;
+
+    /**
+     * Pole callbacku pro registraci SkautisQuery pro debugovani
+     *
+     * @var callable[]
+     */
     public $onEvent = array();
+
+    /**
+     * Indikuje jestli ma ukladat informace pro debugovani
+     *
+     * @var bool
+     */
     public $profiler;
 
     /**
