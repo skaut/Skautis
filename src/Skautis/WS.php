@@ -6,7 +6,7 @@ use Skautis\Exception\AuthenticationException,
     Skautis\Exception\AbortException,
     Skautis\Exception\WsdlException,
     Skautis\Exception\PermissionException,
-    Skautis\Nette\SkautisQuery,
+    Skautis\SkautisQuery,
     SoapFault,
     stdClass,
     SoapClient;
