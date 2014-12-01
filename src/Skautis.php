@@ -6,6 +6,7 @@ use Skautis\Factory\WSFactory;
 use Skautis\Factory\BasicWSFactory;
 use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\SessionAdapter\SessionAdapter;
+use Skautis\SessionAdapter\FakeAdapter;
 use Skautis\Exception\AbortException;
 use Skautis\Exception\InvalidArgumentException;
 use Skautis\Exception\WsdlException;
@@ -31,7 +32,7 @@ class Skautis {
      * sigleton
      * @var Skautis
      */
-    private static $instance;
+    private static $instance = NULL;
 
     /**
      * aliasy pro wdsl
@@ -94,7 +95,7 @@ class Skautis {
      * ['data'] - obsahuje cokoliv dalšího
      * @var \StdClass
      */
-    private $perStorage;
+    private $perStorage = NULL;
 
     /**
      * Pole callbacku ktere Skautis preda WS objektu pro debugovani pozadavku na server
@@ -117,7 +118,7 @@ class Skautis {
     /**
      * @var AdapterInterface
      */
-    protected $sessionAdapter;
+    protected $sessionAdapter = NULL;
 
 // </editor-fold>
 // <editor-fold defaultstate="collapsed" desc="getters & setters">
@@ -195,13 +196,11 @@ class Skautis {
 
     /**
      * nastavuje trvalé úložiště
-     * příklad použití pro Nette: $storage = \Nette\Environment::getSession()->getSection("__" . __CLASS__);$this->context->skautIS->setStorage($storage, TRUE);
-     * @param array|\ArrayAccess $storage
-     * @param boolean $leaveValues
+     *
      * @throws InvalidArgumentException
      * @deprecated
      */
-    public function setStorage(&$storage, $leaveValues = FALSE) {
+    public function setStorage() {
         throw new \BadFunctionCallException("Tato funkce jiz neni podporovana, pouzijte SessionAdapter");
     }
 
@@ -216,67 +215,82 @@ class Skautis {
 
 // </editor-fold>
 
-    private function __construct(AdapterInterface $adapter = NULL, WSFactory $wsFactory = NULL) {
-        $this->perStorage = &$_SESSION["__" . __CLASS__]; //defaultni persistentní uloziste
+    public function __construct($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
 
-        if ($wsFactory === NULL) {
-            $this->wsFactory = new BasicWSFactory();
-        }
-
-        if (defined("SkautIS_ID_Application")) {
-            $this->setAppId(SkautIS_ID_Application);
-        }
-
-        if ($adapter !== NULL) {
-            $this->sessionAdapter = $adapter;
-
-            if ($this->sessionAdapter->has(self::SESSION_ID)) {
-                $this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
-                return;
-            }
-
-            $this->initEmptyConfig();
-            return;
-        }
-
-        $this->sessionAdapter = new SessionAdapter();
-        $this->initEmptyConfig();
-    }
-
-    /**
-     * Singleton
-     * @var string $appId nastavení appId (nepovinné)
-     * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
-     * @var bool $profiler ma uchovavat data pro profilovani?
-     *
-     * @return Skautis
-     * @throws InvalidArgumentException
-     */
-    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
         if (!is_bool($testMode)) {
             throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
         }
 
         if (!is_bool($profiler)) {
             throw new InvalidArgumentException('Argument $profiler ma spatnou hodnotu: ' . print_r($profiler, TRUE));
+	}
+
+
+        if ($sessionAdapter !== NULL) {
+            $this->sessionAdapter = $sessionAdapter;
+
+            if ($this->sessionAdapter->has(self::SESSION_ID)) {
+		$this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
+            }
+
+        }
+	else {
+            $this->sessionAdapter = new FakeAdapter();
+	}
+
+	if ($this->perStorage === NULL) {
+	    $this->initEmptyConfig();
+	}
+
+	if ($appId !== NULL) {
+            $this->setAppId($appId);
         }
 
-        if (!(self::$instance instanceof self)) {
-            self::$instance = new self($sessionAdapter, $wsFactory);
+        $this->setTestMode($testMode);
+	$this->profiler = $profiler;
+
+        if ($wsFactory === NULL) {
+            $this->wsFactory = new BasicWSFactory();
         }
 
-        if ($appId !== NULL) {
-            self::$instance->setAppId($appId);
+
+
+
+
+
+        $this->writeConfigToSession();
+    }
+
+    /**
+     * Ziska sdilenou instanci Skautis objektu
+     *
+     * Ano vime ze to neni officialni pattern
+     * Jedna se o kockopsa Mezi singletonem a StaticFactory
+     * Factory metoda na stride kterou instantizuje a novy objekt vytvari jen 1x za beh
+     * Proc to tak je? Ohled na zpetnou kompatibilitu a out of the box pouzitelnost pro amatery
+     *
+     * @var string $appId nastavení appId (nepovinné)
+     * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
+     * @var bool $profiler ma uchovavat data pro profilovani?
+     *
+     * @return Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
+     * @throws InvalidArgumentException
+     */
+    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
+
+
+
+	if (self::$instance === NULL) {
+
+   	    // Out of box integrace s $_SESSION
+            if ($sessionAdapter === NULL) {
+	        $sessionAdapter = new SessionAdapter();
+	    }
+
+            self::$instance = new self($appId, $testMode, $profiler, $sessionAdapter, $wsFactory);
         }
 
-        self::$instance->setTestMode($testMode);
-        self::$instance->profiler = $profiler;
 
-        if ($wsFactory !== NULL) {
-            self::$instance->wsFactory = $wsFactory;
-        }
-
-        self::$instance->writeConfigToSession();
         return self::$instance;
     }
 

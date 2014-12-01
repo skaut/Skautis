@@ -15,7 +15,10 @@ class SessionAdapter implements AdapterInterface {
     protected $session;
 
     public function __construct() {
-        $_SESSION["__" . __CLASS__] = array();
+        if (!isset($_SESSION["__" . __CLASS__])) {
+ 	    $_SESSION["__" . __CLASS__] = array();
+        }
+
         $this->session = &$_SESSION["__" . __CLASS__];
     }
 
