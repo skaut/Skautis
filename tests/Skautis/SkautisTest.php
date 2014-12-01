@@ -4,10 +4,17 @@ namespace Test\Skautis;
 
 use Skautis\Skautis;
 use Skautis\SessionAdapter\SessionAdapter;
+use Skautis\SessionAdapter\FakeAdapter;
 
 class SkautisTest extends \PHPUnit_Framework_TestCase {
 
-    public function testSingleton() {
+	/**
+	 * Ano vim ze to neni officialni pattern
+	 * Jedna se o kockopsa Mezi singletonem a StaticFactory
+	 * Factory metoda na stride kterou instantizuje a novy objekt vytvari jen 1x za beh
+	 * Proc to tak je? Ohled na zpetnou kompatibilitu a pouzitelnost pro amatery
+	 */
+	public function testSingletonFactoryMethod() {
         $skautISA = Skautis::getInstance();
         $skautISB = Skautis::getInstance();
 
@@ -19,7 +26,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
      * @expectedExceptionRegExp / .*test.*mode.* /
      */
     public function testWrongArgumentTestMode() {
-        $Skautis = Skautis::getInstance("app_id", "wrong arg");
+        new Skautis("app_id", "wrong arg");
     }
 
     /**
@@ -27,12 +34,12 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
      * @expectedExceptionRegExp / .*profiler.* /
      */
     public function testWrongArgumentProfiler() {
-        $Skautis = Skautis::getInstance("app_id", false, "asd");
+        new Skautis("app_id", false, "asd");
     }
 
     public function testGetWsdlList() {
 
-        $skautIS = Skautis::getInstance();
+        $skautIS = new Skautis();
         $wdlList = $skautIS->getWsdlList();
 
         $this->assertInternalType('array', $wdlList);
@@ -50,7 +57,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         $factory = \Mockery::mock("\Skautis\Factory\WSFactory");
         $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
 
-        $skautIS = \Skautis\Skautis::getInstance("123");
+        $skautIS = new Skautis("123");
         $skautIS->setWSFactory($factory);
 
 
@@ -70,7 +77,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testSetLoginData() {
-        $skautIS = Skautis::getInstance();
+        $skautIS = new Skautis();
         $skautIS->setLoginData("token", 33, 100);
         $this->assertEquals("token", $skautIS->getToken());
         $this->assertEquals(33, $skautIS->getRoleId());
@@ -99,7 +106,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         $factory = \Mockery::mock("\Skautis\Factory\WSFactory");
         $factory->shouldReceive("createWS")->with()->once()->andReturn($ws);
 
-        $skautIS = Skautis::getInstance();
+        $skautIS = new Skautis("ad123");
         $skautIS->setWSFactory($factory);
 
         $this->assertTrue($skautIS->isLoggedIn());
@@ -109,21 +116,10 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
      * @runInSeparateProcess
      */
     public function testSessionAdapter() {
-        session_start();
-        $adapter = new SessionAdapter();
-        $skautis = Skautis::getInstance("id123", FALSE, FALSE, $adapter);
+        $adapter = new FakeAdapter();
+        $skautis = new Skautis("id123", FALSE, FALSE, $adapter);
 
-
-        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapter);
-        $this->assertSame("id123", $skautis->getAppId());
-        unset($adapter);
-
-        $sessionData = session_encode();
-        session_destroy();
-
-        session_decode($sessionData);
-        $adapterNew = new SessionAdapter();
-        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapterNew);
+	$skautis = new Skautis(NULL, FALSE, FALSE, $adapter);
         $this->assertSame("id123", $skautis->getAppId());
     }
 
@@ -133,11 +129,11 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
     public function testSessionAdapterSetter() {
         session_start();
         $adapter = new SessionAdapter();
-	$skautis = Skautis::getInstance("id123", FALSE, FALSE);
+	$skautis = new Skautis("id123", FALSE, FALSE);
 	$skautis->setAdapter($adapter);
 
 
-        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapter);
+        $skautis = new Skautis(NULL, FALSE, FALSE, $adapter);
         $this->assertSame("id123", $skautis->getAppId());
         unset($adapter);
 
@@ -146,7 +142,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
 
         session_decode($sessionData);
         $adapterNew = new SessionAdapter();
-        $skautis = Skautis::getInstance(NULL, FALSE, FALSE, $adapterNew);
+        $skautis = new Skautis(NULL, FALSE, FALSE, $adapterNew);
         $this->assertSame("id123", $skautis->getAppId());
     }
 }
