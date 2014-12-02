@@ -78,11 +78,22 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
 
     public function testSetLoginData() {
         $skautIS = new Skautis();
-        $skautIS->setLoginData("token", 33, 100);
+	$data = array(
+            'skautIS_Token' => "token",
+            'skautIS_IDRole' => 33,
+	    'skautIS_IDUnit' => 100,
+	    'skautIS_DateLogout' => '2. 12. 2014 23:56:02'
+	);
+        $skautIS->setLoginData($data);
         $this->assertEquals("token", $skautIS->getToken());
         $this->assertEquals(33, $skautIS->getRoleId());
-        $this->assertEquals(100, $skautIS->getUnitId());
+	$this->assertEquals(100, $skautIS->getUnitId());
 
+	$this->assertEquals("2014-12-02 23:56:02", $skautIS->getLogoutDate()->format('Y-m-d H:i:s'));
+    }
+
+    public function testSetLoginDataViaSetters() {
+        $skautIS = new Skautis();
         $skautIS->setUnitId(11);
         $this->assertEquals(11, $skautIS->getUnitId());
 
@@ -91,14 +102,23 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
 
         $skautIS->setUnitId(200);
         $this->assertEquals(200, $skautIS->getUnitId());
+    }
 
-        $skautIS->resetLoginData();
-        $this->assertNull($skautIS->getToken());
-        $this->assertEquals(0, $skautIS->getRoleId());
-        $this->assertEquals(0, $skautIS->getUnitId());
+    public function testIsLoggedInNoInicialization() {
+        $skautIS = new Skautis();
+
+        $this->assertFalse($skautIS->isLoggedIn());
     }
 
     public function testIsLoggedIn() {
+        $skautIS = new Skautis("ad123");
+	$skautIS->setToken("token");
+
+	$skautIS->setLogoutDate(new \DateTime('yesterday'));
+	$this->assertFalse($skautIS->isLoggedIn());
+    }
+
+    public function testIsLoggedHardCheck() {
         $ws = \Mockery::mock("\Skautis\WS");
         $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn();
 
@@ -107,9 +127,11 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         $factory->shouldReceive("createWS")->with()->once()->andReturn($ws);
 
         $skautIS = new Skautis("ad123");
-        $skautIS->setWSFactory($factory);
+	$skautIS->setWSFactory($factory);
+	$skautIS->setToken("tooken");
+	$skautIS->setLogoutDate(new \DateTime('tomorrow'));
 
-        $this->assertTrue($skautIS->isLoggedIn());
+        $this->assertTrue($skautIS->isLoggedIn(true));
     }
 
     /**
