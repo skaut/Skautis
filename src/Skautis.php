@@ -278,9 +278,9 @@ class Skautis {
         if ($wsFactory === NULL) {
             $this->wsFactory = new BasicWSFactory();
         }
-
-
-
+	else {
+	    $this->wsFactory = $wsFactory;
+	}
 
 
 
