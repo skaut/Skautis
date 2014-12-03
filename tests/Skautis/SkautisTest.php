@@ -134,6 +134,26 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($skautIS->isLoggedIn(true));
     }
 
+    public function testResetLoginData() {
+	$data = array(
+            'skautIS_Token' => "token",
+            'skautIS_IDRole' => 33,
+	    'skautIS_IDUnit' => 100,
+	    'skautIS_DateLogout' => '2. 12. 2014 23:56:02'
+	);
+
+	$skautis = new Skautis();
+
+	$skautis->setLoginData($data);
+	$this->assertEquals(33, $skautis->getRoleId());
+
+	$skautis->resetLoginData();
+        $this->assertEmpty($skautis->getToken());
+        $this->assertEmpty($skautis->getRoleId());
+	$this->assertEmpty($skautis->getUnitId());
+	$this->assertNull($skautis->getLogoutDate());
+    }
+
     /**
      * @runInSeparateProcess
      */

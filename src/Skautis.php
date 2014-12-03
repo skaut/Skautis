@@ -24,7 +24,8 @@ class Skautis {
     const TOKEN = "ID_Login";
     const ID_ROLE = "ID_Role";
     const ID_UNIT = "ID_Unit";
-    const LOGOUT_DATE = "LOGOU_Date";
+    const LOGOUT_DATE = "LOGOUT_Date";
+    const AUTH_CONFIRMED = "AUTH_Confirmed";
     const HTTP_PREFIX_TEST = "http://test-is";
     const HTTP_PREFIX = "https://is";
     CONST SESSION_ID = "skautis_library_data";
@@ -398,34 +399,51 @@ class Skautis {
     }
 
     /**
-     * kontoluje jestli je přihlášení platné
+     * Kontoluje jestli je přihlášení platné
      *
      * @param bool $hardCheck Vynuti kontrolu prihlaseni na serveru
      * @return bool
      */
     public function isLoggedIn($hardCheck = FALSE) {
 
-       if (!$hardCheck) {
-
-        if (empty($this->perStorage->init[self::APP_ID]))
+	if (empty($this->perStorage->init[self::APP_ID]))
            return FALSE;
-
 
         if (empty($this->perStorage->init[self::TOKEN]))
             return FALSE;
 
         if ($this->getLogoutDate()->getTimestamp() < time())
+	    return FALSE;
+
+	if ($hardCheck || !$this->isAuthConfirmed())
+            $this->confirmAuth();
+
+	if (!$this->isAuthConfirmed())
+	    return FALSE;
+
+	return TRUE;
+    }
+
+    protected function isAuthConfirmed() {
+        if (!isset($this->perStorage->data[self::AUTH_CONFIRMED]))
             return FALSE;
-        }
 
+	return $this->perStorage->data[self::AUTH_CONFIRMED];
+    }
+
+
+    protected function setAuthConfirmed($isConfirmed) {
+	$this->perStorage->data[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
+    }
+
+    protected function confirmAuth() {
         try {
-             $this->updateLogoutTime();
+            $this->updateLogoutTime();
+            $this->setAuthConfirmed(true);
         } catch (Exception $ex) {
-             return FALSE;
+            $this->setAuthConfirmed(false);
         }
-
-        return TRUE;
-      }
+    }
 
     /**
      * prodloužení přihlášení o 30 min
@@ -449,26 +467,30 @@ class Skautis {
      */
     public function setLoginData(array $data) {
 
-        if (isset($data['skautIS_Token']))
-            $this->setToken($data['skautIS_Token']);
+	$token = isset($data['skautIS_Token']) ? $data['skautIS_Token'] : "";
+	$this->setToken($token);
 
-        if (isset($data['skautIS_IDRole']))
-            $this->setRoleId($data['skautIS_IDRole']);
+	$roleId = isset($data['skautIS_IDRole']) ? $data['skautIS_IDRole'] : "";
+        $this->setRoleId($roleId);
 
-        if (isset($data['skautIS_IDUnit']))
-            $this->setUnitId($data['skautIS_IDUnit']);
+	$unitId = isset($data['skautIS_IDUnit']) ? $data['skautIS_IDUnit'] : "";
+        $this->setUnitId($unitId);
 
-        if (isset($data['skautIS_DateLogout'])) {
-	    $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout']);
-	    $this->setLogoutDate($logoutDate);
-        }
+	if (!isset($data['skautIS_DateLogout'])) {
+	    return;
+	}
+
+        $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout']);
+	$this->setLogoutDate($logoutDate);
+
     }
 
     /**
      * hromadny reset dat po odhlaseni
      */
     public function resetLoginData() {
-        $this->setLoginData();
+        $this->setLoginData(array());
+        $this->perStorage->data[self::LOGOUT_DATE] = null;
     }
 
     /**
