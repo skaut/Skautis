@@ -24,6 +24,8 @@ class Skautis {
     const TOKEN = "ID_Login";
     const ID_ROLE = "ID_Role";
     const ID_UNIT = "ID_Unit";
+    const LOGOUT_DATE = "LOGOUT_Date";
+    const AUTH_CONFIRMED = "AUTH_Confirmed";
     const HTTP_PREFIX_TEST = "http://test-is";
     const HTTP_PREFIX = "https://is";
     CONST SESSION_ID = "skautis_library_data";
@@ -195,6 +197,30 @@ class Skautis {
     }
 
     /**
+     * Vraci datum a cas automaticeho odhlaseni z is.skaut.cz
+     *
+     * @return \DateTime
+     */
+    public function getLogoutDate() {
+        return isset($this->perStorage->data[self::LOGOUT_DATE]) ? $this->perStorage->data[self::LOGOUT_DATE] : NULL;
+    }
+
+    /**
+     *
+     * Nastavi cas automatickeho odhlaseni z is.skaut.cz
+     *
+     * @param \DateTime $logoutDate
+     *
+     * @return void
+     */
+    public function setLogoutDate(\DateTime $logoutDate) {
+        $this->perStorage->data[self::LOGOUT_DATE] = $logoutDate;
+        $this->writeConfigToSession();
+        return $this;
+    }
+
+
+    /**
      * nastavuje trvalé úložiště
      *
      * @throws InvalidArgumentException
@@ -252,9 +278,9 @@ class Skautis {
         if ($wsFactory === NULL) {
             $this->wsFactory = new BasicWSFactory();
         }
-
-
-
+	else {
+	    $this->wsFactory = $wsFactory;
+	}
 
 
 
@@ -355,6 +381,14 @@ class Skautis {
     public function getLogoutUrl() {
         return $this->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
     }
+    /**
+     * vrací url k registraci
+     * @return string url
+     */
+    public function getRegisterUrl() {
+        return $this->getHttpPrefix() . ".skaut.cz/Login/Registration.aspx?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
+    }
+
 
     /**
      * vrací začátek URL adresy
@@ -365,16 +399,50 @@ class Skautis {
     }
 
     /**
-     * kontoluje jestli je přihlášení platné
+     * Kontoluje jestli je přihlášení platné
+     *
+     * @param bool $hardCheck Vynuti kontrolu prihlaseni na serveru
      * @return bool
      */
-    public function isLoggedIn() {
+    public function isLoggedIn($hardCheck = FALSE) {
+
+	if (empty($this->perStorage->init[self::APP_ID]))
+           return FALSE;
+
+        if (empty($this->perStorage->init[self::TOKEN]))
+            return FALSE;
+
+        if ($this->getLogoutDate()->getTimestamp() < time())
+	    return FALSE;
+
+	if ($hardCheck || !$this->isAuthConfirmed())
+            $this->confirmAuth();
+
+	if (!$this->isAuthConfirmed())
+	    return FALSE;
+
+	return TRUE;
+    }
+
+    protected function isAuthConfirmed() {
+        if (!isset($this->perStorage->data[self::AUTH_CONFIRMED]))
+            return FALSE;
+
+	return $this->perStorage->data[self::AUTH_CONFIRMED];
+    }
+
+
+    protected function setAuthConfirmed($isConfirmed) {
+	$this->perStorage->data[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
+    }
+
+    protected function confirmAuth() {
         try {
             $this->updateLogoutTime();
+            $this->setAuthConfirmed(true);
         } catch (Exception $ex) {
-            return FALSE;
+            $this->setAuthConfirmed(false);
         }
-        return TRUE;
     }
 
     /**
@@ -393,19 +461,36 @@ class Skautis {
     }
 
     /**
-     * hromadne nastaveni po prihlaseni
+     * Hromadne nastaveni po prihlaseni
+     *
+     * @param array $data Pole dat zaslanych skautisem (napriklad $_SESSION)
      */
-    public function setLoginData($token = NULL, $roleId = NULL, $unitId = NULL) {
-        $this->setToken($token);
+    public function setLoginData(array $data) {
+
+	$token = isset($data['skautIS_Token']) ? $data['skautIS_Token'] : "";
+	$this->setToken($token);
+
+	$roleId = isset($data['skautIS_IDRole']) ? $data['skautIS_IDRole'] : "";
         $this->setRoleId($roleId);
+
+	$unitId = isset($data['skautIS_IDUnit']) ? $data['skautIS_IDUnit'] : "";
         $this->setUnitId($unitId);
+
+	if (!isset($data['skautIS_DateLogout'])) {
+	    return;
+	}
+
+        $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout']);
+	$this->setLogoutDate($logoutDate);
+
     }
 
     /**
      * hromadny reset dat po odhlaseni
      */
     public function resetLoginData() {
-        $this->setLoginData();
+        $this->setLoginData(array());
+        $this->perStorage->data[self::LOGOUT_DATE] = null;
     }
 
     /**
