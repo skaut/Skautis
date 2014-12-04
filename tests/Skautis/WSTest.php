@@ -11,4 +11,7 @@ class WSTest extends \PHPUnit_Framework_TestCase {
         $ws = new \Skautis\WS("", array());
     }
 
+    public function testCallback() {
+	//@TODO
+    }
 }
