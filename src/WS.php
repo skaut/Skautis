@@ -104,10 +104,10 @@ class WS extends SoapClient {
             $args = array(array($function_name . "Input" => $args));
         }
 
+        if ($this->profiler) {
+            $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        }
         try {
-            if ($this->profiler) {
-                $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
-            }
             $ret = parent::__soapCall($fname, $args);
 
             //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
@@ -127,6 +127,10 @@ class WS extends SoapClient {
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
+            if ($this->profiler) {
+                $query->exception = $e;
+                $this->onEvent($query->done());
+            }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException();
             }

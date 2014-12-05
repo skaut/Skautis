@@ -32,6 +32,7 @@ class WSTest extends \PHPUnit_Framework_TestCase
             Skautis::TOKEN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 	);
 	$ws = new WS("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
+	$ws->profiler = true;
 	$ws->addCallback($callback);
 
 	try {
@@ -41,6 +42,9 @@ class WSTest extends \PHPUnit_Framework_TestCase
 
 	$this->assertCount(1,$this->queries);
 	$this->assertInstanceOf('Skautis\SkautisQuery', $this->queries[0]);
-	$this->assertEquials("UserDetail", $this->queries[0]->fname);
+	$this->assertEquals('UserDetail', $this->queries[0]->fname);
+	$this->assertNotNull($this->queries[0]->exception);
+	$this->assertInstanceOf('SoapFault', $this->queries[0]->exception);
+	$this->assertTrue($this->queries[0]->hasFailed());
     }
 }

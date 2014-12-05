@@ -14,5 +14,13 @@ class SkautisQueryTest extends \PHPUnit_Framework_TestCase
 
 	$this->assertTrue($query->time >= 1);
 	$this->assertTrue($query->time < 2);
+	$this->assertEquals("getUser", $query->fname);
+
+	$this->assertFalse($query->hasFailed());
+
+	$exception = new \Exception("Testovaci vyjimka");
+	$query->exception = $exception;
+	$this->assertSame($exception, $query->exception);
+	$this->assertTrue($query->hasFailed());
     }
 }

@@ -31,6 +31,13 @@ class SkautisQuery
     public $result;
 
     /**
+     * V pripade ze SOAP pozadavek selze
+     *
+     * @var \Exception|NULL
+     */
+    public $exception = NULL;
+
+    /**
      *
      *
      * @param string $fname Nazev volane funkce
@@ -54,5 +61,14 @@ class SkautisQuery
         $this->result = $result;
         $this->time += microtime(TRUE);
         return $this;
+    }
+
+    /**
+     * Kontrola jestli se pozadavek zdaril
+     *
+     * @return bool
+     */
+    public function hasFailed() {
+	return $this->exception !== NULL;
     }
 }
