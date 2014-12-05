@@ -57,16 +57,18 @@ class WS extends SoapClient {
         parent::__construct($wsdl, $soapOpts);
     }
 
+    public function onEvent(SkautisQuery $query)
+    {
+        foreach ($this->onEvent as $f) {
+            call_user_func($f, $query);
+        }
+    }
+
     /**
      * Magicka metoda starjici se spravne volani SOAP metod
      */
     public function __call($function_name, $arguments) {
-        if (array_key_exists($function_name, get_class_vars(__CLASS__))) {
-            foreach ($this->onEvent as $f) {
-                call_user_func_array($f, $arguments);
-            }
-            return;
-        }
+
         return $this->__soapCall($function_name, $arguments);
     }
 
@@ -135,4 +137,13 @@ class WS extends SoapClient {
         }
     }
 
+    /**
+     * Prida callback
+     *
+     * @var callable $callback
+     */
+    public function addCallback(callable $callback)
+    {
+	$this->onEvent[] = $callback;
+    }
 }

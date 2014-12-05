@@ -2,16 +2,45 @@
 
 namespace Test\Skautis;
 
-class WSTest extends \PHPUnit_Framework_TestCase {
+use Skautis\WS;
+use Skautis\Skautis;
+
+class WSTest extends \PHPUnit_Framework_TestCase
+{
+    protected $queries = array();
 
     /**
      * @expectedException SkautIS\Exception\AbortException
      */
-    public function testWSConstructMissingWsdl() {
-        $ws = new \Skautis\WS("", array());
+    public function testWSConstructMissingWsdl()
+    {
+        $ws = new WS("", array());
     }
 
-    public function testCallback() {
-	//@TODO
+    public function queryCallback($query)
+    {
+	$this->queries[] = $query;
+    }
+
+    public function testCallback()
+    {
+        $callback = array($this, 'queryCallback');
+
+
+	$data = array(
+            Skautis::APP_ID => 123,
+            Skautis::TOKEN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+	);
+	$ws = new WS("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
+	$ws->addCallback($callback);
+
+	try {
+            $ws->UserDetail();
+	}
+	catch (\Exception $e) {}
+
+	$this->assertCount(1,$this->queries);
+	$this->assertInstanceOf('Skautis\SkautisQuery', $this->queries[0]);
+	$this->assertEquials("UserDetail", $this->queries[0]->fname);
     }
 }
