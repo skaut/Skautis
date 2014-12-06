@@ -128,8 +128,7 @@ class WS extends SoapClient {
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
             if ($this->profiler) {
-                $query->exception = $e;
-                $this->onEvent($query->done());
+                $this->onEvent($query->done(NULL, $e));
             }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException();

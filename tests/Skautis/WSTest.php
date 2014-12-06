@@ -43,8 +43,8 @@ class WSTest extends \PHPUnit_Framework_TestCase
 	$this->assertCount(1,$this->queries);
 	$this->assertInstanceOf('Skautis\SkautisQuery', $this->queries[0]);
 	$this->assertEquals('UserDetail', $this->queries[0]->fname);
-	$this->assertNotNull($this->queries[0]->exception);
-	$this->assertInstanceOf('SoapFault', $this->queries[0]->exception);
+	$this->assertGreaterThan(0, strlen($this->queries[0]->getExceptionString()));
+	$this->assertEquals('SoapFault', $this->queries[0]->getExceptionClass());
 	$this->assertTrue($this->queries[0]->hasFailed());
     }
 }
