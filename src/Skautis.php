@@ -2,6 +2,7 @@
 
 namespace Skautis;
 
+use Skautis\SkautisQuery;
 use Skautis\Factory\WSFactory;
 use Skautis\Factory\BasicWSFactory;
 use Skautis\SessionAdapter\AdapterInterface;
@@ -105,6 +106,13 @@ class Skautis {
      * @var callable[]
      */
     public $onEvent = array();
+
+    /**
+     * Pole obsahujici zaznamy ze vsech SOAP callu
+     *
+     * @var SkautisQuery[]
+     */
+    public $log = array();
 
     /**
      *
@@ -282,7 +290,7 @@ class Skautis {
 	    $this->wsFactory = $wsFactory;
 	}
 
-
+	$this->onEvent[] = array($this, 'addLogQuery');
 
         $this->writeConfigToSession();
     }
@@ -544,4 +552,15 @@ class Skautis {
         $this->writeConfigToSession();
     }
 
+    public function addLogQuery(SkautisQuery $query)
+    {
+	$this->log[] = $query;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProfiling() {
+	return $this->profiler;
+    }
 }

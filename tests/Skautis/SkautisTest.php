@@ -187,4 +187,10 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         $skautis = new Skautis(NULL, FALSE, FALSE, $adapterNew);
         $this->assertSame("id123", $skautis->getAppId());
     }
+
+    public function testEventSetter()
+    {
+	//@TODO
+    }
+
 }

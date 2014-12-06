@@ -57,16 +57,18 @@ class WS extends SoapClient {
         parent::__construct($wsdl, $soapOpts);
     }
 
+    public function onEvent(SkautisQuery $query)
+    {
+        foreach ($this->onEvent as $f) {
+            call_user_func($f, $query);
+        }
+    }
+
     /**
      * Magicka metoda starjici se spravne volani SOAP metod
      */
     public function __call($function_name, $arguments) {
-        if (array_key_exists($function_name, get_class_vars(__CLASS__))) {
-            foreach ($this->onEvent as $f) {
-                call_user_func_array($f, $arguments);
-            }
-            return;
-        }
+
         return $this->__soapCall($function_name, $arguments);
     }
 
@@ -102,10 +104,10 @@ class WS extends SoapClient {
             $args = array(array($function_name . "Input" => $args));
         }
 
+        if ($this->profiler) {
+            $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        }
         try {
-            if ($this->profiler) {
-                $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
-            }
             $ret = parent::__soapCall($fname, $args);
 
             //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
@@ -125,6 +127,9 @@ class WS extends SoapClient {
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
+            if ($this->profiler) {
+                $this->onEvent($query->done(NULL, $e));
+            }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException();
             }
@@ -135,4 +140,13 @@ class WS extends SoapClient {
         }
     }
 
+    /**
+     * Prida callback
+     *
+     * @var callable $callback
+     */
+    public function addCallback(callable $callback)
+    {
+	$this->onEvent[] = $callback;
+    }
 }
