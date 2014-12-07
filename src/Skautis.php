@@ -93,6 +93,12 @@ class Skautis {
     private $isTestMode = TRUE;
 
     /**
+     * Cachovat WSDL
+     * @var bool
+     */
+    private $cache;
+
+    /**
      * persistentní pole
      * ['init'] - obsahuje self::APP_ID a self::TOKEN
      * ['data'] - obsahuje cokoliv dalšího
@@ -249,7 +255,7 @@ class Skautis {
 
 // </editor-fold>
 
-    public function __construct($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
+    public function __construct($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL, $cache = FALSE) {
 
         if (!is_bool($testMode)) {
             throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
@@ -291,6 +297,13 @@ class Skautis {
 	}
 
 	$this->onEvent[] = array($this, 'addLogQuery');
+
+	if ($cache) {
+	    $this->enableCache();
+	}
+	else {
+	    $this->disableCache();
+	}
 
         $this->writeConfigToSession();
     }
@@ -562,5 +575,29 @@ class Skautis {
      */
     public function isProfiling() {
 	return $this->profiler;
+    }
+
+    /**
+     * Zapne cachovani WSDL
+     */
+    public function enableCache() {
+        $this->perStorage->init['cache_wsdl'] = WSDL_CACHE_BOTH;
+	$this->cache = TRUE;
+
+    }
+
+    /**
+     * Vypne cachovani WSDL
+     */
+    public function disableCache() {
+        $this->perStorage->init['cache_wsdl'] = WSDL_CACHE_NONE;
+	$this->cache = FALSE;
+    }
+
+    /**
+     * Zjisti jestli je WSDL cachovane
+     */
+    public function isCacheEnabled() {
+	return $this->cache;
     }
 }
