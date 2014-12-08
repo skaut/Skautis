@@ -148,7 +148,7 @@ class Skautis {
         return $this;
     }
 
-    public function IsTestMode() {
+    public function isTestMode() {
         return $this->isTestMode;
     }
 
@@ -528,10 +528,8 @@ class Skautis {
      * @return boolean
      */
     public function isMaintenance() {
-        if ((@simplexml_load_file($this->getWsdlUri("UserManagement"))->wsdl) === null) {
-            return TRUE;
-        }
-        return FALSE;
+        $headers = get_headers($this->getWsdlUri("UserManagement"));
+        return !in_array('HTTP/1.1 200 OK', $headers);
     }
 
     /**
