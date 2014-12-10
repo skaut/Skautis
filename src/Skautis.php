@@ -93,6 +93,12 @@ class Skautis {
     private $isTestMode = TRUE;
 
     /**
+     * Cachovat WSDL
+     * @var bool
+     */
+    private $cache;
+
+    /**
      * persistentní pole
      * ['init'] - obsahuje self::APP_ID a self::TOKEN
      * ['data'] - obsahuje cokoliv dalšího
@@ -142,7 +148,7 @@ class Skautis {
         return $this;
     }
 
-    public function IsTestMode() {
+    public function isTestMode() {
         return $this->isTestMode;
     }
 
@@ -249,7 +255,7 @@ class Skautis {
 
 // </editor-fold>
 
-    public function __construct($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
+    public function __construct($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL, $cache = FALSE) {
 
         if (!is_bool($testMode)) {
             throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
@@ -291,6 +297,13 @@ class Skautis {
 	}
 
 	$this->onEvent[] = array($this, 'addLogQuery');
+
+	if ($cache) {
+	    $this->enableCache();
+	}
+	else {
+	    $this->disableCache();
+	}
 
         $this->writeConfigToSession();
     }
@@ -515,10 +528,8 @@ class Skautis {
      * @return boolean
      */
     public function isMaintenance() {
-        if ((@simplexml_load_file($this->getWsdlUri("UserManagement"))->wsdl) === null) {
-            return TRUE;
-        }
-        return FALSE;
+        $headers = get_headers($this->getWsdlUri("UserManagement"));
+        return !in_array('HTTP/1.1 200 OK', $headers);
     }
 
     /**
@@ -562,5 +573,29 @@ class Skautis {
      */
     public function isProfiling() {
 	return $this->profiler;
+    }
+
+    /**
+     * Zapne cachovani WSDL
+     */
+    public function enableCache() {
+        $this->perStorage->init['cache_wsdl'] = WSDL_CACHE_BOTH;
+	$this->cache = TRUE;
+
+    }
+
+    /**
+     * Vypne cachovani WSDL
+     */
+    public function disableCache() {
+        $this->perStorage->init['cache_wsdl'] = WSDL_CACHE_NONE;
+	$this->cache = FALSE;
+    }
+
+    /**
+     * Zjisti jestli je WSDL cachovane
+     */
+    public function isCacheEnabled() {
+	return $this->cache;
     }
 }
