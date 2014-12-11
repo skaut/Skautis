@@ -21,7 +21,7 @@ class WS extends SoapClient {
      * ID_Application, ID_Login
      * @var array
      */
-    private $init;
+    protected $init;
 
     /**
      * Pole callbacku pro registraci SkautisQuery pro debugovani
@@ -43,16 +43,11 @@ class WS extends SoapClient {
      * @param bool $compression Ma pouzivat kompresi na prenasena data?
      * @param bool $profiler Ma uklada data pro profilovani?
      */
-    public function __construct($wsdl, array $init, $compression = TRUE, $profiler = FALSE) {
-        $this->init = $init;
+    public function __construct($wsdl, array $soapOpts, $profiler = FALSE) {
+        $this->init = $soapOpts;
         $this->profiler = $profiler;
         if (empty($wsdl)) {
             throw new AbortException("WSDL musí být nastaven");
-        }
-        $soapOpts['encoding'] = 'utf-8';
-        $soapOpts['soap_version'] = SOAP_1_2;
-        if ($compression === TRUE) {
-            $soapOpts['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
         }
         parent::__construct($wsdl, $soapOpts);
     }

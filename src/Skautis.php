@@ -2,15 +2,14 @@
 
 namespace Skautis;
 
+use Skautis\WsdlManager;
+use Skautis\HelperTrait;
+use Skautis\Config;
 use Skautis\SkautisQuery;
 use Skautis\Factory\WSFactory;
-use Skautis\Factory\BasicWSFactory;
 use Skautis\SessionAdapter\AdapterInterface;
-use Skautis\SessionAdapter\SessionAdapter;
-use Skautis\SessionAdapter\FakeAdapter;
 use Skautis\Exception\AbortException;
 use Skautis\Exception\InvalidArgumentException;
-use Skautis\Exception\WsdlException;
 use Exception;
 
 /**
@@ -19,7 +18,7 @@ use Exception;
  */
 class Skautis {
 
-// <editor-fold defaultstate="collapsed" desc="vars">
+    use HelperTrait;
 
     const APP_ID = "ID_Application";
     const TOKEN = "ID_Login";
@@ -27,76 +26,24 @@ class Skautis {
     const ID_UNIT = "ID_Unit";
     const LOGOUT_DATE = "LOGOUT_Date";
     const AUTH_CONFIRMED = "AUTH_Confirmed";
-    const HTTP_PREFIX_TEST = "http://test-is";
-    const HTTP_PREFIX = "https://is";
-    CONST SESSION_ID = "skautis_library_data";
+    const SESSION_ID = "skautis_library_data";
+
 
     /**
-     * sigleton
-     * @var Skautis
+     * @var WsdlManager
      */
-    private static $instance = NULL;
+    protected $wsdlManager = NULL;
 
     /**
-     * aliasy pro wdsl
-     * @var array
+     * @var AdapterInterface
      */
-    private $aliases = array(
-        "user" => "UserManagement",
-        "usr" => "UserManagement",
-        "org" => "OrganizationUnit",
-        "app" => "ApplicationManagement",
-        "event" => "Events",
-        "events" => "Events",
-    );
+    protected $sessionAdapter = NULL;
 
     /**
-     * dostupné WSDL Skautisu
-     * @var array
+     * @var Config
      */
-    private $wsdl = array(
-        "ApplicationManagement" => null,
-        "ContentManagement" => null,
-        "Evaluation" => null,
-        "Events" => null,
-        "Exports" => null,
-        "GoogleApps" => null,
-        "Journal" => null,
-        "Material" => null,
-        "Message" => null,
-        "OrganizationUnit" => null,
-        "Power" => null,
-        "Reports" => null,
-        "Summary" => null,
-        "Telephony" => null,
-        "UserManagement" => null,
-        "Vivant" => null,
-        "Welcome" => null,
-    );
+    protected $config = NULL;
 
-    /**
-     * pole aktivních Skautis\WS
-     * @var array(Skautis\WS)
-     */
-    private $active = array();
-
-    /**
-     * používat kompresi?
-     * @var bool
-     */
-    private $compression = TRUE;
-
-    /**
-     * používat testovací Skautis?
-     * @var bool
-     */
-    private $isTestMode = TRUE;
-
-    /**
-     * Cachovat WSDL
-     * @var bool
-     */
-    private $cache;
 
     /**
      * persistentní pole
@@ -120,142 +67,9 @@ class Skautis {
      */
     public $log = array();
 
-    /**
-     *
-     * @var bool
-     */
-    public $profiler;
 
-    /**
-     * @var WSFactory
-     */
-    protected $wsFactory = NULL;
-
-    /**
-     * @var AdapterInterface
-     */
-    protected $sessionAdapter = NULL;
-
-// </editor-fold>
-// <editor-fold defaultstate="collapsed" desc="getters & setters">
-
-    public function isCompression() {
-        return $this->compression;
-    }
-
-    public function setCompression($compression) {
-        $this->compression = $compression;
-        return $this;
-    }
-
-    public function isTestMode() {
-        return $this->isTestMode;
-    }
-
-    public function setTestMode($isTestMode) {
-        $this->isTestMode = (bool) $isTestMode;
-        return $this;
-    }
-
-    public function setAppId($appId) {
-        $this->perStorage->init[self::APP_ID] = $appId;
-        $this->writeConfigToSession();
-        return $this;
-    }
-
-    public function getAppId() {
-        return isset($this->perStorage->init[self::APP_ID]) ? $this->perStorage->init[self::APP_ID] : null;
-    }
-
-    public function isSetAppId() {
-        return $this->getAppId() != NULL ? TRUE : FALSE;
-    }
-
-    public function getToken() {
-        return isset($this->perStorage->init[self::TOKEN]) ? $this->perStorage->init[self::TOKEN] : null;
-    }
-
-    public function setToken($token) {
-        $this->perStorage->init[self::TOKEN] = $token;
-        $this->active = array(); //zmenilo se prihlašování
-        $this->writeConfigToSession();
-        return $this;
-    }
-
-    /**
-     * alias of getToken()
-     * @return string
-     */
-    public function getLoginId() {
-        return $this->getToken();
-    }
-
-    public function getRoleId() {
-        return isset($this->perStorage->data[self::ID_ROLE]) ? $this->perStorage->data[self::ID_ROLE] : NULL;
-    }
-
-    public function setRoleId($roleId) {
-        $this->perStorage->data[self::ID_ROLE] = (int) $roleId;
-        $this->writeConfigToSession();
-        return $this;
-    }
-
-    public function getUnitId() {
-        return isset($this->perStorage->data[self::ID_UNIT]) ? $this->perStorage->data[self::ID_UNIT] : NULL;
-    }
-
-    public function setUnitId($unitId) {
-        $this->perStorage->data[self::ID_UNIT] = (int) $unitId;
-        $this->writeConfigToSession();
-        return $this;
-    }
-
-    /**
-     * Vraci datum a cas automaticeho odhlaseni z is.skaut.cz
-     *
-     * @return \DateTime
-     */
-    public function getLogoutDate() {
-        return isset($this->perStorage->data[self::LOGOUT_DATE]) ? $this->perStorage->data[self::LOGOUT_DATE] : NULL;
-    }
-
-    /**
-     *
-     * Nastavi cas automatickeho odhlaseni z is.skaut.cz
-     *
-     * @param \DateTime $logoutDate
-     *
-     * @return void
-     */
-    public function setLogoutDate(\DateTime $logoutDate) {
-        $this->perStorage->data[self::LOGOUT_DATE] = $logoutDate;
-        $this->writeConfigToSession();
-        return $this;
-    }
-
-
-    /**
-     * nastavuje trvalé úložiště
-     *
-     * @throws InvalidArgumentException
-     * @deprecated
-     */
-    public function setStorage() {
-        throw new \BadFunctionCallException("Tato funkce jiz neni podporovana, pouzijte SessionAdapter");
-    }
-
-    /**
-     * Inicializuje $this->perStorage
-     */
-    protected function initEmptyConfig() {
-        $this->perStorage = new \StdClass();
-        $this->perStorage->init = array();
-        $this->perStorage->data = array();
-    }
-
-// </editor-fold>
-
-    public function __construct($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL, $cache = FALSE) {
+    public function __construct($appId,  AdapterInterface $sessionAdapter, WsdlManager $wsdlManager, Config $config)
+    {
 
         if (!is_bool($testMode)) {
             throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
@@ -266,124 +80,89 @@ class Skautis {
 	}
 
 
-        if ($sessionAdapter !== NULL) {
-            $this->sessionAdapter = $sessionAdapter;
-
-            if ($this->sessionAdapter->has(self::SESSION_ID)) {
-		$this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
-            }
-
+        $this->sessionAdapter = $sessionAdapter;
+        if ($this->sessionAdapter->has(self::SESSION_ID)) {
+            $this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
         }
-	else {
-            $this->sessionAdapter = new FakeAdapter();
-	}
 
 	if ($this->perStorage === NULL) {
 	    $this->initEmptyConfig();
 	}
 
-	if ($appId !== NULL) {
-            $this->setAppId($appId);
-        }
-
-        $this->setTestMode($testMode);
-	$this->profiler = $profiler;
-
-        if ($wsFactory === NULL) {
-            $this->wsFactory = new BasicWSFactory();
-        }
-	else {
-	    $this->wsFactory = $wsFactory;
-	}
+	$this->perStorage->init[self::APP_ID] = $appId;
+	$this->wsdlManager = $wsdlManager;
+	$this->config = $config;
 
 	$this->onEvent[] = array($this, 'addLogQuery');
-
-	if ($cache) {
-	    $this->enableCache();
-	}
-	else {
-	    $this->disableCache();
-	}
 
         $this->writeConfigToSession();
     }
 
-    /**
-     * Ziska sdilenou instanci Skautis objektu
-     *
-     * Ano vime ze to neni officialni pattern
-     * Jedna se o kockopsa Mezi singletonem a StaticFactory
-     * Factory metoda na stride kterou instantizuje a novy objekt vytvari jen 1x za beh
-     * Proc to tak je? Ohled na zpetnou kompatibilitu a out of the box pouzitelnost pro amatery
-     *
-     * @var string $appId nastavení appId (nepovinné)
-     * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
-     * @var bool $profiler ma uchovavat data pro profilovani?
-     *
-     * @return Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
-     * @throws InvalidArgumentException
-     */
-    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, AdapterInterface $sessionAdapter = NULL, WSFactory $wsFactory = NULL) {
-
-
-
-	if (self::$instance === NULL) {
-
-   	    // Out of box integrace s $_SESSION
-            if ($sessionAdapter === NULL) {
-	        $sessionAdapter = new SessionAdapter();
-	    }
-
-            self::$instance = new self($appId, $testMode, $profiler, $sessionAdapter, $wsFactory);
-        }
-
-
-        return self::$instance;
+    public function getAppId()
+    {
+        return isset($this->perStorage->init[self::APP_ID]) ? $this->perStorage->init[self::APP_ID] : null;
     }
+
+    public function isSetAppId()
+    {
+        return isset($this->perStorage->init[self::APP_ID]);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getLoginId()
+    {
+        return isset($this->perStorage->init[self::TOKEN]) ? $this->perStorage->init[self::TOKEN] : null;
+    }
+
+    public function getRoleId()
+    {
+        return isset($this->perStorage->data[self::ID_ROLE]) ? $this->perStorage->data[self::ID_ROLE] : NULL;
+    }
+
+
+    public function getUnitId()
+    {
+        return isset($this->perStorage->data[self::ID_UNIT]) ? $this->perStorage->data[self::ID_UNIT] : NULL;
+    }
+
+
+    /**
+     * Vraci datum a cas automaticeho odhlaseni z is.skaut.cz
+     *
+     * @return \DateTime
+     */
+    public function getLogoutDate()
+    {
+        return isset($this->perStorage->data[self::LOGOUT_DATE]) ? $this->perStorage->data[self::LOGOUT_DATE] : NULL;
+    }
+
+
+    /**
+     * Inicializuje $this->perStorage
+     */
+    protected function initEmptyConfig()
+    {
+        $this->perStorage = new \StdClass();
+        $this->perStorage->init = array();
+        $this->perStorage->data = array();
+    }
+
 
     /**
      * @param string $name
      * @return WS
      * @throws AbortException
      */
-    public function __get($name) {
+    public function __get($name)
+    {
         if (!isset($this->perStorage->init[self::APP_ID])) {
             throw new AbortException("ID_Application is not set");
         }
 
-        $wsdlName = $this->getWsdl($name);
-
-        $wsdlKey = $wsdlName;
-        if ($this->isTestMode) {
-            $wsdlKey .= '_Test';
-        }
-
-        if (!isset($this->active[$wsdlKey])) {
-            $this->active[$wsdlKey] = $this->wsFactory->createWS($this->getWsdlUri($wsdlName), $this->perStorage->init, $this->compression, $this->profiler);
-            if ($this->profiler) {
-                $this->active[$wsdlKey]->onEvent = $this->onEvent;
-            }
-        }
-        return $this->active[$wsdlKey];
-    }
-
-    protected function getWsdlUri($wsdlName) {
-        return $this->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
-    }
-
-    /**
-     * @param string $name
-     * @return string
-     * @throws WsdlException
-     */
-    protected function getWsdl($name) {
-        if (array_key_exists($name, $this->wsdl)) { //hleda podle celeho nazvu
-            return $name;
-        }
-        if ((array_key_exists($name, $this->aliases))) {//podle aliasu
-            return $this->aliases[$name];
-        }
-        throw new WsdlException("Invalid WSDL: " . $name);
+	return $this->wsdlManager->getWsdl($name, $this->profiler->init, $this->config->isProfiling());
     }
 
     /**
@@ -391,33 +170,29 @@ class Skautis {
      * @param string $backlink
      * @return string url
      */
-    public function getLoginUrl($backlink = null) {
-        return $this->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
+    public function getLoginUrl($backlink = "")
+    {
+        return $this->config->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
     /**
      * vrací url na odhlášení
      * @return string url
      */
-    public function getLogoutUrl() {
-        return $this->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
+    public function getLogoutUrl()
+    {
+        return $this->config->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
     }
     /**
      * vrací url k registraci
      * @return string url
      */
-    public function getRegisterUrl() {
-        return $this->getHttpPrefix() . ".skaut.cz/Login/Registration.aspx?appid=" . $this->getAppId() . (isset($backlink) ? "&ReturnUrl=" . $backlink : "");
+    public function getRegisterUrl($backlink = "")
+    {
+        return $this->config->getHttpPrefix() . ".skaut.cz/Login/Registration.aspx?appid=" . $this->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
 
-    /**
-     * vrací začátek URL adresy
-     * @return string
-     */
-    public function getHttpPrefix() {
-        return $this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX;
-    }
 
     /**
      * Kontoluje jestli je přihlášení platné
@@ -425,7 +200,8 @@ class Skautis {
      * @param bool $hardCheck Vynuti kontrolu prihlaseni na serveru
      * @return bool
      */
-    public function isLoggedIn($hardCheck = FALSE) {
+    public function isLoggedIn($hardCheck = FALSE)
+    {
 
 	if (empty($this->perStorage->init[self::APP_ID]))
            return FALSE;
@@ -445,7 +221,8 @@ class Skautis {
 	return TRUE;
     }
 
-    protected function isAuthConfirmed() {
+    protected function isAuthConfirmed()
+    {
         if (!isset($this->perStorage->data[self::AUTH_CONFIRMED]))
             return FALSE;
 
@@ -453,11 +230,13 @@ class Skautis {
     }
 
 
-    protected function setAuthConfirmed($isConfirmed) {
+    protected function setAuthConfirmed($isConfirmed)
+    {
 	$this->perStorage->data[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
     }
 
-    protected function confirmAuth() {
+    protected function confirmAuth()
+    {
         try {
             $this->updateLogoutTime();
             $this->setAuthConfirmed(true);
@@ -469,98 +248,72 @@ class Skautis {
     /**
      * prodloužení přihlášení o 30 min
      */
-    function updateLogoutTime() {
+    function updateLogoutTime()
+    {
         $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
     }
 
-    /**
-     * zkontroluje platnost tokenu a prodlouží přihlášení o 30 min
-     * @return bool
-     */
-    function checkLoginToken() {
-        return $this->isLoggedIn();
-    }
 
     /**
      * Hromadne nastaveni po prihlaseni
      *
      * @param array $data Pole dat zaslanych skautisem (napriklad $_SESSION)
      */
-    public function setLoginData(array $data) {
+    public function setLoginData(array $data)
+    {
 
 	$token = isset($data['skautIS_Token']) ? $data['skautIS_Token'] : "";
-	$this->setToken($token);
+        $this->perStorage->init[self::TOKEN] = $token;
+	//@TODO
+	//$this->active = array(); //zmenilo se prihlašování
+
 
 	$roleId = isset($data['skautIS_IDRole']) ? $data['skautIS_IDRole'] : "";
-        $this->setRoleId($roleId);
+        $this->perStorage->data[self::ID_ROLE] = (int) $roleId;
 
 	$unitId = isset($data['skautIS_IDUnit']) ? $data['skautIS_IDUnit'] : "";
-        $this->setUnitId($unitId);
+        $this->perStorage->data[self::ID_UNIT] = (int) $unitId;
 
 	if (!isset($data['skautIS_DateLogout'])) {
-	    return;
+            $this->perStorage->data[self::LOGOUT_DATE] = NULL;
+	}
+	else {
+            $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout']);
+            $this->perStorage->data[self::LOGOUT_DATE] = $logoutDate;
 	}
 
-        $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout']);
-	$this->setLogoutDate($logoutDate);
-
+        $this->writeConfigToSession();
     }
 
     /**
      * hromadny reset dat po odhlaseni
      */
-    public function resetLoginData() {
+    public function resetLoginData()
+    {
         $this->setLoginData(array());
-        $this->perStorage->data[self::LOGOUT_DATE] = null;
     }
 
-    /**
-     * vrací seznam WSDL, které podporuje
-     * @return array
-     */
-    public function getWsdlList() {
-        $wsdlNames = array_keys($this->wsdl);
-        return array_combine($wsdlNames, $wsdlNames);
-    }
+
 
     /**
      * ověřuje, zda je Skautis odstaven pro údržbu
      * @return boolean
      */
-    public function isMaintenance() {
+    public function isMaintenance()
+    {
         $headers = get_headers($this->getWsdlUri("UserManagement"));
         return !in_array('HTTP/1.1 200 OK', $headers);
     }
 
-    /**
-     * Nastavi WSFactory
-     *
-     * @param $wsFactory WSFactory
-     */
-    public function setWSFactory(WSFactory $wsFactory) {
-        $this->wsFactory = $wsFactory;
-    }
 
     /**
      * Ulozi nastaveni do session
      *
      * @return void
      */
-    protected function writeConfigToSession() {
-        $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
-    }
-
-    /**
-     * Nastavi uloziste session dat
-     *
-     * @param AdapterInterface $sessionAdapter Objekt zprostredkovavajici ukladani do session
-     *
-     * @return void
-     */
-    public function setAdapter(AdapterInterface $sessionAdapter)
+    protected function writeConfigToSession()
     {
-        $this->sessionAdapter = $sessionAdapter;
-        $this->writeConfigToSession();
+        $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
     }
 
     public function addLogQuery(SkautisQuery $query)
@@ -568,34 +321,5 @@ class Skautis {
 	$this->log[] = $query;
     }
 
-    /**
-     * @return bool
-     */
-    public function isProfiling() {
-	return $this->profiler;
-    }
 
-    /**
-     * Zapne cachovani WSDL
-     */
-    public function enableCache() {
-        $this->perStorage->init['cache_wsdl'] = WSDL_CACHE_BOTH;
-	$this->cache = TRUE;
-
-    }
-
-    /**
-     * Vypne cachovani WSDL
-     */
-    public function disableCache() {
-        $this->perStorage->init['cache_wsdl'] = WSDL_CACHE_NONE;
-	$this->cache = FALSE;
-    }
-
-    /**
-     * Zjisti jestli je WSDL cachovane
-     */
-    public function isCacheEnabled() {
-	return $this->cache;
-    }
 }

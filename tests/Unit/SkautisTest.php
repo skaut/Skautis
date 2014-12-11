@@ -6,21 +6,23 @@ use Skautis\Skautis;
 use Skautis\SessionAdapter\SessionAdapter;
 use Skautis\SessionAdapter\FakeAdapter;
 
-class SkautisTest extends \PHPUnit_Framework_TestCase {
+class SkautisTest extends \PHPUnit_Framework_TestCase 
+{
 
-	/**
-	 * Ano vim ze to neni officialni pattern
-	 * Jedna se o kockopsa Mezi singletonem a StaticFactory
-	 * Factory metoda na stride kterou instantizuje a novy objekt vytvari jen 1x za beh
-	 * Proc to tak je? Ohled na zpetnou kompatibilitu a pouzitelnost pro amatery
-	 */
-	public function testSingletonFactoryMethod() {
-        $skautISA = Skautis::getInstance();
-        $skautISB = Skautis::getInstance();
-
-        $this->assertSame($skautISA, $skautISB);
+    protected function makeSession()
+    {
+        return new Skautis\SessionAdapter\FakeAdapter();
     }
 
+    protected function makeFactory()
+    {
+        return \Mockery::mock("\Skautis\Factory\WSFactory");
+    }
+
+    protected function makeConfig()
+    {
+        return \Mockery::mock("\Skautis\Config");
+    }
     /**
      * @expectedException Skautis\Exception\InvalidArgumentException
      * @expectedExceptionRegExp / .*test.*mode.* /
@@ -37,44 +39,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
         new Skautis("app_id", false, "asd");
     }
 
-    public function testGetWsdlList() {
 
-        $skautIS = new Skautis();
-        $wdlList = $skautIS->getWsdlList();
-
-        $this->assertInternalType('array', $wdlList);
-        $this->assertTrue(count($wdlList) > 0);
-
-        foreach ($wdlList as $key => $value) {
-            $this->assertSame($key, $value);
-        }
-    }
-
-    public function testMagicMethodGet() {
-        $wsA = new \StdClass;
-        $wsB = new \StdClass;
-
-        $factory = \Mockery::mock("\Skautis\Factory\WSFactory");
-        $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
-
-        $skautIS = new Skautis("123");
-        $skautIS->setWSFactory($factory);
-
-
-        $skautIS->setTestMode(true);
-        $eventA = $skautIS->event;
-        $this->assertSame($eventA, $skautIS->event);
-
-        $skautIS->setTestMode(false);
-        $this->assertNotSame($eventA, $skautIS->event);
-        $eventB = $skautIS->event;
-
-        $skautIS->setTestMode(true);
-        $this->assertSame($eventA, $skautIS->event);
-
-        $this->assertSame($wsA, $eventA);
-        $this->assertSame($wsB, $eventB);
-    }
 
     public function testSetLoginData() {
         $skautIS = new Skautis();
@@ -84,6 +49,8 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
 	    'skautIS_IDUnit' => 100,
 	    'skautIS_DateLogout' => '2. 12. 2014 23:56:02'
 	);
+	$this->assertFalse($skautIS->isLoggedIn());
+
         $skautIS->setLoginData($data);
         $this->assertEquals("token", $skautIS->getToken());
         $this->assertEquals(33, $skautIS->getRoleId());
@@ -92,17 +59,6 @@ class SkautisTest extends \PHPUnit_Framework_TestCase {
 	$this->assertEquals("2014-12-02 23:56:02", $skautIS->getLogoutDate()->format('Y-m-d H:i:s'));
     }
 
-    public function testSetLoginDataViaSetters() {
-        $skautIS = new Skautis();
-        $skautIS->setUnitId(11);
-        $this->assertEquals(11, $skautIS->getUnitId());
-
-        $skautIS->setRoleId(44);
-        $this->assertEquals(44, $skautIS->getRoleId());
-
-        $skautIS->setUnitId(200);
-        $this->assertEquals(200, $skautIS->getUnitId());
-    }
 
     public function testIsLoggedInNoInicialization() {
         $skautIS = new Skautis();
