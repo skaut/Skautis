@@ -15,3 +15,6 @@ Pred pouzitim je potreba knihovnu pripravit, postupujte podle [navodu ke konfigu
 
 ##Pouziti
 Jak knihovnu pouzit po uspesne instalaci a konfiguraci se dozvite v tomto [navodu](pouziti.md)
+
+##Internals
+Pokud potrebujete prizpusobit knihovnu Vasemu projektu uzitecne informace v sekci [internals](internals.md)
