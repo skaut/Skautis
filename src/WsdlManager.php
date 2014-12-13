@@ -4,7 +4,7 @@ namespace Skautis;
 
 use Skautis\Factory\WSFactory;
 use Skautis\Exception\WsdlException;
-use Skauti\WS;
+use Skautis\WS;
 
 /**
  * Trida pro spravu WSDL a WS

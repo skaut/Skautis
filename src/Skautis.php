@@ -13,8 +13,11 @@ use Skautis\Exception\InvalidArgumentException;
 use Exception;
 
 /**
+ * Trida pro praci se Skautisem
+ *
+ * Sdruzuje vsechny komponenty a zprostredkovava jejich komunikaci.
+ *
  * @author Hána František <sinacek@gmail.com>
- * Singleton
  */
 class Skautis {
 
@@ -68,15 +71,11 @@ class Skautis {
     public $log = array();
 
 
-    public function __construct($appId,  AdapterInterface $sessionAdapter, WsdlManager $wsdlManager, Config $config)
+    public function __construct(Config $config, WsdlManager $wsdlManager,  AdapterInterface $sessionAdapter)
     {
 
-        if (!is_bool($testMode)) {
-            throw new InvalidArgumentException('Argument $testMode ma spatnou hodnotu: ' . print_r($testMode, TRUE));
-        }
-
-        if (!is_bool($profiler)) {
-            throw new InvalidArgumentException('Argument $profiler ma spatnou hodnotu: ' . print_r($profiler, TRUE));
+        if (!$config->validate()) {
+	    throw new InvalidArgumentException('Config neni spravne nastave');
 	}
 
 
@@ -89,7 +88,7 @@ class Skautis {
 	    $this->initEmptyConfig();
 	}
 
-	$this->perStorage->init[self::APP_ID] = $appId;
+	$this->perStorage->init[self::APP_ID] = $config->getAppId();
 	$this->wsdlManager = $wsdlManager;
 	$this->config = $config;
 
@@ -98,15 +97,7 @@ class Skautis {
         $this->writeConfigToSession();
     }
 
-    public function getAppId()
-    {
-        return isset($this->perStorage->init[self::APP_ID]) ? $this->perStorage->init[self::APP_ID] : null;
-    }
 
-    public function isSetAppId()
-    {
-        return isset($this->perStorage->init[self::APP_ID]);
-    }
 
 
     /**
@@ -162,7 +153,10 @@ class Skautis {
             throw new AbortException("ID_Application is not set");
         }
 
-	return $this->wsdlManager->getWsdl($name, $this->profiler->init, $this->config->isProfiling());
+	$soapOpts = $this->config->getSoapArguments();
+	$soapOpts[self::TOKEN] = $this->perStorage->init[self::TOKEN];
+
+	return $this->wsdlManager->getWsdl($name, $soapOpts, $this->config->getProfiler());
     }
 
     /**
@@ -172,7 +166,7 @@ class Skautis {
      */
     public function getLoginUrl($backlink = "")
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
+        return $this->config->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->config->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
     /**
@@ -181,7 +175,7 @@ class Skautis {
      */
     public function getLogoutUrl()
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->getAppId() . "&token=" . $this->getToken();
+        return $this->config->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->config->getAppId() . "&token=" . $this->getToken();
     }
     /**
      * vrací url k registraci
@@ -189,7 +183,7 @@ class Skautis {
      */
     public function getRegisterUrl($backlink = "")
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/Login/Registration.aspx?appid=" . $this->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
+        return $this->config->getHttpPrefix() . ".skaut.cz/Login/Registration.aspx?appid=" . $this->config->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
 
@@ -204,7 +198,7 @@ class Skautis {
     {
 
 	if (empty($this->perStorage->init[self::APP_ID]))
-           return FALSE;
+            return FALSE;
 
         if (empty($this->perStorage->init[self::TOKEN]))
             return FALSE;
@@ -248,9 +242,9 @@ class Skautis {
     /**
      * prodloužení přihlášení o 30 min
      */
-    function updateLogoutTime()
+    public function updateLogoutTime()
     {
-        $this->user->LoginUpdateRefresh(array("ID" => $this->getToken()));
+        $this->user->LoginUpdateRefresh(array("ID" => $this->getLoginId()));
     }
 
 

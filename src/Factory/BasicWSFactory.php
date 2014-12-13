@@ -30,9 +30,9 @@ class BasicWSFactory extends WSFactory
     /**
      * @inheritdoc
      */
-    public function createWS($wsdl, array $init, $compression, $profiler)
+    public function createWS($wsdl, array $init, $profiler)
     {
-        return new $this->class($wsdl, $init, $compression, $profiler);
+        return new $this->class($wsdl, $init, $profiler);
     }
 
 }
