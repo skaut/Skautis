@@ -49,12 +49,11 @@ class Skautis {
 
 
     /**
-     * persistentní pole
-     * ['init'] - obsahuje self::APP_ID a self::TOKEN
-     * ['data'] - obsahuje cokoliv dalšího
-     * @var \StdClass
+     * Informace o prihlaseni uzivatele
+     *
+     * @var array
      */
-    private $perStorage = NULL;
+    protected $loginData = [];
 
 
     /**
@@ -75,14 +74,10 @@ class Skautis {
 
         $this->sessionAdapter = $sessionAdapter;
         if ($this->sessionAdapter->has(self::SESSION_ID)) {
-            $this->perStorage = $this->sessionAdapter->get(self::SESSION_ID);
+            $this->loginData = $this->sessionAdapter->get(self::SESSION_ID);
         }
 
-	if ($this->perStorage === NULL) {
-	    $this->initEmptyConfig();
-	}
-
-	$this->perStorage->init[self::APP_ID] = $config->getAppId();
+	$this->loginData[self::APP_ID] = $config->getAppId();
 	$this->wsdlManager = $wsdlManager;
 	$this->config = $config;
 
@@ -97,18 +92,18 @@ class Skautis {
      */
     public function getLoginId()
     {
-        return isset($this->perStorage->init[self::TOKEN]) ? $this->perStorage->init[self::TOKEN] : null;
+        return isset($this->loginData[self::TOKEN]) ? $this->loginData[self::TOKEN] : null;
     }
 
     public function getRoleId()
     {
-        return isset($this->perStorage->data[self::ID_ROLE]) ? $this->perStorage->data[self::ID_ROLE] : NULL;
+        return isset($this->loginData[self::ID_ROLE]) ? $this->loginData[self::ID_ROLE] : NULL;
     }
 
 
     public function getUnitId()
     {
-        return isset($this->perStorage->data[self::ID_UNIT]) ? $this->perStorage->data[self::ID_UNIT] : NULL;
+        return isset($this->loginData[self::ID_UNIT]) ? $this->loginData[self::ID_UNIT] : NULL;
     }
 
 
@@ -119,20 +114,8 @@ class Skautis {
      */
     public function getLogoutDate()
     {
-        return isset($this->perStorage->data[self::LOGOUT_DATE]) ? $this->perStorage->data[self::LOGOUT_DATE] : NULL;
+        return isset($this->loginData[self::LOGOUT_DATE]) ? $this->loginData[self::LOGOUT_DATE] : NULL;
     }
-
-
-    /**
-     * Inicializuje $this->perStorage
-     */
-    protected function initEmptyConfig()
-    {
-        $this->perStorage = new \StdClass();
-        $this->perStorage->init = array();
-        $this->perStorage->data = array();
-    }
-
 
     /**
      * @param string $name
@@ -141,12 +124,8 @@ class Skautis {
      */
     public function __get($name)
     {
-        if (!isset($this->perStorage->init[self::APP_ID])) {
-            throw new AbortException("ID_Application is not set");
-        }
-
 	$soapOpts = $this->config->getSoapArguments();
-	$soapOpts[self::TOKEN] = $this->perStorage->init[self::TOKEN];
+	$soapOpts[self::TOKEN] = $this->loginData[self::TOKEN];
 
 	$ws = $this->wsdlManager->getWsdl($name, $soapOpts, $this->config->getProfiler());
 
@@ -173,7 +152,7 @@ class Skautis {
      */
     public function getLogoutUrl()
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->config->getAppId() . "&token=" . $this->getToken();
+        return $this->config->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->config->getAppId() . "&token=" . $this->getLoginId();
     }
     /**
      * vrací url k registraci
@@ -195,10 +174,7 @@ class Skautis {
     public function isLoggedIn($hardCheck = FALSE)
     {
 
-	if (empty($this->perStorage->init[self::APP_ID]))
-            return FALSE;
-
-        if (empty($this->perStorage->init[self::TOKEN]))
+        if (empty($this->loginData[self::TOKEN]))
             return FALSE;
 
         if ($this->getLogoutDate()->getTimestamp() < time())
@@ -215,16 +191,16 @@ class Skautis {
 
     protected function isAuthConfirmed()
     {
-        if (!isset($this->perStorage->data[self::AUTH_CONFIRMED]))
+        if (!isset($this->loginData[self::AUTH_CONFIRMED]))
             return FALSE;
 
-	return $this->perStorage->data[self::AUTH_CONFIRMED];
+	return $this->loginData[self::AUTH_CONFIRMED];
     }
 
 
     protected function setAuthConfirmed($isConfirmed)
     {
-	$this->perStorage->data[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
+	$this->loginData[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
     }
 
     protected function confirmAuth()
@@ -243,6 +219,7 @@ class Skautis {
     public function updateLogoutTime()
     {
         $this->user->LoginUpdateRefresh(array("ID" => $this->getLoginId()));
+        //@TODO Upravit lokalni data
     }
 
 
@@ -253,25 +230,26 @@ class Skautis {
      */
     public function setLoginData(array $data)
     {
+	$this->loginData = [];
 
 	$token = isset($data['skautIS_Token']) ? $data['skautIS_Token'] : "";
-        $this->perStorage->init[self::TOKEN] = $token;
+        $this->loginData[self::TOKEN] = $token;
 	//@TODO
 	//$this->active = array(); //zmenilo se prihlašování
 
 
 	$roleId = isset($data['skautIS_IDRole']) ? $data['skautIS_IDRole'] : "";
-        $this->perStorage->data[self::ID_ROLE] = (int) $roleId;
+        $this->loginData[self::ID_ROLE] = (int) $roleId;
 
 	$unitId = isset($data['skautIS_IDUnit']) ? $data['skautIS_IDUnit'] : "";
-        $this->perStorage->data[self::ID_UNIT] = (int) $unitId;
+        $this->loginData[self::ID_UNIT] = (int) $unitId;
 
 	if (!isset($data['skautIS_DateLogout'])) {
-            $this->perStorage->data[self::LOGOUT_DATE] = NULL;
+            $this->loginData[self::LOGOUT_DATE] = NULL;
 	}
 	else {
             $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout']);
-            $this->perStorage->data[self::LOGOUT_DATE] = $logoutDate;
+            $this->loginData[self::LOGOUT_DATE] = $logoutDate;
 	}
 
         $this->writeConfigToSession();
@@ -284,8 +262,6 @@ class Skautis {
     {
         $this->setLoginData(array());
     }
-
-
 
     /**
      * ověřuje, zda je Skautis odstaven pro údržbu
@@ -305,13 +281,11 @@ class Skautis {
      */
     protected function writeConfigToSession()
     {
-        $this->sessionAdapter->set(self::SESSION_ID, $this->perStorage);
+        $this->sessionAdapter->set(self::SESSION_ID, $this->loginData);
     }
 
     public function addLogQuery(SkautisQuery $query)
     {
 	$this->log[] = $query;
     }
-
-
 }
