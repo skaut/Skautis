@@ -2,7 +2,7 @@
 
 namespace Skautis;
 
-use Skautis\EventDispatcher\EventDispatcher;
+use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\EventDispatcher\EventDispatcherTrait;
 use Skautis\Exception\AuthenticationException;
 use Skautis\Exception\AbortException;
@@ -16,7 +16,7 @@ use SoapClient;
 /**
  * @author Hána František <sinacek@gmail.com>
  */
-class WS extends SoapClient implements EventDispatcher
+class WS extends SoapClient implements EventDispatcherInterface
 {
 
     use EventDispatcherTrait;

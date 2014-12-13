@@ -3,7 +3,6 @@
 namespace Skautis\Factory;
 
 use Skautis\Factory\WSFactory;
-use Skautis\WS;
 
 /**
  * @inheritdoc

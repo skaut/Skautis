@@ -218,8 +218,9 @@ class Skautis {
      */
     public function updateLogoutTime()
     {
-        $this->user->LoginUpdateRefresh(array("ID" => $this->getLoginId()));
-        //@TODO Upravit lokalni data
+        $result = $this->user->LoginUpdateRefresh(array("ID" => $this->getLoginId()));
+        $logoutDate = \DateTime::createFromFormat('c', $result->DateLogout);
+        $this->loginData[self::LOGOUT_DATE] = $logoutDate;
     }
 
 
@@ -234,8 +235,7 @@ class Skautis {
 
 	$token = isset($data['skautIS_Token']) ? $data['skautIS_Token'] : "";
         $this->loginData[self::TOKEN] = $token;
-	//@TODO
-	//$this->active = array(); //zmenilo se prihlašování
+	//@TODO Zmenil se token, vytvorena WS uz by se nemela pouzivat.
 
 
 	$roleId = isset($data['skautIS_IDRole']) ? $data['skautIS_IDRole'] : "";
