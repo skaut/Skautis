@@ -56,12 +56,6 @@ class Skautis {
      */
     private $perStorage = NULL;
 
-    /**
-     * Pole callbacku ktere Skautis preda WS objektu pro debugovani pozadavku na server
-     *
-     * @var callable[]
-     */
-    public $onEvent = array();
 
     /**
      * Pole obsahujici zaznamy ze vsech SOAP callu
@@ -91,8 +85,6 @@ class Skautis {
 	$this->perStorage->init[self::APP_ID] = $config->getAppId();
 	$this->wsdlManager = $wsdlManager;
 	$this->config = $config;
-
-	$this->onEvent[] = array($this, 'addLogQuery');
 
         $this->writeConfigToSession();
     }
@@ -156,7 +148,13 @@ class Skautis {
 	$soapOpts = $this->config->getSoapArguments();
 	$soapOpts[self::TOKEN] = $this->perStorage->init[self::TOKEN];
 
-	return $this->wsdlManager->getWsdl($name, $soapOpts, $this->config->getProfiler());
+	$ws = $this->wsdlManager->getWsdl($name, $soapOpts, $this->config->getProfiler());
+
+	if ($this->config->getProfiler() == Config::PROFILER_ENABLED) {
+            $ws->subscribe(WS::EVENT_ALL, array($this, 'addLogQuery'));
+	}
+
+	return $ws;
     }
 
     /**

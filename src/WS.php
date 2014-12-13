@@ -2,19 +2,28 @@
 
 namespace Skautis;
 
-use Skautis\Exception\AuthenticationException,
-    Skautis\Exception\AbortException,
-    Skautis\Exception\WsdlException,
-    Skautis\Exception\PermissionException,
-    Skautis\SkautisQuery,
-    SoapFault,
-    stdClass,
-    SoapClient;
+use Skautis\EventDispatcher\EventDispatcher;
+use Skautis\EventDispatcher\EventDispatcherTrait;
+use Skautis\Exception\AuthenticationException;
+use Skautis\Exception\AbortException;
+use Skautis\Exception\WsdlException;
+use Skautis\Exception\PermissionException;
+use Skautis\SkautisQuery;
+use SoapFault;
+use stdClass;
+use SoapClient;
 
 /**
  * @author Hána František <sinacek@gmail.com>
  */
-class WS extends SoapClient {
+class WS extends SoapClient implements EventDispatcher
+{
+
+    use EventDispatcherTrait;
+
+    const EVENT_ALL = -1;
+    const EVENT_SUCCESS = 1;
+    const EVENT_FAILURE = 2;
 
     /**
      * základní údaje volané při každém požadavku
@@ -22,13 +31,6 @@ class WS extends SoapClient {
      * @var array
      */
     protected $init;
-
-    /**
-     * Pole callbacku pro registraci SkautisQuery pro debugovani
-     *
-     * @var callable[]
-     */
-    public $onEvent = array();
 
     /**
      * Indikuje jestli ma ukladat informace pro debugovani
@@ -50,13 +52,6 @@ class WS extends SoapClient {
             throw new AbortException("WSDL musí být nastaven");
         }
         parent::__construct($wsdl, $soapOpts);
-    }
-
-    public function onEvent(SkautisQuery $query)
-    {
-        foreach ($this->onEvent as $f) {
-            call_user_func($f, $query);
-        }
     }
 
     /**
@@ -118,12 +113,12 @@ class WS extends SoapClient {
                 }
             }
             if ($this->profiler) {
-                $this->onEvent($query->done($ret));
+                $this->dispatch(self::EVEVENT_SUCCESS, $query->done($ret));
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
             if ($this->profiler) {
-                $this->onEvent($query->done(NULL, $e));
+                $this->dispatch(self::EVENT_FAILURE, $query->done(NULL, $e));
             }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException();
@@ -135,13 +130,4 @@ class WS extends SoapClient {
         }
     }
 
-    /**
-     * Prida callback
-     *
-     * @var callable $callback
-     */
-    public function addCallback(callable $callback)
-    {
-	$this->onEvent[] = $callback;
-    }
 }
