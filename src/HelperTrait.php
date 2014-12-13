@@ -13,9 +13,9 @@ trait HelperTrait
 
     /**
      * sigleton
-     * @var Skautis
+     * @var Skautis[]
      */
-    private static $instance = NULL;
+    private static $instances = [];
 
 
 
@@ -34,23 +34,32 @@ trait HelperTrait
      * @return Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
      * @throws InvalidArgumentException
      */
-    public static function getInstance($appId = NULL, $testMode = FALSE, $profiler = FALSE, $cache = FALSE)
+    public static function getInstance($appId, $testMode = false, $profiler = false, $cache = false, $compression = false)
     {
 
 
 
-	if (self::$instance === NULL) {
+        if ( !key_exists($appId, self::$instances) )
+        {
+
+            $config = new Config($appId);
+	    $config->setTestMode($testMode);
+	    $config->setCache($cache);
+	    $config->setCompression($compression);
+	    $config->setProfiler($profiler);
+
+
 
    	    // Out of box integrace s $_SESSION
             $sessionAdapter = new SessionAdapter();
 
 	    $wsFactory = new BasicWSFactory();
-	    $wsdlManager = new WsdlManager($wsFactory, $httpPrefix, $compression, $profiler);
+	    $wsdlManager = new WsdlManager($wsFactory, $config->getHttpPrefix(), $compression, $profiler);
 
-            self::$instance = new self($appId, $sessionAdapter, $wsdlManager, $testMode, $profiler, $cache);
+            self::$instances[$appId] = new self($config, $wsdlManager, $sessionAdapter);
         }
 
 
-        return self::$instance;
+        return self::$instances[$appId];
     }
 }

@@ -4,7 +4,7 @@ namespace Test\Skautis;
 
 use Skautis\Config;
 
-class ConfigTest
+class ConfigTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testDefaultConfiguration()
@@ -65,6 +65,17 @@ class ConfigTest
 
 	$config->setCache("asd");
 	$this->assertFalse($config->validate());
+    }
+
+    public function testHttpPrefix()
+    {
+        $config = new Config('sad');
+
+	$config->setTestMode(Config::TESTMODE_ENABLED);
+	$this->assertContains('test', $config->getHttpPrefix());
+
+	$config->setTestMode(Config::TESTMODE_DISABLED);
+	$this->assertNotContains('test', $config->getHttpPrefix());
     }
 }
 

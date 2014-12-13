@@ -79,7 +79,7 @@ class Skautis {
 
 	$this->loginData[self::APP_ID] = $config->getAppId();
 	$this->wsdlManager = $wsdlManager;
-	$this->config = $config;
+	$this->config = clone $config;
 
         $this->writeConfigToSession();
     }

@@ -15,7 +15,7 @@ class Config
     const PROFILER_DISABLED = false;
 
     const TESTMODE_ENABLED = true;
-    const TESTMODE_DISABELD = false;
+    const TESTMODE_DISABLED = false;
 
     const COMPRESSION_ENABLED = true;
     const COMPRESSION_DISABLED = false;
@@ -182,7 +182,7 @@ class Config
      */
     public function getHttpPrefix()
     {
-        return $this->isTestMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX;
+        return $this->testMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX;
     }
 
     /**
