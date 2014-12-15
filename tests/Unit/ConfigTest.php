@@ -15,6 +15,17 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
 
+    public function testConstructor()
+    {
+        $config = new Config('sad', true, true, true, true);
+
+	$this->assertSame('sad', $config->getAppId());
+	$this->assertSame(Config::TESTMODE_ENABLED, $config->getTestMode());
+	$this->assertSame(Config::PROFILER_ENABLED, $config->getProfiler());
+	$this->assertSame(Config::CACHE_ENABLED, $config->getCache());
+	$this->assertSame(Config::COMPRESSION_ENABLED, $config->getCompression());
+    }
+
     public function testTestMode()
     {
         $config = new Config("asd123");

@@ -62,8 +62,11 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 
     public function testIsLoggedHardCheck()
     {
+	$soapResponse = new \StdClass();
+	$soapResponse->DateLogout = '2024-02-12T15:19:21+00:00';
+
         $ws = \Mockery::mock("\Skautis\WS");
-        $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn();
+        $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn($soapResponse);
 
 	$wsdlManager = $this->makeWsdlManager();
 	$wsdlManager->shouldReceive('getWsdl')->once()->andReturn($ws);

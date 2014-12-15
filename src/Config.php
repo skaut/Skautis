@@ -32,7 +32,7 @@ class Config
      * používat kompresi?
      * @var bool
      */
-    protected $compression = false;
+    protected $compression = true;
 
     /**
      * používat testovací Skautis?
@@ -44,7 +44,7 @@ class Config
      * Cachovat WSDL
      * @var bool
      */
-    protected $cache = false;
+    protected $cache = true;
 
     /**
      *
@@ -55,9 +55,13 @@ class Config
     /**
      * @param string $appId Id aplikace od spravce skautisu
      */
-    public function __construct($appId)
+    public function __construct($appId, $testMode = false, $profiler = false, $cache = true, $compression = true)
     {
-	$this->appId = $appId;
+        $this->appId = $appId;
+        $this->testMode = $testMode;
+	$this->profiler = $profiler;
+        $this->cache = $cache;
+        $this->compression = $compression;
     }
 
     /**
