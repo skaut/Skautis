@@ -4,6 +4,7 @@ namespace Skautis;
 
 use Skautis\Factory\WSFactory;
 use Skautis\Exception\WsdlException;
+use Skautis\Config;
 use Skautis\WS;
 
 /**
@@ -18,19 +19,9 @@ class WsdlManager
      protected $WSFactory;
 
      /**
-      * @var string
+      * @var Config
       */
-     protected $httpPrefix;
-
-     /**
-      * @var bool
-      */
-     protected $compression;
-
-     /**
-      * @var bool
-      */
-     protected $profiler;
+     protected $config;
 
 
      /**
@@ -81,17 +72,13 @@ class WsdlManager
     /**
      * Konstruktor
      *
-     * @param WSFactory $factory     Pro vytvareni WS objektu
-     * @param string    $httpPrefix  Http prefix
-     * @param bool      $compression Komprese
-     * @param bool      $profiler    Profilovani
+     * @param WSFactory $factory Pro vytvareni WS objektu
+     * @param Config    $config  Konfigurace
      */
-    public function __construct(WSFactory $factory, $httpPrefix, $compression, $profiler)
+    public function __construct(WSFactory $factory, Config $config)
     {
         $this->WSFactory = $factory;
-	$this->httPrefix = $httpPrefix;
-	$this->compression = $compression;
-	$this->profiler = $profiler;
+        $this->config = $config;
     }
 
     /**
@@ -107,13 +94,13 @@ class WsdlManager
         $wsdlName = $this->getWsdlName($name);
 
         $wsdlKey = $wsdlName;
-        if ($this->isTestMode) {
+        if ($this->config->getTestMode()) {
             $wsdlKey .= '_Test';
         }
 
         if (!isset($this->active[$wsdlKey])) {
-            $this->active[$wsdlKey] = $this->wsFactory->createWS($this->getWsdlUri($wsdlName), $config, $this->compression, $this->profiler);
-            if ($this->profiler) {
+            $this->active[$wsdlKey] = $this->wsFactory->createWS($this->getWsdlUri($wsdlName), $config, $this->config->getCompression(), $this->config->getProfiler());
+            if ($this->config->getProfiler()) {
                 $this->active[$wsdlKey]->onEvent = $this->onEvent;
             }
         }
@@ -159,7 +146,7 @@ class WsdlManager
      */
     protected function getWsdlUri($wsdlName)
     {
-        return $this->httpPrefix . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
+        return $this->config->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
     }
 
 }

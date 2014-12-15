@@ -53,7 +53,7 @@ trait HelperTrait
             $sessionAdapter = new SessionAdapter();
 
 	    $wsFactory = new BasicWSFactory();
-	    $wsdlManager = new WsdlManager($wsFactory, $config->getHttpPrefix(), $compression, $profiler);
+	    $wsdlManager = new WsdlManager($wsFactory, $config);
 
             self::$instances[$appId] = new self($config, $wsdlManager, $sessionAdapter);
         }
