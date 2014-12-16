@@ -81,6 +81,11 @@ class Skautis {
 	$this->wsdlManager = $wsdlManager;
 	$this->config = clone $config;
 
+	if ($this->config->getProfiler() == Config::PROFILER_ENABLED) {
+            $this->wsdlManager->addWsListener(WS::EVENT_SUCCESS, array($this, 'addLogQuery'));
+            $this->wsdlManager->addWsListener(WS::EVENT_FAILURE, array($this, 'addLogQuery'));
+	}
+
         $this->writeConfigToSession();
     }
 
@@ -129,11 +134,12 @@ class Skautis {
 
 	$ws = $this->wsdlManager->getWsdl($name, $soapOpts, $this->config->getProfiler());
 
-	if ($this->config->getProfiler() == Config::PROFILER_ENABLED) {
-            $ws->subscribe(WS::EVENT_ALL, array($this, 'addLogQuery'));
-	}
-
 	return $ws;
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     /**
@@ -174,16 +180,16 @@ class Skautis {
     public function isLoggedIn($hardCheck = FALSE)
     {
 
-        if (empty($this->loginData[self::TOKEN]))
-            return FALSE;
-
-        if ($this->getLogoutDate()->getTimestamp() < time())
-	    return FALSE;
-
-	if ($hardCheck || !$this->isAuthConfirmed())
+        if ($hardCheck || !$this->isAuthConfirmed())
             $this->confirmAuth();
 
 	if (!$this->isAuthConfirmed())
+	    return FALSE;
+
+        if (empty($this->loginData[self::TOKEN]))
+	    return FALSE;
+
+        if ($this->getLogoutDate()->getTimestamp() < time())
 	    return FALSE;
 
 	return TRUE;
@@ -200,7 +206,8 @@ class Skautis {
 
     protected function setAuthConfirmed($isConfirmed)
     {
-	$this->loginData[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
+        $this->loginData[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
+        $this->writeConfigToSession();
     }
 
     protected function confirmAuth()
@@ -215,11 +222,19 @@ class Skautis {
 
     /**
      * prodloužení přihlášení o 30 min
+     *
+     * @throws \Exception Pokud se nepodarilo naparsovat LogoutDate
      */
     public function updateLogoutTime()
     {
         $result = $this->user->LoginUpdateRefresh(array("ID" => $this->getLoginId()));
-        $logoutDate = \DateTime::createFromFormat('c', $result->DateLogout);
+
+	$dateStr = preg_replace('/\.(\d+)/', '+00:00', $result->DateLogout);
+	$logoutDate = \DateTime::createFromFormat(\DateTime::ISO8601, $dateStr);
+
+	if ($logoutDate === false)
+	    throw  new Exception('Nepodarilo se naparsovat datum odhlaseni');
+
         $this->loginData[self::LOGOUT_DATE] = $logoutDate;
     }
 
@@ -269,8 +284,7 @@ class Skautis {
      */
     public function isMaintenance()
     {
-        $headers = get_headers($this->getWsdlUri("UserManagement"));
-        return !in_array('HTTP/1.1 200 OK', $headers);
+        return $this->wsdlManager->isMaintenance();
     }
 
 

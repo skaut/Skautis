@@ -16,12 +16,17 @@ class WsdlManager
      /**
       * @var WSFactory
       */
-     protected $WSFactory;
+     protected $wsFactory;
 
      /**
       * @var Config
       */
      protected $config;
+
+     /**
+      * @var array
+      */
+     protected $wsListeners = [];
 
 
      /**
@@ -77,7 +82,7 @@ class WsdlManager
      */
     public function __construct(WSFactory $factory, Config $config)
     {
-        $this->WSFactory = $factory;
+        $this->wsFactory = $factory;
         $this->config = $config;
     }
 
@@ -99,12 +104,20 @@ class WsdlManager
         }
 
         if (!isset($this->active[$wsdlKey])) {
-            $this->active[$wsdlKey] = $this->wsFactory->createWS($this->getWsdlUri($wsdlName), $config, $this->config->getCompression(), $this->config->getProfiler());
-            if ($this->config->getProfiler()) {
-                $this->active[$wsdlKey]->onEvent = $this->onEvent;
-            }
+            $this->active[$wsdlKey] = $this->createWs($wsdlName, $config);
         }
         return $this->active[$wsdlKey];
+    }
+
+    protected function createWs($wsdlName, $config)
+    {
+        $ws = $this->wsFactory->createWS($this->getWsdlUri($wsdlName), $config, $this->config->getCompression(), $this->config->getProfiler());
+
+        foreach ($this->wsListeners as $listener) {
+            $ws->subscribe($listener['event_name'], $listener['callback']);
+        }
+
+        return $ws;
     }
 
     /**
@@ -149,4 +162,17 @@ class WsdlManager
         return $this->config->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
     }
 
+    public function isMaintenance()
+    {
+        $headers = get_headers($this->getWsdlUri("UserManagement"));
+        return !in_array('HTTP/1.1 200 OK', $headers);
+    }
+
+    public function addWsListener($eventName, callable $callback)
+    {
+        $this->wsListeners[] = [
+		'event_name' => $eventName,
+		'callback' => $callback,
+		];
+    }
 }

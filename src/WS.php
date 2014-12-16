@@ -113,7 +113,7 @@ class WS extends SoapClient implements EventDispatcherInterface
                 }
             }
             if ($this->profiler) {
-                $this->dispatch(self::EVEVENT_SUCCESS, $query->done($ret));
+                $this->dispatch(self::EVENT_SUCCESS, $query->done($ret));
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
