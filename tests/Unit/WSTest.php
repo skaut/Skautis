@@ -33,7 +33,7 @@ class WSTest extends \PHPUnit_Framework_TestCase
 	);
 	$ws = new WS("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
 	$ws->profiler = true;
-	$ws->addCallback($callback);
+	$ws->subscribe(WS::EVENT_FAILURE, $callback);
 
 	try {
             $ws->UserDetail();

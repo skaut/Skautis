@@ -2,33 +2,35 @@
 
 namespace Skautis;
 
-use Skautis\Exception\AuthenticationException,
-    Skautis\Exception\AbortException,
-    Skautis\Exception\WsdlException,
-    Skautis\Exception\PermissionException,
-    Skautis\SkautisQuery,
-    SoapFault,
-    stdClass,
-    SoapClient;
+use Skautis\EventDispatcher\EventDispatcherInterface;
+use Skautis\EventDispatcher\EventDispatcherTrait;
+use Skautis\Exception\AuthenticationException;
+use Skautis\Exception\AbortException;
+use Skautis\Exception\WsdlException;
+use Skautis\Exception\PermissionException;
+use Skautis\SkautisQuery;
+use SoapFault;
+use stdClass;
+use SoapClient;
 
 /**
  * @author Hána František <sinacek@gmail.com>
  */
-class WS extends SoapClient {
+class WS extends SoapClient implements EventDispatcherInterface
+{
+
+    use EventDispatcherTrait;
+
+    const EVENT_ALL = -1;
+    const EVENT_SUCCESS = 1;
+    const EVENT_FAILURE = 2;
 
     /**
      * základní údaje volané při každém požadavku
      * ID_Application, ID_Login
      * @var array
      */
-    private $init;
-
-    /**
-     * Pole callbacku pro registraci SkautisQuery pro debugovani
-     *
-     * @var callable[]
-     */
-    public $onEvent = array();
+    protected $init;
 
     /**
      * Indikuje jestli ma ukladat informace pro debugovani
@@ -43,25 +45,13 @@ class WS extends SoapClient {
      * @param bool $compression Ma pouzivat kompresi na prenasena data?
      * @param bool $profiler Ma uklada data pro profilovani?
      */
-    public function __construct($wsdl, array $init, $compression = TRUE, $profiler = FALSE) {
-        $this->init = $init;
+    public function __construct($wsdl, array $soapOpts, $profiler = FALSE) {
+        $this->init = $soapOpts;
         $this->profiler = $profiler;
         if (empty($wsdl)) {
             throw new AbortException("WSDL musí být nastaven");
         }
-        $soapOpts['encoding'] = 'utf-8';
-        $soapOpts['soap_version'] = SOAP_1_2;
-        if ($compression === TRUE) {
-            $soapOpts['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
-        }
         parent::__construct($wsdl, $soapOpts);
-    }
-
-    public function onEvent(SkautisQuery $query)
-    {
-        foreach ($this->onEvent as $f) {
-            call_user_func($f, $query);
-        }
     }
 
     /**
@@ -123,12 +113,12 @@ class WS extends SoapClient {
                 }
             }
             if ($this->profiler) {
-                $this->onEvent($query->done($ret));
+                $this->dispatch(self::EVENT_SUCCESS, $query->done($ret));
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
             if ($this->profiler) {
-                $this->onEvent($query->done(NULL, $e));
+                $this->dispatch(self::EVENT_FAILURE, $query->done(NULL, $e));
             }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException();
@@ -140,13 +130,4 @@ class WS extends SoapClient {
         }
     }
 
-    /**
-     * Prida callback
-     *
-     * @var callable $callback
-     */
-    public function addCallback(callable $callback)
-    {
-	$this->onEvent[] = $callback;
-    }
 }
