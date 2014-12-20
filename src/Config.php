@@ -199,21 +199,18 @@ class Config
     public function getSoapArguments()
     {
         $soapOpts = [
-	       'ID_Application' => $this->appId,
-               'soap_version' => SOAP_1_2,
-               'encoding' => 'utf-8',
-	    ];
+            'ID_Application' => $this->appId,
+            'soap_version' => SOAP_1_2,
+            'encoding' => 'utf-8',
+        ];
 
-
-        if ($this->compression === true) {
-		$soapOpts['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
-	}
-
-
-        if ($this->cache === true) {
+        if ($this->compression) {
             $soapOpts['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
-	}
+        }
 
-	return $soapOpts;
+        $soapOpts['cache_wsdl'] = $this->cache ? WSDL_CACHE_BOTH : WSDL_CACHE_NONE;
+
+        return $soapOpts;
     }
+
 }
