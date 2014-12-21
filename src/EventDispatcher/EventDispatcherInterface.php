@@ -4,10 +4,13 @@ namespace Skautis\EventDispatcher;
 
 interface EventDispatcherInterface
 {
+
     /**
-     * Nastavi listener na udalost
+     * Přidá listener na událost.
      *
-     * @return void
+     * @param string $eventName
+     * @param callable $callback
      */
     public function subscribe($eventName, callable $callback);
+
 }

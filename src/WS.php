@@ -21,7 +21,6 @@ class WS extends SoapClient implements EventDispatcherInterface
 
     use EventDispatcherTrait;
 
-    const EVENT_ALL = -1;
     const EVENT_SUCCESS = 1;
     const EVENT_FAILURE = 2;
 
@@ -32,22 +31,14 @@ class WS extends SoapClient implements EventDispatcherInterface
      */
     protected $init;
 
-    /**
-     * Indikuje jestli ma ukladat informace pro debugovani
-     *
-     * @var bool
-     */
-    public $profiler;
 
     /**
      * @param mixed $wdl Odkaz na WSDL soubor
      * @param array $init Zakladni informace pro vsechny pozadavky
      * @param bool $compression Ma pouzivat kompresi na prenasena data?
-     * @param bool $profiler Ma uklada data pro profilovani?
      */
-    public function __construct($wsdl, array $soapOpts, $profiler = FALSE) {
+    public function __construct($wsdl, array $soapOpts) {
         $this->init = $soapOpts;
-        $this->profiler = $profiler;
         if (empty($wsdl)) {
             throw new AbortException("WSDL musí být nastaven");
         }
@@ -94,7 +85,7 @@ class WS extends SoapClient implements EventDispatcherInterface
             $args = array(array($function_name . "Input" => $args));
         }
 
-        if ($this->profiler) {
+        if ($this->hasListeners()) {
             $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         }
         try {
@@ -112,12 +103,12 @@ class WS extends SoapClient implements EventDispatcherInterface
                     $ret = $ret->{$fname . "Result"}; //neobsahuje $fname.Output
                 }
             }
-            if ($this->profiler) {
+            if ($this->hasListeners()) {
                 $this->dispatch(self::EVENT_SUCCESS, $query->done($ret));
             }
             return $ret; //neobsahuje $fname.Result
         } catch (SoapFault $e) {
-            if ($this->profiler) {
+            if ($this->hasListeners()) {
                 $this->dispatch(self::EVENT_FAILURE, $query->done(NULL, $e));
             }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
