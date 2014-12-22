@@ -5,6 +5,7 @@ namespace Skautis\Wsdl;
 use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\Exception\WsdlException;
 use Skautis\Config;
+use Skautis\Skautis;
 
 
 /**
@@ -90,15 +91,17 @@ class WsdlManager
      * Získá objekt webové služby
      *
      * @param string $name jméno nebo alias webové služby
-     * @param array $options volby pro SoapClient
+     * @param string|null $token skautIS login token
      * @return WebService|mixed
      */
-    public function getWebService($name, array $options = [])
+    public function getWebService($name, $token = null)
     {
         $name = $this->getWebServiceName($name);
-        $key = $name . ($this->config->getTestMode() ? '_Test' : '');
+        $key = $token . '_' . $name . ($this->config->getTestMode() ? '_Test' : '');
 
         if (!isset($this->webServices[$key])) {
+            $options = $this->config->getSoapArguments();
+            $options[Skautis::TOKEN] = $token;
             $this->webServices[$key] = $this->createWebService($name, $options);
         }
 
@@ -112,7 +115,7 @@ class WsdlManager
      * @param array $options volby pro SoapClient
      * @return WebService|mixed
      */
-    protected function createWebService($name, array $options = [])
+    public function createWebService($name, array $options = [])
     {
         $webService = $this->webServiceFactory->createWebService($this->getWebServiceUrl($name), $options);
 

@@ -120,18 +120,25 @@ class Skautis {
     }
 
     /**
+     * Trocha magie pro snadnější přístup k webovým službám.
+     *
      * @param string $name
-     * @return WebService
-     * @throws AbortException
+     * @return WebService|mixed
      */
     public function __get($name)
     {
-	$soapOpts = $this->config->getSoapArguments();
-	$soapOpts[self::TOKEN] = $this->loginData[self::TOKEN];
+        return $this->getWebService($name);
+    }
 
-	$ws = $this->wsdlManager->getWebService($name, $soapOpts, $this->config->getProfiler());
-
-	return $ws;
+    /**
+     * Získá objekt webové služby
+     *
+     * @param string $name
+     * @return WebService|mixed
+     */
+    public function getWebService($name)
+    {
+        return $this->wsdlManager->getWebService($name, $this->getLoginId());
     }
 
     public function getConfig()
@@ -247,7 +254,6 @@ class Skautis {
 
 	$token = isset($data['skautIS_Token']) ? $data['skautIS_Token'] : "";
         $this->loginData[self::TOKEN] = $token;
-	//@TODO Zmenil se token, vytvorena WS uz by se nemela pouzivat.
 
 
 	$roleId = isset($data['skautIS_IDRole']) ? $data['skautIS_IDRole'] : "";
