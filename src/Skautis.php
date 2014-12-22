@@ -79,8 +79,8 @@ class Skautis {
 	$this->config = clone $config;
 
 	if ($this->config->getProfiler() == Config::PROFILER_ENABLED) {
-            $this->wsdlManager->addWsListener(WebService::EVENT_SUCCESS, array($this, 'addLogQuery'));
-            $this->wsdlManager->addWsListener(WebService::EVENT_FAILURE, array($this, 'addLogQuery'));
+            $this->wsdlManager->addWebServiceListener(WebService::EVENT_SUCCESS, array($this, 'addLogQuery'));
+            $this->wsdlManager->addWebServiceListener(WebService::EVENT_FAILURE, array($this, 'addLogQuery'));
 	}
 
         $this->writeConfigToSession();
@@ -129,7 +129,7 @@ class Skautis {
 	$soapOpts = $this->config->getSoapArguments();
 	$soapOpts[self::TOKEN] = $this->loginData[self::TOKEN];
 
-	$ws = $this->wsdlManager->getWsdl($name, $soapOpts, $this->config->getProfiler());
+	$ws = $this->wsdlManager->getWebService($name, $soapOpts, $this->config->getProfiler());
 
 	return $ws;
     }

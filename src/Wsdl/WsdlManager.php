@@ -2,37 +2,33 @@
 
 namespace Skautis\Wsdl;
 
+use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\Exception\WsdlException;
 use Skautis\Config;
 
+
 /**
- * Trida pro spravu WSDL a WS
+ * Třída pro správu webových služeb SkautISu
  */
 class WsdlManager
 {
 
-     /**
-      * @var WebServiceFactoryInterface
-      */
-     protected $wsFactory;
+    /**
+     * @var WebServiceFactoryInterface
+     */
+    protected $webServiceFactory;
 
-     /**
-      * @var Config
-      */
-     protected $config;
+    /**
+     * @var Config
+     */
+    protected $config;
 
-     /**
-      * @var array
-      */
-     protected $wsListeners = [];
-
-
-     /**
-      * Aliasy WSDL pro rychly pristup
-      *
-      * @var array
-      */
-     protected $aliases = [
+    /**
+     * Aliasy webových služeb pro rychlý přístup
+     *
+     * @var array
+     */
+    protected $aliases = [
         "user" => "UserManagement",
         "usr" => "UserManagement",
         "org" => "OrganizationUnit",
@@ -42,135 +38,156 @@ class WsdlManager
     ];
 
     /**
-     * dostupné WSDL Skautisu
+     * Dostupné webové služby SkautISu
+     *
      * @var array
      */
-    protected $wsdl = [
-        "ApplicationManagement" => null,
-        "ContentManagement" => null,
-        "Evaluation" => null,
-        "Events" => null,
-        "Exports" => null,
-        "GoogleApps" => null,
-        "Journal" => null,
-        "Material" => null,
-        "Message" => null,
-        "OrganizationUnit" => null,
-        "Power" => null,
-        "Reports" => null,
-        "Summary" => null,
-        "Telephony" => null,
-        "UserManagement" => null,
-        "Vivant" => null,
-        "Welcome" => null,
+    protected $supportedWebServices = [
+        "ApplicationManagement",
+        "ContentManagement",
+        "Evaluation",
+        "Events",
+        "Exports",
+        "GoogleApps",
+        "Journal",
+        "Material",
+        "Message",
+        "OrganizationUnit",
+        "Power",
+        "Reports",
+        "Summary",
+        "Task",
+        "Telephony",
+        "UserManagement",
+        "Vivant",
+        "Welcome",
     ];
 
     /**
-     * pole aktivních Skautis\WebService
-     * @var array(Skautis\WebService)
+     * @var array
      */
-    protected $active = [];
+    protected $webServiceListeners = [];
+
+    /**
+     * Pole aktivních webových služeb
+     *
+     * @var array
+     */
+    protected $webServices = [];
 
 
     /**
-     * Konstruktor
-     *
-     * @param WebServiceFactoryInterface $factory Pro vytvareni WS objektu
-     * @param Config    $config  Konfigurace
+     * @param WebServiceFactoryInterface $webServiceFactory továrna pro vytváření objektů webových služeb
+     * @param Config $config
      */
-    public function __construct(WebServiceFactoryInterface $factory, Config $config)
+    public function __construct(WebServiceFactoryInterface $webServiceFactory, Config $config)
     {
-        $this->wsFactory = $factory;
+        $this->webServiceFactory = $webServiceFactory;
         $this->config = $config;
     }
 
     /**
-     * Ziska WebService
+     * Získá objekt webové služby
      *
-     * @param string $name   Jmeno nebo Alias WSDL
-     * @param array  $config SoapClient parameters
-     *
-     * @return WebService
+     * @param string $name jméno nebo alias webové služby
+     * @param array $options volby pro SoapClient
+     * @return WebService|mixed
      */
-    public function getWsdl($name, array $config = [])
+    public function getWebService($name, array $options = [])
     {
-        $wsdlName = $this->getWsdlName($name);
+        $name = $this->getWebServiceName($name);
+        $key = $name . ($this->config->getTestMode() ? '_Test' : '');
 
-        $wsdlKey = $wsdlName;
-        if ($this->config->getTestMode()) {
-            $wsdlKey .= '_Test';
+        if (!isset($this->webServices[$key])) {
+            $this->webServices[$key] = $this->createWebService($name, $options);
         }
 
-        if (!isset($this->active[$wsdlKey])) {
-            $this->active[$wsdlKey] = $this->createWs($wsdlName, $config);
-        }
-        return $this->active[$wsdlKey];
-    }
-
-    protected function createWs($wsdlName, $config)
-    {
-        $ws = $this->wsFactory->createWebService($this->getWsdlUri($wsdlName), $config);
-
-        foreach ($this->wsListeners as $listener) {
-            $ws->subscribe($listener['event_name'], $listener['callback']);
-        }
-
-        return $ws;
+        return $this->webServices[$key];
     }
 
     /**
-     * Ziska cele jmeno WSDL souboru
+     * Vytváří objekt webové služby
      *
-     * @param string $name Jmeno nebo Alias WSDL
+     * @param string $name jméno webové služby
+     * @param array $options volby pro SoapClient
+     * @return WebService|mixed
+     */
+    protected function createWebService($name, array $options = [])
+    {
+        $webService = $this->webServiceFactory->createWebService($this->getWebServiceUrl($name), $options);
+
+        if ($webService instanceof EventDispatcherInterface) {
+            // Zaregistruj listenery na vytvořeném objektu webové služby, pokud je to podporováno
+            foreach ($this->webServiceListeners as $listener) {
+                $webService->subscribe($listener['eventName'], $listener['callback']);
+            }
+        }
+
+        return $webService;
+    }
+
+    /**
+     * Vrací celé jméno webové služby
      *
+     * @param string $name jméno nebo alias webové služby
      * @return string
      * @throws WsdlException
      */
-    protected function getWsdlName($name)
+    protected function getWebServiceName($name)
     {
-        if (array_key_exists($name, $this->wsdl)) { //hleda podle celeho nazvu
+        if (in_array($name, $this->supportedWebServices)) {
+            // služba s daným jménem existuje
             return $name;
         }
-        if ((array_key_exists($name, $this->aliases))) {//podle aliasu
+        if (array_key_exists($name, $this->aliases) && in_array($this->aliases[$name], $this->supportedWebServices)) {
+            // je definovaný alias pro tuto službu
             return $this->aliases[$name];
         }
-        throw new WsdlException("Invalid WSDL: " . $name);
+        throw new WsdlException("Web service '$name' not found.");
     }
 
     /**
-     * vrací seznam WSDL, které podporuje
+     * Vrací URL webové služby podle jejího jména
+     *
+     * @param string $name celé jméno webové služby
+     * @return string
+     */
+    protected function getWebServiceUrl($name)
+    {
+        return $this->config->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . rawurlencode($name) . ".asmx?WSDL";
+    }
+
+    /**
+     * Vrací seznam webových služeb, které podporuje
      *
      * @return array
      */
-    public function getWsdlList()
+    public function getSupportedWebServices()
     {
-        $wsdlNames = array_keys($this->wsdl);
-	return array_combine($wsdlNames, $wsdlNames);
+        return $this->supportedWebServices;
     }
 
     /**
-     * Ziska URL adresu WSDL
-     *
-     * @param string $wsdlName Cele jmeno WSDL
-     *
-     * @return string
+     * @return bool
      */
-    protected function getWsdlUri($wsdlName)
-    {
-        return $this->config->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . $wsdlName . ".asmx?WSDL";
-    }
-
     public function isMaintenance()
     {
-        $headers = get_headers($this->getWsdlUri("UserManagement"));
+        $headers = get_headers($this->getWebServiceUrl("UserManagement"));
         return !in_array('HTTP/1.1 200 OK', $headers);
     }
 
-    public function addWsListener($eventName, callable $callback)
+    /**
+     * Přidá listener na spravovaných vytvářených webových služeb.
+     *
+     * @param string $eventName
+     * @param callable $callback
+     */
+    public function addWebServiceListener($eventName, callable $callback)
     {
-        $this->wsListeners[] = [
-		'event_name' => $eventName,
-		'callback' => $callback,
-		];
+        $this->webServiceListeners[] = [
+            'eventName' => $eventName,
+            'callback' => $callback,
+        ];
     }
+
 }

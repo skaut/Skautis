@@ -69,7 +69,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
         $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn($soapResponse);
 
 	$wsdlManager = $this->makeWsdlManager();
-	$wsdlManager->shouldReceive('getWsdl')->once()->andReturn($ws);
+	$wsdlManager->shouldReceive('getWebService')->once()->andReturn($ws);
 
 	$config = $this->makeConfig();
 	$session = $this->makeSession();

@@ -12,9 +12,9 @@ class WsdlManagerTest
         return \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
     }
 
-    public function testGetWsdlList()
+    public function testGetSupportedWebServices()
     {
-
+echo "WTF?";
         $skautIS = new WsdlManager();
         $wdlList = $skautIS->getWsdlList();
 
