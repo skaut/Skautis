@@ -39,11 +39,6 @@ class Skautis {
      */
     protected $sessionAdapter = NULL;
 
-    /**
-     * @var Config
-     */
-    protected $config = NULL;
-
 
     /**
      * Informace o prihlaseni uzivatele
@@ -51,7 +46,6 @@ class Skautis {
      * @var array
      */
     protected $loginData = [];
-
 
     /**
      * Pole obsahujici zaznamy ze vsech SOAP callu
@@ -61,27 +55,20 @@ class Skautis {
     public $log = array();
 
 
-    public function __construct(Config $config, WsdlManager $wsdlManager,  AdapterInterface $sessionAdapter)
+    public function __construct(WsdlManager $wsdlManager, AdapterInterface $sessionAdapter)
     {
-
-        if (!$config->validate()) {
-	    throw new InvalidArgumentException('Config neni spravne nastave');
-	}
-
-
+        $this->wsdlManager = $wsdlManager;
         $this->sessionAdapter = $sessionAdapter;
+
         if ($this->sessionAdapter->has(self::SESSION_ID)) {
             $this->loginData = $this->sessionAdapter->get(self::SESSION_ID);
         }
+        $this->loginData[self::APP_ID] = $this->getConfig()->getAppId();
 
-	$this->loginData[self::APP_ID] = $config->getAppId();
-	$this->wsdlManager = $wsdlManager;
-	$this->config = clone $config;
-
-	if ($this->config->getProfiler() == Config::PROFILER_ENABLED) {
+        if ($this->getConfig()->getProfiler() == Config::PROFILER_ENABLED) {
             $this->wsdlManager->addWebServiceListener(WebService::EVENT_SUCCESS, array($this, 'addLogQuery'));
             $this->wsdlManager->addWebServiceListener(WebService::EVENT_FAILURE, array($this, 'addLogQuery'));
-	}
+        }
 
         $this->writeConfigToSession();
     }
@@ -143,7 +130,7 @@ class Skautis {
 
     public function getConfig()
     {
-        return $this->config;
+        return $this->wsdlManager->getConfig();
     }
 
     /**
@@ -153,7 +140,7 @@ class Skautis {
      */
     public function getLoginUrl($backlink = "")
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/Login/?appid=" . $this->config->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
+        return $this->getConfig()->getBaseUrl() . "Login/?appid=" . $this->getConfig()->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
     /**
@@ -162,7 +149,7 @@ class Skautis {
      */
     public function getLogoutUrl()
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/Login/LogOut.aspx?appid=" . $this->config->getAppId() . "&token=" . $this->getLoginId();
+        return $this->getConfig()->getBaseUrl() . "Login/LogOut.aspx?appid=" . $this->getConfig()->getAppId() . "&token=" . $this->getLoginId();
     }
     /**
      * vrací url k registraci
@@ -170,7 +157,7 @@ class Skautis {
      */
     public function getRegisterUrl($backlink = "")
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/Login/Registration.aspx?appid=" . $this->config->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
+        return $this->getConfig()->getBaseUrl() . "Login/Registration.aspx?appid=" . $this->getConfig()->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
     }
 
 

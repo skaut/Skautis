@@ -78,15 +78,15 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 	$this->assertFalse($config->validate());
     }
 
-    public function testHttpPrefix()
+    public function testBaseUrl()
     {
         $config = new Config('sad');
 
 	$config->setTestMode(Config::TESTMODE_ENABLED);
-	$this->assertContains('test', $config->getHttpPrefix());
+	$this->assertContains('test', $config->getBaseUrl());
 
 	$config->setTestMode(Config::TESTMODE_DISABLED);
-	$this->assertNotContains('test', $config->getHttpPrefix());
+	$this->assertNotContains('test', $config->getBaseUrl());
     }
 }
 

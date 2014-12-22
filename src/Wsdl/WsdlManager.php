@@ -88,6 +88,14 @@ class WsdlManager
     }
 
     /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
      * Získá objekt webové služby
      *
      * @param string $name jméno nebo alias webové služby
@@ -157,7 +165,7 @@ class WsdlManager
      */
     protected function getWebServiceUrl($name)
     {
-        return $this->config->getHttpPrefix() . ".skaut.cz/JunakWebservice/" . rawurlencode($name) . ".asmx?WSDL";
+        return $this->config->getBaseUrl() . "JunakWebservice/" . rawurlencode($name) . ".asmx?WSDL";
     }
 
     /**

@@ -20,8 +20,8 @@ class Config
     const COMPRESSION_ENABLED = true;
     const COMPRESSION_DISABLED = false;
 
-    const HTTP_PREFIX_TEST = "http://test-is";
-    const HTTP_PREFIX = "https://is";
+    const URL_TEST = "http://test-is.skaut.cz/";
+    const URL_PRODUCTION = "https://is.skaut.cz/";
 
     /**
      * @var bool
@@ -184,9 +184,9 @@ class Config
      *
      * @return string
      */
-    public function getHttpPrefix()
+    public function getBaseUrl()
     {
-        return $this->testMode ? self::HTTP_PREFIX_TEST : self::HTTP_PREFIX;
+        return $this->testMode ? self::URL_TEST : self::URL_PRODUCTION;
     }
 
     /**

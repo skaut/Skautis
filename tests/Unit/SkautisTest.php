@@ -22,7 +22,10 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 
     protected function makeWsdlManager()
     {
-        return \Mockery::mock("\Skautis\Wsdl\WsdlManager");
+        $manager = \Mockery::mock("\Skautis\Wsdl\WsdlManager");
+        $config = $this->makeConfig();
+        $manager->shouldReceive('getConfig')->withNoArgs()->andReturn($config);
+        return $manager;
     }
 
     protected function makeConfig()
@@ -36,7 +39,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 
     protected function makeSkautis()
     {
-	return new Skautis($this->makeConfig(), $this->makeWsdlManager(), $this->makeSession());
+	return new Skautis($this->makeWsdlManager(), $this->makeSession());
     }
 
     public function testSetLoginData()
@@ -74,7 +77,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 	$config = $this->makeConfig();
 	$session = $this->makeSession();
 
-	$skautis = new Skautis($config, $wsdlManager, $session);
+	$skautis = new Skautis($wsdlManager, $session);
 
 	$data = array(
             'skautIS_Token' => "token",

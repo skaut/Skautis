@@ -54,7 +54,7 @@ trait HelperTrait
 	    $wsFactory = new WebServiceFactory();
 	    $wsdlManager = new WsdlManager($wsFactory, $config);
 
-            self::$instances[$appId] = new self($config, $wsdlManager, $sessionAdapter);
+            self::$instances[$appId] = new self($wsdlManager, $sessionAdapter);
         }
 
 
