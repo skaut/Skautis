@@ -1,6 +1,6 @@
 <?php
 
-namespace Skautis;
+namespace Skautis\Wsdl;
 
 use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\EventDispatcher\EventDispatcherTrait;

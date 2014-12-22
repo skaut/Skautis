@@ -2,9 +2,8 @@
 
 namespace Skautis;
 
-use Skautis\Config;
-use Skautis\WsdlManager;
-use Skautis\Factory\BasicWSFactory;
+use Skautis\Wsdl\WsdlManager;
+use Skautis\Wsdl\BasicWSFactory;
 use Skautis\SessionAdapter\SessionAdapter;
 
 trait HelperTrait
@@ -30,7 +29,7 @@ trait HelperTrait
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
      * @var bool $profiler ma uchovavat data pro profilovani?
      *
-     * @return Skautis\Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
+     * @return Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
      * @throws InvalidArgumentException
      */
     public static function getInstance($appId, $testMode = false, $profiler = false, $cache = false, $compression = false)

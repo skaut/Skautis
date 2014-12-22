@@ -1,8 +1,7 @@
 <?php
 
-namespace Skautis\Factory;
+namespace Skautis\Wsdl;
 
-use Skautis\Factory\WSFactory;
 
 /**
  * @inheritdoc
@@ -19,7 +18,7 @@ class BasicWSFactory extends WSFactory
     public function __construct($class = null)
     {
         if ($class === NULL) {
-            $this->class = 'Skautis\WS';
+            $this->class = '\Skautis\Wsdl\WS';
 	    return;
 	}
 

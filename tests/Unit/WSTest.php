@@ -2,7 +2,7 @@
 
 namespace Test\Skautis;
 
-use Skautis\WS;
+use Skautis\Wsdl\WS;
 use Skautis\Skautis;
 
 class WSTest extends \PHPUnit_Framework_TestCase
@@ -32,7 +32,6 @@ class WSTest extends \PHPUnit_Framework_TestCase
             Skautis::TOKEN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 	);
 	$ws = new WS("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
-	$ws->profiler = true;
 	$ws->subscribe(WS::EVENT_FAILURE, $callback);
 
 	try {

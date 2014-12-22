@@ -22,7 +22,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 
     protected function makeWsdlManager()
     {
-        return \Mockery::mock("\Skautis\WsdlManager");
+        return \Mockery::mock("\Skautis\Wsdl\WsdlManager");
     }
 
     protected function makeConfig()

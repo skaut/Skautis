@@ -2,11 +2,8 @@
 
 namespace Skautis;
 
-use Skautis\WsdlManager;
-use Skautis\HelperTrait;
-use Skautis\Config;
-use Skautis\SkautisQuery;
-use Skautis\Factory\WSFactory;
+use Skautis\Wsdl\WsdlManager;
+use Skautis\Wsdl\WS;
 use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\Exception\AbortException;
 use Skautis\Exception\InvalidArgumentException;

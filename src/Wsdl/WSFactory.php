@@ -1,6 +1,6 @@
 <?php
 
-namespace Skautis\Factory;
+namespace Skautis\Wsdl;
 
 /**
  * Trida umoznujici pouziti vlastni tridy WS se tridou SkautIS

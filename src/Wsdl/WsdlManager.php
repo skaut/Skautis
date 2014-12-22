@@ -1,11 +1,9 @@
 <?php
 
-namespace Skautis;
+namespace Skautis\Wsdl;
 
-use Skautis\Factory\WSFactory;
 use Skautis\Exception\WsdlException;
 use Skautis\Config;
-use Skautis\WS;
 
 /**
  * Trida pro spravu WSDL a WS

@@ -2,7 +2,7 @@
 
 namespace Test\Skautis;
 
-use Skautis\Factory\BasicWSFactory;
+use Skautis\Wsdl\BasicWSFactory;
 
 class WSFactoryTest extends \PHPUnit_Framework_TestCase
 {
