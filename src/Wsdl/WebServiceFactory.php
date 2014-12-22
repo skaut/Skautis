@@ -5,7 +5,7 @@ namespace Skautis\Wsdl;
 /**
  * @inheritdoc
  */
-class WSFactory implements WSFactoryInterface
+class WebServiceFactory implements WebServiceFactoryInterface
 {
 
     /** @var string Třída webové služby */
@@ -15,7 +15,7 @@ class WSFactory implements WSFactoryInterface
     /**
      * @param string $class
      */
-    public function __construct($class = '\Skautis\Wsdl\WS')
+    public function __construct($class = '\Skautis\Wsdl\WebService')
     {
         $this->class = $class;
     }

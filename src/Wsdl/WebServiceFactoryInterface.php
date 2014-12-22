@@ -5,7 +5,7 @@ namespace Skautis\Wsdl;
 /**
  * Interface továrny pro vytváření objektů webových služeb
  */
-interface WSFactoryInterface
+interface WebServiceFactoryInterface
 {
 
     /**

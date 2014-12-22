@@ -3,7 +3,7 @@
 namespace Skautis;
 
 use Skautis\Wsdl\WsdlManager;
-use Skautis\Wsdl\WSFactory;
+use Skautis\Wsdl\WebServiceFactory;
 use Skautis\SessionAdapter\SessionAdapter;
 
 trait HelperTrait
@@ -51,7 +51,7 @@ trait HelperTrait
    	    // Out of box integrace s $_SESSION
             $sessionAdapter = new SessionAdapter();
 
-	    $wsFactory = new WSFactory();
+	    $wsFactory = new WebServiceFactory();
 	    $wsdlManager = new WsdlManager($wsFactory, $config);
 
             self::$instances[$appId] = new self($config, $wsdlManager, $sessionAdapter);

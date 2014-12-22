@@ -2,7 +2,7 @@
 
 namespace Test\Skautis;
 
-use Skautis\Wsdl\WS;
+use Skautis\Wsdl\WebService;
 use Skautis\Skautis;
 
 class WSTest extends \PHPUnit_Framework_TestCase
@@ -14,7 +14,7 @@ class WSTest extends \PHPUnit_Framework_TestCase
      */
     public function testWSConstructMissingWsdl()
     {
-        $ws = new WS("", array());
+        $ws = new WebService("", array());
     }
 
     public function queryCallback($query)
@@ -31,8 +31,8 @@ class WSTest extends \PHPUnit_Framework_TestCase
             Skautis::APP_ID => 123,
             Skautis::TOKEN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 	);
-	$ws = new WS("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
-	$ws->subscribe(WS::EVENT_FAILURE, $callback);
+	$ws = new WebService("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
+	$ws->subscribe(WebService::EVENT_FAILURE, $callback);
 
 	try {
             $ws->UserDetail();

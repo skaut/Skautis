@@ -14,8 +14,8 @@ use Skautis\Skautis;
 $skautis = new Skautis('moje-application_id');
 ```
 
-###WSFactoryInterface
-Slouzi k vytvareni WS objektu
+###WebServiceFactoryInterface
+Slouzi k vytvareni WebService objektu
 @TODO
 
 ###SessionAdapter

@@ -3,7 +3,7 @@
 namespace Skautis;
 
 use Skautis\Wsdl\WsdlManager;
-use Skautis\Wsdl\WS;
+use Skautis\Wsdl\WebService;
 use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\Exception\AbortException;
 use Skautis\Exception\InvalidArgumentException;
@@ -79,8 +79,8 @@ class Skautis {
 	$this->config = clone $config;
 
 	if ($this->config->getProfiler() == Config::PROFILER_ENABLED) {
-            $this->wsdlManager->addWsListener(WS::EVENT_SUCCESS, array($this, 'addLogQuery'));
-            $this->wsdlManager->addWsListener(WS::EVENT_FAILURE, array($this, 'addLogQuery'));
+            $this->wsdlManager->addWsListener(WebService::EVENT_SUCCESS, array($this, 'addLogQuery'));
+            $this->wsdlManager->addWsListener(WebService::EVENT_FAILURE, array($this, 'addLogQuery'));
 	}
 
         $this->writeConfigToSession();
@@ -121,7 +121,7 @@ class Skautis {
 
     /**
      * @param string $name
-     * @return WS
+     * @return WebService
      * @throws AbortException
      */
     public function __get($name)

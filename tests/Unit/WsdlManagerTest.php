@@ -9,7 +9,7 @@ class WsdlManagerTest
 
     protected function makeFactory()
     {
-        return \Mockery::mock("\Skautis\Wsdl\WSFactory");
+        return \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
     }
 
     public function testGetWsdlList()
@@ -32,7 +32,7 @@ class WsdlManagerTest
         $wsA = new \StdClass;
         $wsB = new \StdClass;
 
-        $factory = \Mockery::mock("\Skautis\Wsdl\WSFactory");
+        $factory = \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
         $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
 
         $skautIS = new Skautis("123");
