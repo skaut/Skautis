@@ -2,46 +2,45 @@
 
 namespace Skautis;
 
+use Skautis\Exception\InvalidArgumentException;
 use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebService;
 use Skautis\SessionAdapter\AdapterInterface;
-use Skautis\Exception\AbortException;
-use Skautis\Exception\InvalidArgumentException;
-use Exception;
+
 
 /**
- * Trida pro praci se Skautisem
- *
- * Sdruzuje vsechny komponenty a zprostredkovava jejich komunikaci.
+ * Třída pro práci se skautISem
+ * 
+ * Sdružuje všechny komponenty a zprostředkovává jejich komunikaci.
  *
  * @author Hána František <sinacek@gmail.com>
  */
-class Skautis {
+class Skautis
+{
 
     use HelperTrait;
 
     const APP_ID = "ID_Application";
     const TOKEN = "ID_Login";
+    const ID_LOGIN = 'ID_Login';
     const ID_ROLE = "ID_Role";
     const ID_UNIT = "ID_Unit";
     const LOGOUT_DATE = "LOGOUT_Date";
     const AUTH_CONFIRMED = "AUTH_Confirmed";
     const SESSION_ID = "skautis_library_data";
 
-
     /**
      * @var WsdlManager
      */
-    private $wsdlManager = NULL;
+    private $wsdlManager;
 
     /**
      * @var AdapterInterface
      */
-    protected $sessionAdapter = NULL;
-
+    private $sessionAdapter;
 
     /**
-     * Informace o prihlaseni uzivatele
+     * Informace o přihlášení uživatele
      *
      * @var array
      */
@@ -53,6 +52,10 @@ class Skautis {
     private $log;
 
 
+    /**
+     * @param WsdlManager $wsdlManager
+     * @param AdapterInterface $sessionAdapter
+     */
     public function __construct(WsdlManager $wsdlManager, AdapterInterface $sessionAdapter)
     {
         $this->wsdlManager = $wsdlManager;
@@ -61,9 +64,6 @@ class Skautis {
         if ($this->sessionAdapter->has(self::SESSION_ID)) {
             $this->loginData = $this->sessionAdapter->get(self::SESSION_ID);
         }
-        $this->loginData[self::APP_ID] = $this->getConfig()->getAppId();
-
-        $this->writeConfigToSession();
     }
 
     /**
@@ -75,33 +75,22 @@ class Skautis {
     }
 
     /**
-     * @return string
+     * @return Config
      */
-    public function getLoginId()
+    public function getConfig()
     {
-        return isset($this->loginData[self::TOKEN]) ? $this->loginData[self::TOKEN] : null;
+        return $this->wsdlManager->getConfig();
     }
-
-    public function getRoleId()
-    {
-        return isset($this->loginData[self::ID_ROLE]) ? $this->loginData[self::ID_ROLE] : NULL;
-    }
-
-
-    public function getUnitId()
-    {
-        return isset($this->loginData[self::ID_UNIT]) ? $this->loginData[self::ID_UNIT] : NULL;
-    }
-
 
     /**
-     * Vraci datum a cas automaticeho odhlaseni z is.skaut.cz
+     * Získá objekt webové služby
      *
-     * @return \DateTime
+     * @param string $name
+     * @return WebService|mixed
      */
-    public function getLogoutDate()
+    public function getWebService($name)
     {
-        return isset($this->loginData[self::LOGOUT_DATE]) ? $this->loginData[self::LOGOUT_DATE] : NULL;
+        return $this->wsdlManager->getWebService($name, $this->getLoginId());
     }
 
     /**
@@ -116,174 +105,222 @@ class Skautis {
     }
 
     /**
-     * Získá objekt webové služby
+     * Vrací URL na přihlášení
      *
-     * @param string $name
-     * @return WebService|mixed
+     * @param string|null $backlink
+     * @return string
      */
-    public function getWebService($name)
+    public function getLoginUrl($backlink = null)
     {
-        return $this->wsdlManager->getWebService($name, $this->getLoginId());
-    }
-
-    public function getConfig()
-    {
-        return $this->wsdlManager->getConfig();
+        $query = [];
+        $query['appid'] = $this->getConfig()->getAppId();
+        if (!empty($backlink)) {
+            $query['ReturnUrl'] = $backlink;
+        }
+        return $this->getConfig()->getBaseUrl() . "Login/?" . http_build_query($query, '', '&');
     }
 
     /**
-     * vrací url na přihlášení
-     * @param string $backlink
-     * @return string url
-     */
-    public function getLoginUrl($backlink = "")
-    {
-        return $this->getConfig()->getBaseUrl() . "Login/?appid=" . $this->getConfig()->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
-    }
-
-    /**
-     * vrací url na odhlášení
-     * @return string url
+     * Vrací URL na odhlášení
+     *
+     * @return string
      */
     public function getLogoutUrl()
     {
-        return $this->getConfig()->getBaseUrl() . "Login/LogOut.aspx?appid=" . $this->getConfig()->getAppId() . "&token=" . $this->getLoginId();
+        $query = [];
+        $query['appid'] = $this->getConfig()->getAppId();
+        $query['token'] = $this->getLoginId();
+        return $this->getConfig()->getBaseUrl() . "Login/LogOut.aspx?" . http_build_query($query, '', '&');
     }
+
     /**
-     * vrací url k registraci
-     * @return string url
+     * Vrací URL k registraci
+     *
+     * @param string|null $backlink
+     * @return string
      */
     public function getRegisterUrl($backlink = "")
     {
-        return $this->getConfig()->getBaseUrl() . "Login/Registration.aspx?appid=" . $this->getConfig()->getAppId() . (!empty($backlink) ? "&ReturnUrl=" . $backlink : "");
+        $query = [];
+        $query['appid'] = $this->getConfig()->getAppId();
+        if (!empty($backlink)) {
+            $query['ReturnUrl'] = $backlink;
+        }
+        return $this->getConfig()->getBaseUrl() . "Login/Registration.aspx?" . http_build_query($query, '', '&');
     }
-
-
 
     /**
-     * Kontoluje jestli je přihlášení platné
+     * @return string|null
+     */
+    public function getLoginId()
+    {
+        return isset($this->loginData[self::ID_LOGIN]) ? $this->loginData[self::ID_LOGIN] : null;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getRoleId()
+    {
+        return isset($this->loginData[self::ID_ROLE]) ? $this->loginData[self::ID_ROLE] : null;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getUnitId()
+    {
+        return isset($this->loginData[self::ID_UNIT]) ? $this->loginData[self::ID_UNIT] : null;
+    }
+
+    /**
+     * Vrací datum a čas automatického odhlášení ze skautISu
      *
-     * @param bool $hardCheck Vynuti kontrolu prihlaseni na serveru
+     * @return \DateTime
+     */
+    public function getLogoutDate()
+    {
+        return isset($this->loginData[self::LOGOUT_DATE]) ? $this->loginData[self::LOGOUT_DATE] : null;
+    }
+
+    /**
+     * Hromadné nastavení po přihlášení
+     *
+     * @param array $data pole dat zaslaných skautISem (například $_SESSION)
+     * @throws InvalidArgumentException pokud se nepodaří naparsovat datum
+     */
+    public function setLoginData(array $data)
+    {
+        $this->loginData = [];
+
+        if (isset($data['skautIS_Token'])) {
+            $this->loginData[self::ID_LOGIN] = $data['skautIS_Token'];
+        }
+
+        if (isset($data['skautIS_IDRole'])) {
+            $this->loginData[self::ID_ROLE] = (int) $data['skautIS_IDRole'];
+        }
+
+        if (isset($data['skautIS_IDUnit'])) {
+            $this->loginData[self::ID_UNIT] = (int) $data['skautIS_IDUnit'];
+        }
+
+        if (isset($data['skautIS_DateLogout'])) {
+            $tz = new \DateTimeZone('Europe/Prague');
+            $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout'], $tz);
+            if ($logoutDate === false) {
+                throw new InvalidArgumentException('Could not parse logout date.');
+            }
+            $this->loginData[self::LOGOUT_DATE] = $logoutDate;
+        }
+
+        $this->writeConfigToSession();
+    }
+
+    /**
+     * Hromadný reset dat po odhlášení
+     */
+    public function resetLoginData()
+    {
+        $this->setLoginData([]);
+    }
+
+    /**
+     * Kontoluje, jestli je přihlášení platné.
+     * Pro správné fungování je nezbytně nutné, aby byl na serveru nastaven správný čas.
+     *
+     * @param bool $hardCheck vynutí kontrolu přihlášení na serveru
      * @return bool
      */
-    public function isLoggedIn($hardCheck = FALSE)
+    public function isLoggedIn($hardCheck = false)
     {
+        if (empty($this->loginData[self::ID_LOGIN])) {
+            return false;
+        }
 
-        if ($hardCheck || !$this->isAuthConfirmed())
+        if ($hardCheck || !$this->isAuthConfirmed()) {
             $this->confirmAuth();
+        }
 
-	if (!$this->isAuthConfirmed())
-	    return FALSE;
-
-        if (empty($this->loginData[self::TOKEN]))
-	    return FALSE;
-
-        if ($this->getLogoutDate()->getTimestamp() < time())
-	    return FALSE;
-
-	return TRUE;
+        return $this->isAuthConfirmed() && $this->getLogoutDate()->getTimestamp() > time();
     }
 
+    /**
+     * Bylo potvrzeno přihlášení dotazem na skautIS?
+     *
+     * @return bool
+     */
     protected function isAuthConfirmed()
     {
-        if (!isset($this->loginData[self::AUTH_CONFIRMED]))
-            return FALSE;
-
-	return $this->loginData[self::AUTH_CONFIRMED];
+        return !empty($this->loginData[self::AUTH_CONFIRMED]);
     }
 
-
+    /**
+     * @param bool $isConfirmed
+     */
     protected function setAuthConfirmed($isConfirmed)
     {
         $this->loginData[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
         $this->writeConfigToSession();
     }
 
+    /**
+     * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
+     */
     protected function confirmAuth()
     {
         try {
             $this->updateLogoutTime();
             $this->setAuthConfirmed(true);
-        } catch (Exception $ex) {
+        } catch (\Exception $e) {
             $this->setAuthConfirmed(false);
         }
     }
 
     /**
-     * prodloužení přihlášení o 30 min
+     * Prodloužení přihlášení o 30 min
      *
-     * @throws \Exception Pokud se nepodarilo naparsovat LogoutDate
+     * @throws InvalidArgumentException pokud se nepodaří naparsovat datum
      */
     public function updateLogoutTime()
     {
-        $result = $this->user->LoginUpdateRefresh(array("ID" => $this->getLoginId()));
+        $loginId = $this->getLoginId();
+        if ($loginId === null) {
+            // Nemáme token, uživatel není přihlášen a není, co prodlužovat
+            return;
+        }
 
-	$dateStr = preg_replace('/\.(\d+)/', '+00:00', $result->DateLogout);
-	$logoutDate = \DateTime::createFromFormat(\DateTime::ISO8601, $dateStr);
+        $result = $this->getWebService('UserManagement')->LoginUpdateRefresh(array("ID" => $loginId));
 
-	if ($logoutDate === false)
-	    throw  new Exception('Nepodarilo se naparsovat datum odhlaseni');
-
+        $logoutDate = preg_replace('/\.(\d*)$/', '', $result->DateLogout); //skautIS vrací sekundy včetně desetinné části
+        $tz = new \DateTimeZone('Europe/Prague');
+        $logoutDate = \DateTime::createFromFormat('Y-m-d\TH:i:s', $logoutDate, $tz);
+        if ($logoutDate === false) {
+            throw new InvalidArgumentException('Could not parse logout date.');
+        }
         $this->loginData[self::LOGOUT_DATE] = $logoutDate;
-    }
-
-
-    /**
-     * Hromadne nastaveni po prihlaseni
-     *
-     * @param array $data Pole dat zaslanych skautisem (napriklad $_SESSION)
-     */
-    public function setLoginData(array $data)
-    {
-	$this->loginData = [];
-
-	$token = isset($data['skautIS_Token']) ? $data['skautIS_Token'] : "";
-        $this->loginData[self::TOKEN] = $token;
-
-
-	$roleId = isset($data['skautIS_IDRole']) ? $data['skautIS_IDRole'] : "";
-        $this->loginData[self::ID_ROLE] = (int) $roleId;
-
-	$unitId = isset($data['skautIS_IDUnit']) ? $data['skautIS_IDUnit'] : "";
-        $this->loginData[self::ID_UNIT] = (int) $unitId;
-
-	if (!isset($data['skautIS_DateLogout'])) {
-            $this->loginData[self::LOGOUT_DATE] = NULL;
-	}
-	else {
-            $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout']);
-            $this->loginData[self::LOGOUT_DATE] = $logoutDate;
-	}
 
         $this->writeConfigToSession();
     }
 
     /**
-     * hromadny reset dat po odhlaseni
-     */
-    public function resetLoginData()
-    {
-        $this->setLoginData(array());
-    }
-
-    /**
-     * ověřuje, zda je Skautis odstaven pro údržbu
-     * @return boolean
-     */
-    public function isMaintenance()
-    {
-        return $this->wsdlManager->isMaintenance();
-    }
-
-
-    /**
-     * Ulozi nastaveni do session
+     * Uloží nastavení do session
      *
      * @return void
      */
     protected function writeConfigToSession()
     {
         $this->sessionAdapter->set(self::SESSION_ID, $this->loginData);
+    }
+
+    /**
+     * Ověřuje, zda je skautIS odstaven pro údržbu
+     *
+     * @return boolean
+     */
+    public function isMaintenance()
+    {
+        return $this->wsdlManager->isMaintenance();
     }
 
     /**
