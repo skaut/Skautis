@@ -5,15 +5,26 @@ namespace Skautis\EventDispatcher;
 trait EventDispatcherTrait
 {
 
+    /** @var callable[] */
+    private $listeners = [];
+
 
     /**
-     * @vat callable[]
+     * @param string|null $eventName
+     * @return bool
      */
-    protected $listeners = [];
+    protected function hasListeners($eventName = null)
+    {
+        return $eventName === null ? !empty($this->listeners) : !empty($this->listeners[$eventName]);
+    }
 
+    /**
+     * @param string $eventName
+     * @param mixed $data
+     */
     protected function dispatch($eventName, $data)
     {
-        if (!key_exists($eventName, $this->listeners)) {
+        if (!$this->hasListeners($eventName)) {
             return;
         }
 
@@ -22,12 +33,13 @@ trait EventDispatcherTrait
         }
     }
 
+    /**
+     * @param string $eventName
+     * @param callable $callback
+     */
     public function subscribe($eventName, callable $callback)
     {
-        if (!key_exists($eventName, $this->listeners)) {
-            $this->listeners[$eventName] = [];
-	}
-
         $this->listeners[$eventName][] = $callback;
     }
+
 }

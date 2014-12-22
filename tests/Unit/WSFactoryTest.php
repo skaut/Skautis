@@ -11,11 +11,10 @@ class WSFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $factory = new BasicWSFactory('Test\Skautis\WsStub');
 	$args = ['cache' => false];
-	$ws = $factory->createWS("http://moje-wsdl.xml", $args, true);
+	$ws = $factory->createWS("http://moje-wsdl.xml", $args);
 
 	$this->assertEquals("http://moje-wsdl.xml", $ws->getWsdl());
 	$this->assertEquals($args, $ws->getSoapArgs());
-	$this->assertEquals(true, $ws->getProfiler());
     }
 }
 
@@ -24,13 +23,11 @@ class WsStub
 
     protected $wsdl;
     protected $soapArgs;
-    protected $profiler;
 
-    public function __construct($wsdl, $soapArgs, $profiler)
+    public function __construct($wsdl, $soapArgs)
     {
 	$this->wsdl = $wsdl;
 	$this->soapArgs = $soapArgs;
-	$this->profiler = $profiler;
     }
 
     public function getWsdl()
@@ -43,8 +40,4 @@ class WsStub
     	return $this->soapArgs;
     }
 
-    public function getProfiler()
-    {
-    	return $this->profiler;
-    }
 }
