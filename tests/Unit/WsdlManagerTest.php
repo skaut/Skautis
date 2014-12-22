@@ -2,17 +2,17 @@
 
 namespace Test\Skautis;
 
-use Skautis\WsdlManager;
+use Skautis\Wsdl\WsdlManager;
 
 class WsdlManagerTest
 {
 
     protected function makeFactory()
     {
-        return \Mockery::mock("\Skautis\Factory\WSFactory");
+        return \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
     }
 
-    public function testGetWsdlList() 
+    public function testGetWsdlList()
     {
 
         $skautIS = new WsdlManager();
@@ -27,12 +27,12 @@ class WsdlManagerTest
     }
 
 
-    public function testGetWsdl() 
+    public function testGetWsdl()
     {
         $wsA = new \StdClass;
         $wsB = new \StdClass;
 
-        $factory = \Mockery::mock("\Skautis\Factory\WSFactory");
+        $factory = \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
         $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
 
         $skautIS = new Skautis("123");

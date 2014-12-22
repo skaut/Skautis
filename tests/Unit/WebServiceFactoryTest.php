@@ -2,14 +2,14 @@
 
 namespace Test\Skautis;
 
-use Skautis\Factory\BasicWSFactory;
+use Skautis\Wsdl\WebServiceFactory;
 
-class WSFactoryTest extends \PHPUnit_Framework_TestCase
+class WebServiceFactoryTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testCallback()
     {
-        $factory = new BasicWSFactory('Test\Skautis\WsStub');
+        $factory = new WebServiceFactory('Test\Skautis\WsStub');
 	$args = ['cache' => false];
 	$ws = $factory->createWS("http://moje-wsdl.xml", $args);
 

@@ -1,11 +1,9 @@
 <?php
 
-namespace Skautis;
+namespace Skautis\Wsdl;
 
-use Skautis\Factory\WSFactory;
 use Skautis\Exception\WsdlException;
 use Skautis\Config;
-use Skautis\WS;
 
 /**
  * Trida pro spravu WSDL a WS
@@ -14,7 +12,7 @@ class WsdlManager
 {
 
      /**
-      * @var WSFactory
+      * @var WebServiceFactoryInterface
       */
      protected $wsFactory;
 
@@ -68,8 +66,8 @@ class WsdlManager
     ];
 
     /**
-     * pole aktivních Skautis\WS
-     * @var array(Skautis\WS)
+     * pole aktivních Skautis\WebService
+     * @var array(Skautis\WebService)
      */
     protected $active = [];
 
@@ -77,22 +75,22 @@ class WsdlManager
     /**
      * Konstruktor
      *
-     * @param WSFactory $factory Pro vytvareni WS objektu
+     * @param WebServiceFactoryInterface $factory Pro vytvareni WS objektu
      * @param Config    $config  Konfigurace
      */
-    public function __construct(WSFactory $factory, Config $config)
+    public function __construct(WebServiceFactoryInterface $factory, Config $config)
     {
         $this->wsFactory = $factory;
         $this->config = $config;
     }
 
     /**
-     * Ziska WS
+     * Ziska WebService
      *
      * @param string $name   Jmeno nebo Alias WSDL
      * @param array  $config SoapClient parameters
      *
-     * @return WS
+     * @return WebService
      */
     public function getWsdl($name, array $config = [])
     {

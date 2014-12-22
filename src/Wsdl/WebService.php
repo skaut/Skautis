@@ -1,6 +1,6 @@
 <?php
 
-namespace Skautis;
+namespace Skautis\Wsdl;
 
 use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\EventDispatcher\EventDispatcherTrait;
@@ -16,7 +16,7 @@ use SoapClient;
 /**
  * @author Hána František <sinacek@gmail.com>
  */
-class WS extends SoapClient implements EventDispatcherInterface
+class WebService extends SoapClient implements EventDispatcherInterface
 {
 
     use EventDispatcherTrait;

@@ -22,7 +22,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 
     protected function makeWsdlManager()
     {
-        return \Mockery::mock("\Skautis\WsdlManager");
+        return \Mockery::mock("\Skautis\Wsdl\WsdlManager");
     }
 
     protected function makeConfig()
@@ -65,7 +65,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 	$soapResponse = new \StdClass();
 	$soapResponse->DateLogout = '2044-02-12T15:19:21.996';
 
-        $ws = \Mockery::mock("\Skautis\WS");
+        $ws = \Mockery::mock("\Skautis\Wsdl\WebService");
         $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn($soapResponse);
 
 	$wsdlManager = $this->makeWsdlManager();
