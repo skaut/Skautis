@@ -3,18 +3,29 @@
 namespace Skautis\Wsdl;
 
 /**
- * Trida umoznujici pouziti vlastni tridy WS se tridou SkautIS
+ * @inheritdoc
  */
-abstract class WSFactory
+class WSFactory implements WSFactoryInterface
 {
 
+    /** @var string Třída webové služby */
+    protected $class;
+
+
     /**
-     * Vytvor novy WS objekt
-     *
-     * @param string $wsdl     Odkaz na WSDL soubor
-     * @param array  $init     Zakladni informace pro vsechny pozadavky
-     *
-     * @return WS;
+     * @param string $class
      */
-    abstract public function createWS($wsdl, array $init);
+    public function __construct($class = '\Skautis\Wsdl\WS')
+    {
+        $this->class = $class;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createWS($url, array $options)
+    {
+        return new $this->class($url, $options);
+    }
+
 }

@@ -14,7 +14,7 @@ use Skautis\Skautis;
 $skautis = new Skautis('moje-application_id');
 ```
 
-###WSFactory
+###WSFactoryInterface
 Slouzi k vytvareni WS objektu
 @TODO
 

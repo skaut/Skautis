@@ -12,7 +12,7 @@ class WsdlManager
 {
 
      /**
-      * @var WSFactory
+      * @var WSFactoryInterface
       */
      protected $wsFactory;
 
@@ -75,10 +75,10 @@ class WsdlManager
     /**
      * Konstruktor
      *
-     * @param WSFactory $factory Pro vytvareni WS objektu
+     * @param WSFactoryInterface $factory Pro vytvareni WS objektu
      * @param Config    $config  Konfigurace
      */
-    public function __construct(WSFactory $factory, Config $config)
+    public function __construct(WSFactoryInterface $factory, Config $config)
     {
         $this->wsFactory = $factory;
         $this->config = $config;

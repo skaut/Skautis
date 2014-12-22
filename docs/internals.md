@@ -9,7 +9,7 @@ Je obal pro implementaci cache. Vice o [adapter patternu](https://github.com/dom
 ##WS
 WS je objekt webove sluzby. Jedna se o rozsireny SoapClient
 
-##WSFactory
+##WSFactoryInterface
 Slouzi k vytvareni WS objektu. Je pritomen pro mozne upravy WS pro projekty. Vice [Abstract Factory Pattern](https://github.com/domnikl/DesignPatternsPHP/tree/master/Creational/AbstractFactory)
 
 ##Config
