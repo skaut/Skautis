@@ -2,8 +2,11 @@
 
 namespace Skautis;
 
+use Skautis\Exception\InvalidArgumentException;
+
+
 /**
- * Trida pro uzivatelske nastaveni
+ * Třída pro uživatelské nastavení
  */
 class Config
 {
@@ -21,56 +24,48 @@ class Config
     const URL_PRODUCTION = "https://is.skaut.cz/";
 
     /**
-     * @var bool
+     * @var string
      */
-    protected $appId = '';
+    private $appId;
 
     /**
-     * používat kompresi?
+     * Používat testovací SkautIS?
+     *
      * @var bool
      */
-    protected $compression = true;
+    private $testMode;
 
     /**
-     * používat testovací Skautis?
+     * Používat kompresi?
+     *
      * @var bool
      */
-    protected $testMode = false;
+    private $compression;
 
     /**
-     * Cachovat WSDL
+     * Cachovat WSDL?
+     *
      * @var bool
      */
-    protected $cache = true;
+    protected $cache;
 
 
     /**
-     * @param string $appId Id aplikace od spravce skautisu
+     * @param string $appId Id aplikace od správce skautISu
+     * @param bool $isTestMode používat testovací SkautIS?
+     * @param bool $cache použít kompresi?
+     * @param bool $compression cachovat WDSL?
+     * @throws InvalidArgumentException
      */
-    public function __construct($appId, $testMode = false, $cache = true, $compression = true)
+    public function __construct($appId, $isTestMode = false, $cache = true, $compression = true)
     {
+        if (empty($appId)) {
+            throw new InvalidArgumentException("AppId cannot be empty.");
+        }
         $this->appId = $appId;
-        $this->testMode = $testMode;
-        $this->cache = $cache;
-        $this->compression = $compression;
-    }
-
-    /**
-     * Kontrola koretnosti nastaveni.
-     *
-     * Kontroluje zda jsou nastavena vsechna nutna nastaveni. Kontroluje validitu nastaveni a korektnost typu.
-     *
-     * @return bool
-     */
-    public function validate()
-    {
-        $valid = true
-           && !empty($this->appId)
-           && is_bool($this->compression)
-	   && is_bool($this->cache)
-	   && is_bool($this->testMode);
-
-        return $valid;
+        $this->setTestMode($isTestMode);
+        $this->setCache($cache);
+        $this->setCompression($compression);
     }
 
     /**
@@ -81,16 +76,49 @@ class Config
         return $this->appId;
     }
 
-
     /**
      * @return bool
      */
-    public function isSetAppId()
+    public function isTestMode()
     {
-        return !empty($this->appId);
+        return $this->testMode;
     }
 
     /**
+     * @param bool $isTestMode
+     * @return self
+     */
+    public function setTestMode($isTestMode = true)
+    {
+        $this->testMode = (bool) $isTestMode;
+        return $this;
+    }
+
+    /**
+     * Zjistí, jestli je WSDL cachované
+     *
+     * @return bool
+     */
+    public function getCache()
+    {
+        return $this->cache;
+    }
+
+    /**
+     * Vypne/zapne cachovaní WSDL
+     *
+     * @param bool $enabled
+     * @return self
+     */
+    public function setCache($enabled)
+    {
+        $this->cache = (bool) $enabled;
+        return $this;
+    }
+
+    /**
+     * Zjistí, jestli se používá komprese dotazů na WSDL
+     *
      * @return bool
      */
     public function getCompression()
@@ -99,55 +127,19 @@ class Config
     }
 
     /**
-     * @return void
+     * Vypne/zapne kompresi dotazů na WSDL
+     *
+     * @param $enabled
+     * @return self
      */
-    public function setCompression($compression)
+    public function setCompression($enabled)
     {
-        $this->compression = $compression;
+        $this->compression = (bool) $enabled;
         return $this;
     }
 
     /**
-     * @return bool
-     */
-    public function getTestMode()
-    {
-        return $this->testMode;
-    }
-
-
-    /**
-     * @return void
-     */
-    public function setTestMode($isTestMode)
-    {
-        $this->testMode = $isTestMode;
-        return $this;
-    }
-
-
-    /**
-     * Vypne cachovani WSDL
-     *
-     * @return void
-     */
-    public function setCache($cache)
-    {
-	$this->cache = $cache;
-    }
-
-    /**
-     * Zjisti jestli je WSDL cachovane
-     *
-     * @return bool
-     */
-    public function getCache()
-    {
-	return $this->cache;
-    }
-
-    /**
-     * vrací začátek URL adresy
+     * Vací začátek URL adresy
      *
      * @return string
      */
@@ -157,27 +149,27 @@ class Config
     }
 
     /**
-     * Na zaklade nastaveni vraci argumenty pro SoapClient
+     * Na základě nastavení vrací argumenty pro SoapClient
      *
      * @see \SoapClient
      *
      * @return array
      */
-    public function getSoapArguments()
+    public function getSoapOptions()
     {
-        $soapOpts = [
+        $soapOptions = [
             'ID_Application' => $this->appId,
             'soap_version' => SOAP_1_2,
             'encoding' => 'utf-8',
         ];
 
         if ($this->compression) {
-            $soapOpts['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
+            $soapOptions['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
         }
 
-        $soapOpts['cache_wsdl'] = $this->cache ? WSDL_CACHE_BOTH : WSDL_CACHE_NONE;
+        $soapOptions['cache_wsdl'] = $this->cache ? WSDL_CACHE_BOTH : WSDL_CACHE_NONE;
 
-        return $soapOpts;
+        return $soapOptions;
     }
 
 }

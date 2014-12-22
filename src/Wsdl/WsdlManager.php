@@ -105,10 +105,10 @@ class WsdlManager
     public function getWebService($name, $token = null)
     {
         $name = $this->getWebServiceName($name);
-        $key = $token . '_' . $name . ($this->config->getTestMode() ? '_Test' : '');
+        $key = $token . '_' . $name . ($this->config->isTestMode() ? '_Test' : '');
 
         if (!isset($this->webServices[$key])) {
-            $options = $this->config->getSoapArguments();
+            $options = $this->config->getSoapOptions();
             $options[Skautis::TOKEN] = $token;
             $this->webServices[$key] = $this->createWebService($name, $options);
         }

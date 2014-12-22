@@ -31,7 +31,6 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
     protected function makeConfig()
     {
         $config =  new Config("asd123");
-        $this->assertTrue($config->validate());
 
 	return $config;
     }
