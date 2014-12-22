@@ -32,7 +32,7 @@ class Skautis {
     /**
      * @var WsdlManager
      */
-    protected $wsdlManager = NULL;
+    private $wsdlManager = NULL;
 
     /**
      * @var AdapterInterface
@@ -48,11 +48,9 @@ class Skautis {
     protected $loginData = [];
 
     /**
-     * Pole obsahujici zaznamy ze vsech SOAP callu
-     *
      * @var SkautisQuery[]
      */
-    public $log = array();
+    private $log;
 
 
     public function __construct(WsdlManager $wsdlManager, AdapterInterface $sessionAdapter)
@@ -65,16 +63,16 @@ class Skautis {
         }
         $this->loginData[self::APP_ID] = $this->getConfig()->getAppId();
 
-        if ($this->getConfig()->getProfiler() == Config::PROFILER_ENABLED) {
-            $this->wsdlManager->addWebServiceListener(WebService::EVENT_SUCCESS, array($this, 'addLogQuery'));
-            $this->wsdlManager->addWebServiceListener(WebService::EVENT_FAILURE, array($this, 'addLogQuery'));
-        }
-
         $this->writeConfigToSession();
     }
 
-
-
+    /**
+     * @return WsdlManager
+     */
+    public function getWsdlManager()
+    {
+        return $this->wsdlManager;
+    }
 
     /**
      * @return string
@@ -288,8 +286,32 @@ class Skautis {
         $this->sessionAdapter->set(self::SESSION_ID, $this->loginData);
     }
 
-    public function addLogQuery(SkautisQuery $query)
+    /**
+     * Zapne logování všech SOAP callů
+     */
+    public function enableDebugLog()
     {
-	$this->log[] = $query;
+        if ($this->log !== null) {
+            // Debug log byl již zapnut dříve.
+            return;
+        }
+
+        $this->log = [];
+        $logger = function (SkautisQuery $query) {
+            $this->log[] = $query;
+        };
+        $this->wsdlManager->addWebServiceListener(WebService::EVENT_SUCCESS, $logger);
+        $this->wsdlManager->addWebServiceListener(WebService::EVENT_FAILURE, $logger);
     }
+
+    /**
+     * Vrací zalogované SOAP cally
+     *
+     * @return SkautisQuery[]
+     */
+    public function getDebugLog()
+    {
+        return $this->log;
+    }
+
 }

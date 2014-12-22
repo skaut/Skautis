@@ -11,9 +11,6 @@ class Config
     const CACHE_ENABLED = true;
     const CACHE_DISABLED = false;
 
-    const PROFILER_ENABLED = true;
-    const PROFILER_DISABLED = false;
-
     const TESTMODE_ENABLED = true;
     const TESTMODE_DISABLED = false;
 
@@ -46,20 +43,14 @@ class Config
      */
     protected $cache = true;
 
-    /**
-     *
-     * @var bool
-     */
-    public $profiler = false;
 
     /**
      * @param string $appId Id aplikace od spravce skautisu
      */
-    public function __construct($appId, $testMode = false, $profiler = false, $cache = true, $compression = true)
+    public function __construct($appId, $testMode = false, $cache = true, $compression = true)
     {
         $this->appId = $appId;
         $this->testMode = $testMode;
-	$this->profiler = $profiler;
         $this->cache = $cache;
         $this->compression = $compression;
     }
@@ -77,8 +68,7 @@ class Config
            && !empty($this->appId)
            && is_bool($this->compression)
 	   && is_bool($this->cache)
-	   && is_bool($this->testMode)
-           && is_bool($this->profiler);
+	   && is_bool($this->testMode);
 
         return $valid;
     }
@@ -133,29 +123,6 @@ class Config
     {
         $this->testMode = $isTestMode;
         return $this;
-    }
-
-
-    /**
-     * Zjisti jesli je zapnuto profilovani
-     *
-     * @return bool
-     */
-    public function getProfiler()
-    {
-	return $this->profiler;
-    }
-
-    /**
-     * Nastavi profilovani
-     *
-     * @param bool $profiler
-     *
-     * @return void
-     */
-    public function setProfiler($profiler)
-    {
-	$this->profiler = $profiler;
     }
 
 

@@ -27,12 +27,11 @@ trait HelperTrait
      *
      * @var string $appId nastavení appId (nepovinné)
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
-     * @var bool $profiler ma uchovavat data pro profilovani?
      *
      * @return Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
      * @throws InvalidArgumentException
      */
-    public static function getInstance($appId, $testMode = false, $profiler = false, $cache = false, $compression = false)
+    public static function getInstance($appId, $testMode = false, $cache = false, $compression = false)
     {
 
 
@@ -44,7 +43,6 @@ trait HelperTrait
 	    $config->setTestMode($testMode);
 	    $config->setCache($cache);
 	    $config->setCompression($compression);
-	    $config->setProfiler($profiler);
 
 
 
