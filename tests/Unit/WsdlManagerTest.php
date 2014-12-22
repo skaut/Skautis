@@ -33,7 +33,7 @@ class WsdlManagerTest
         $wsB = new \StdClass;
 
         $factory = \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
-        $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
+        $factory->shouldReceive("createWebService")->with()->twice()->andReturn($wsA, $wsB);
 
         $skautIS = new Skautis("123");
         $skautIS->setWSFactory($factory);

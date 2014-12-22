@@ -109,7 +109,7 @@ class WsdlManager
 
     protected function createWs($wsdlName, $config)
     {
-        $ws = $this->wsFactory->createWS($this->getWsdlUri($wsdlName), $config);
+        $ws = $this->wsFactory->createWebService($this->getWsdlUri($wsdlName), $config);
 
         foreach ($this->wsListeners as $listener) {
             $ws->subscribe($listener['event_name'], $listener['callback']);

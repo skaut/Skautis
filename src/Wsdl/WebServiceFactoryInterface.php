@@ -15,6 +15,6 @@ interface WebServiceFactoryInterface
      * @param array $options Globální nastavení pro všechny požadavky
      * @return mixed
      */
-    public function createWS($url, array $options);
+    public function createWebService($url, array $options);
 
 }

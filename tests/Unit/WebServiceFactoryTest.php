@@ -11,7 +11,7 @@ class WebServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $factory = new WebServiceFactory('Test\Skautis\WsStub');
 	$args = ['cache' => false];
-	$ws = $factory->createWS("http://moje-wsdl.xml", $args);
+	$ws = $factory->createWebService("http://moje-wsdl.xml", $args);
 
 	$this->assertEquals("http://moje-wsdl.xml", $ws->getWsdl());
 	$this->assertEquals($args, $ws->getSoapArgs());
