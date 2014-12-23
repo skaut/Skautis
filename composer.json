@@ -1,6 +1,7 @@
 {
     "name": "skautis/skautis",
     "description": "Library for API calls to SkautIS",
+    "license": ["BSD-3-Clause"],
     "minimum-stability": "stable",
     "homepage": "https://github.com/skaut/Skautis",
     "type": "library",
