@@ -348,7 +348,7 @@ class Skautis
      */
     public function getDebugLog()
     {
-        return $this->log;
+        return ($this->log !== null) ? $this->log : [];
     }
 
 }
