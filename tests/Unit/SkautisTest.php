@@ -22,13 +22,15 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 
     protected function makeWsdlManager()
     {
-        return \Mockery::mock("\Skautis\Wsdl\WsdlManager");
+        $manager = \Mockery::mock("\Skautis\Wsdl\WsdlManager");
+        $config = $this->makeConfig();
+        $manager->shouldReceive('getConfig')->withNoArgs()->andReturn($config);
+        return $manager;
     }
 
     protected function makeConfig()
     {
         $config =  new Config("asd123");
-        $this->assertTrue($config->validate());
 
 	return $config;
     }
@@ -36,7 +38,7 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
 
     protected function makeSkautis()
     {
-	return new Skautis($this->makeConfig(), $this->makeWsdlManager(), $this->makeSession());
+	return new Skautis($this->makeWsdlManager(), $this->makeSession());
     }
 
     public function testSetLoginData()
@@ -69,12 +71,12 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
         $ws->shouldReceive("LoginUpdateRefresh")->once()->andReturn($soapResponse);
 
 	$wsdlManager = $this->makeWsdlManager();
-	$wsdlManager->shouldReceive('getWsdl')->once()->andReturn($ws);
+	$wsdlManager->shouldReceive('getWebService')->once()->andReturn($ws);
 
 	$config = $this->makeConfig();
 	$session = $this->makeSession();
 
-	$skautis = new Skautis($config, $wsdlManager, $session);
+	$skautis = new Skautis($wsdlManager, $session);
 
 	$data = array(
             'skautIS_Token' => "token",

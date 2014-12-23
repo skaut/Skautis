@@ -23,7 +23,7 @@ class WebServiceFactory implements WebServiceFactoryInterface
     /**
      * @inheritdoc
      */
-    public function createWS($url, array $options)
+    public function createWebService($url, array $options)
     {
         return new $this->class($url, $options);
     }

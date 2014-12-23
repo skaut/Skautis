@@ -2,56 +2,48 @@
 
 namespace Test\Skautis;
 
+use Skautis\Config;
 use Skautis\Wsdl\WsdlManager;
 
-class WsdlManagerTest
+
+class WsdlManagerTest extends \PHPUnit_Framework_TestCase
 {
 
-    protected function makeFactory()
+    public function testGetSupportedWebServices()
     {
-        return \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
+        $factory = \Mockery::mock('\Skautis\Wsdl\WebServiceFactory');
+        $config = \Mockery::mock('\Skautis\Config');
+        $manager = new WsdlManager($factory, $config);
+
+        $services = $manager->getSupportedWebServices();
+        $this->assertInternalType('array', $services);
+        $this->assertTrue(count($services) > 0);
     }
 
-    public function testGetWsdlList()
-    {
-
-        $skautIS = new WsdlManager();
-        $wdlList = $skautIS->getWsdlList();
-
-        $this->assertInternalType('array', $wdlList);
-        $this->assertTrue(count($wdlList) > 0);
-
-        foreach ($wdlList as $key => $value) {
-            $this->assertSame($key, $value);
-        }
-    }
-
-
-    public function testGetWsdl()
+    public function testGetWebService()
     {
         $wsA = new \StdClass;
         $wsB = new \StdClass;
 
-        $factory = \Mockery::mock("\Skautis\Wsdl\WebServiceFactory");
-        $factory->shouldReceive("createWS")->with()->twice()->andReturn($wsA, $wsB);
+        $factory = \Mockery::mock('\Skautis\Wsdl\WebServiceFactory');
+        $factory->shouldReceive("createWebService")->withAnyArgs()->twice()->andReturn($wsA, $wsB);
+        $config = new Config('42');
 
-        $skautIS = new Skautis("123");
-        $skautIS->setWSFactory($factory);
+        $manager = new WsdlManager($factory, $config);
 
+        $config->setTestMode(true);
+        $eventA = $manager->getWebService('UserManagement');
+        $this->assertSame($eventA, $manager->getWebService('UserManagement'));
 
-        $skautIS->setTestMode(true);
-        $eventA = $skautIS->event;
-        $this->assertSame($eventA, $skautIS->event);
+        $config->setTestMode(false);
+        $eventB = $manager->getWebService('UserManagement');
+        $this->assertNotSame($eventA, $eventB);
 
-        $skautIS->setTestMode(false);
-        $this->assertNotSame($eventA, $skautIS->event);
-        $eventB = $skautIS->event;
-
-        $skautIS->setTestMode(true);
-        $this->assertSame($eventA, $skautIS->event);
+        $config->setTestMode(true);
+        $this->assertSame($eventA, $manager->getWebService('UserManagement'));
 
         $this->assertSame($wsA, $eventA);
         $this->assertSame($wsB, $eventB);
     }
-}
 
+}
