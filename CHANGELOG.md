@@ -35,3 +35,5 @@ Knihovna vyexportovana z Nette projektu
   za volbu $profiler).
 * Abstraktní továrna na objekty webových služeb nahrazena interfacem.
 * ``Skautis`` umožňuje jednoduché logování SOAP callů pomocí metod ``enableDebugLog()`` a ``getDebugLog()``.
+* Kód obsluhující data přihlášeného uživatele přesunut do nové třídy ``User``.
+
