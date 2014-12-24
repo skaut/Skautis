@@ -15,6 +15,8 @@ Knihovna vyexportovana z Nette projektu
 ###DEV
 * Zmena namespace SkautIS => Skautis
 * Zmena tridy SkautIS => Skautis
+* Třídy přímo komunikující se SkautISem vyčlněny do namespace ``Skautis\Wsdl``.
+* Třídy a jejich metody přejmenovány na čitelnější verze, např. "WS" -> "WebService"
 * Nette komponenty exportovany do vlastniho balicku
 * Vyzadovana verze PHP >= 5.4
 * Konstruktor udelan public
@@ -28,4 +30,8 @@ Knihovna vyexportovana z Nette projektu
 * Pridan ``Config`` pro uzivatelske nastaveni
 * Pomocne prvky typu singleton - ``getInstance`` presunuty do HelperTrait
 * Pro zasilani zprav vytvorena komponenta EventDispatcher (Interface + Trait)
-* ``WsdlManager`` pridan pro praci s WS objekty
+* ``WsdlManager`` pridan pro praci s WS objekty (obstarává veškerou logiku vytváření objektů webových služeb)
+* WebService objekty logují SOAP cally do ``SkautisQuery`` vždy, pokud mají zaregistrován listener na událost (náhrada
+  za volbu $profiler).
+* Abstraktní továrna na objekty webových služeb nahrazena interfacem.
+* ``Skautis`` umožňuje jednoduché logování SOAP callů pomocí metod ``enableDebugLog()`` a ``getDebugLog()``.
