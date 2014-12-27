@@ -137,6 +137,17 @@ class Skautis
     }
 
     /**
+     * Hromadné nastavení po přihlášení
+     *
+     * @param array $data
+     */
+    public function setLoginData(array $data)
+    {
+        $data = Helpers::parseLoginData($data);
+        $this->getUser()->setLoginData($data[User::ID_LOGIN], $data[User::ID_ROLE], $data[User::ID_UNIT], $data[User::LOGOUT_DATE]);
+    }
+
+    /**
      * Ověřuje, zda je skautIS odstaven pro údržbu
      *
      * @return boolean

@@ -25,21 +25,15 @@ class UserTest extends \PHPUnit_Framework_TestCase
 
     public function testSetLoginData()
     {
-        $data = array(
-            'skautIS_Token' => "token",
-            'skautIS_IDRole' => 33,
-            'skautIS_IDUnit' => 100,
-            'skautIS_DateLogout' => '2. 12. 2014 23:56:02'
-        );
-
+        $dt = new \DateTime;
         $user = $this->makeUser();
         $this->assertFalse($user->isLoggedIn());
 
-        $user->setLoginData($data);
+        $user->setLoginData("token", 33, 100, $dt);
         $this->assertEquals("token", $user->getLoginId());
         $this->assertEquals(33, $user->getRoleId());
         $this->assertEquals(100, $user->getUnitId());
-        $this->assertEquals("2014-12-02 23:56:02", $user->getLogoutDate()->format('Y-m-d H:i:s'));
+        $this->assertEquals($dt->format('Y-m-d H:i:s'), $user->getLogoutDate()->format('Y-m-d H:i:s'));
     }
 
 
@@ -54,31 +48,17 @@ class UserTest extends \PHPUnit_Framework_TestCase
         $wsdlManager = $this->makeWsdlManager();
         $wsdlManager->shouldReceive('getWebService')->once()->andReturn($ws);
 
-        $data = array(
-            'skautIS_Token' => "token",
-            'skautIS_IDRole' => 33,
-            'skautIS_IDUnit' => 100,
-            'skautIS_DateLogout' => '2. 12. 2099 23:56:02'
-        );
-
         $user = new User($wsdlManager);
-        $user->setLoginData($data);
+        $user->setLoginData("token", 33, 100, new \DateTime("+1 day"));
 
         $this->assertTrue($user->isLoggedIn(true));
     }
 
     public function testResetLoginData()
     {
-        $data = array(
-            'skautIS_Token' => "token",
-            'skautIS_IDRole' => 33,
-            'skautIS_IDUnit' => 100,
-            'skautIS_DateLogout' => '2. 12. 2014 23:56:02'
-        );
-
         $user = $this->makeUser();
 
-        $user->setLoginData($data);
+        $user->setLoginData("token", 33, 100, new \DateTime);
         $this->assertEquals(33, $user->getRoleId());
 
         $user->resetLoginData();

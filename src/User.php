@@ -89,31 +89,28 @@ class User
     /**
      * Hromadné nastavení po přihlášení
      *
-     * @param array $data pole dat zaslaných skautISem (například $_SESSION)
-     * @throws InvalidArgumentException pokud se nepodaří naparsovat datum
+     * @param string|null $loginId
+     * @param int|null $roleId
+     * @param int|null $unitId
+     * @param \DateTime|null $logoutDate
      */
-    public function setLoginData(array $data)
+    public function setLoginData($loginId = null, $roleId = null, $unitId = null, \DateTime $logoutDate = null)
     {
         $this->loginData = [];
 
-        if (isset($data['skautIS_Token'])) {
-            $this->loginData[self::ID_LOGIN] = $data['skautIS_Token'];
+        if ($loginId !== null) {
+            $this->loginData[self::ID_LOGIN] = $loginId;
         }
 
-        if (isset($data['skautIS_IDRole'])) {
-            $this->loginData[self::ID_ROLE] = (int) $data['skautIS_IDRole'];
+        if ($roleId !== null) {
+            $this->loginData[self::ID_ROLE] = (int) $roleId;
         }
 
-        if (isset($data['skautIS_IDUnit'])) {
-            $this->loginData[self::ID_UNIT] = (int) $data['skautIS_IDUnit'];
+        if ($unitId !== null) {
+            $this->loginData[self::ID_UNIT] = (int) $unitId;
         }
 
-        if (isset($data['skautIS_DateLogout'])) {
-            $tz = new \DateTimeZone('Europe/Prague');
-            $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout'], $tz);
-            if ($logoutDate === false) {
-                throw new InvalidArgumentException('Could not parse logout date.');
-            }
+        if ($logoutDate !== null) {
             $this->loginData[self::LOGOUT_DATE] = $logoutDate;
         }
 
@@ -125,7 +122,7 @@ class User
      */
     public function resetLoginData()
     {
-        $this->setLoginData([]);
+        $this->setLoginData();
     }
 
     /**
