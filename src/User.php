@@ -93,6 +93,7 @@ class User
      * @param int|null $roleId
      * @param int|null $unitId
      * @param \DateTime|null $logoutDate
+     * @return self
      */
     public function setLoginData($loginId = null, $roleId = null, $unitId = null, \DateTime $logoutDate = null)
     {
@@ -115,14 +116,18 @@ class User
         }
 
         $this->saveToSession();
+
+        return $this;
     }
 
     /**
      * Hromadný reset dat po odhlášení
+     *
+     * @return self
      */
     public function resetLoginData()
     {
-        $this->setLoginData();
+        return $this->setLoginData();
     }
 
     /**
@@ -180,6 +185,7 @@ class User
     /**
      * Prodloužení přihlášení o 30 min
      *
+     * @return self
      * @throws InvalidArgumentException pokud se nepodaří naparsovat datum
      */
     public function updateLogoutTime()
@@ -187,7 +193,7 @@ class User
         $loginId = $this->getLoginId();
         if ($loginId === null) {
             // Nemáme token, uživatel není přihlášen a není, co prodlužovat
-            return;
+            return $this;
         }
 
         $result = $this->wsdlManager->getWebService('UserManagement', $loginId)->LoginUpdateRefresh(array("ID" => $loginId));
@@ -201,6 +207,8 @@ class User
         $this->loginData[self::LOGOUT_DATE] = $logoutDate;
 
         $this->saveToSession();
+
+        return $this;
     }
 
     /**
