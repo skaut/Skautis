@@ -126,7 +126,7 @@ class Skautis
      * @param string|null $backlink
      * @return string
      */
-    public function getRegisterUrl($backlink = "")
+    public function getRegisterUrl($backlink = null)
     {
         $query = [];
         $query['appid'] = $this->getConfig()->getAppId();
