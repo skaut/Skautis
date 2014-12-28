@@ -29,32 +29,24 @@ trait HelperTrait
      * @var bool $testMode funguje v testovacím provozu? - výchozí je testovací mode (nepovinné)
      *
      * @return Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
-     * @throws InvalidArgumentException
      */
     public static function getInstance($appId, $testMode = false, $cache = false, $compression = false)
     {
-
-
-
-        if ( !key_exists($appId, self::$instances) )
-        {
-
+        if (!isset(self::$instances[$appId])) {
             $config = new Config($appId);
-	    $config->setTestMode($testMode);
-	    $config->setCache($cache);
-	    $config->setCompression($compression);
+            $config->setTestMode($testMode);
+            $config->setCache($cache);
+            $config->setCompression($compression);
 
+            $webServiceFactory = new WebServiceFactory();
+            $wsdlManager = new WsdlManager($webServiceFactory, $config);
 
-
-   	    // Out of box integrace s $_SESSION
+            // Out of box integrace s $_SESSION
             $sessionAdapter = new SessionAdapter();
+            $user = new User($wsdlManager, $sessionAdapter);
 
-	    $wsFactory = new WebServiceFactory();
-	    $wsdlManager = new WsdlManager($wsFactory, $config);
-
-            self::$instances[$appId] = new self($wsdlManager, $sessionAdapter);
+            self::$instances[$appId] = new self($wsdlManager, $user);
         }
-
 
         return self::$instances[$appId];
     }
