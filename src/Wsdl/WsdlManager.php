@@ -5,7 +5,6 @@ namespace Skautis\Wsdl;
 use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\Config;
 use Skautis\User;
-use Skautis\WsdlException;
 
 
 /**

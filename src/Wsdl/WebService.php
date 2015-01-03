@@ -4,10 +4,7 @@ namespace Skautis\Wsdl;
 
 use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\EventDispatcher\EventDispatcherTrait;
-use Skautis\AuthenticationException;
 use Skautis\InvalidArgumentException;
-use Skautis\PermissionException;
-use Skautis\WsdlException;
 use Skautis\SkautisQuery;
 use SoapFault;
 use stdClass;

@@ -1,6 +1,8 @@
 <?php
 
-namespace Skautis;
+namespace Skautis\Wsdl;
+
+use Skautis;
 
 
 /**
@@ -8,7 +10,7 @@ namespace Skautis;
  *
  * @author Hána František <sinacek@gmail.com>
  */
-class WsdlException extends \Exception implements Exception
+class WsdlException extends \Exception implements Skautis\Exception
 {
 
 }
