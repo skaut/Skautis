@@ -36,4 +36,7 @@ Knihovna vyexportovana z Nette projektu
 * Abstraktní továrna na objekty webových služeb nahrazena interfacem.
 * ``Skautis`` umožňuje jednoduché logování SOAP callů pomocí metod ``enableDebugLog()`` a ``getDebugLog()``.
 * Kód obsluhující data přihlášeného uživatele přesunut do nové třídy ``User``.
-
+* Generické výjimky přesunuty do `Skautis` namespace, výjimky webových služeb přesunuty do `Skautis\Wsdl` namespace.
+* `BaseException` nahrazena pomocí [marker interface](http://en.wikipedia.org/wiki/Marker_interface_pattern), všechny
+  výjimky knihovny je možné odchytit pomocí `Skautis\Exception`.
+* `AuthenticationException` a `PermissionException` dědí od obecnější `WsdlException`.

@@ -2,8 +2,6 @@
 
 namespace Skautis;
 
-use Skautis\Exception\InvalidArgumentException;
-
 
 /**
  * Třída pro uživatelské nastavení
