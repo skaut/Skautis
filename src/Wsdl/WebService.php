@@ -4,10 +4,10 @@ namespace Skautis\Wsdl;
 
 use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\EventDispatcher\EventDispatcherTrait;
-use Skautis\Exception\AuthenticationException;
-use Skautis\Exception\AbortException;
-use Skautis\Exception\WsdlException;
-use Skautis\Exception\PermissionException;
+use Skautis\AuthenticationException;
+use Skautis\InvalidArgumentException;
+use Skautis\PermissionException;
+use Skautis\WsdlException;
 use Skautis\SkautisQuery;
 use SoapFault;
 use stdClass;
@@ -36,12 +36,13 @@ class WebService extends SoapClient implements EventDispatcherInterface
      * @param mixed $wdl Odkaz na WSDL soubor
      * @param array $init Zakladni informace pro vsechny pozadavky
      * @param bool $compression Ma pouzivat kompresi na prenasena data?
+     * @throws InvalidArgumentException pokud je odkaz na WSDL soubor prázdný
      */
     public function __construct($wsdl, array $soapOpts)
     {
         $this->init = $soapOpts;
         if (empty($wsdl)) {
-            throw new AbortException("WSDL musí být nastaven");
+            throw new InvalidArgumentException("WSDL address cannot be empty.");
         }
         parent::__construct($wsdl, $soapOpts);
     }
@@ -92,12 +93,12 @@ class WebService extends SoapClient implements EventDispatcherInterface
                 $this->dispatch(self::EVENT_FAILURE, $query->done(NULL, $e));
             }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
-                throw new AuthenticationException();
+                throw new AuthenticationException($e->getMessage(), $e->getCode(), $e);
             }
             if (preg_match('/Nemáte oprávnění/', $e->getMessage())) {
-                throw new PermissionException($e->getMessage(), $e->getCode(), $e->getPrevious());
+                throw new PermissionException($e->getMessage(), $e->getCode(), $e);
             }
-            throw new WsdlException($e->getMessage());
+            throw new WsdlException($e->getMessage(), $e->getCode(), $e);
         }
     }
 

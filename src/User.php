@@ -2,7 +2,6 @@
 
 namespace Skautis;
 
-use Skautis\Exception\InvalidArgumentException;
 use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\Wsdl\WsdlManager;
 
@@ -186,7 +185,7 @@ class User
      * Prodloužení přihlášení o 30 min
      *
      * @return self
-     * @throws InvalidArgumentException pokud se nepodaří naparsovat datum
+     * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
      */
     public function updateLogoutTime()
     {
@@ -202,7 +201,7 @@ class User
         $tz = new \DateTimeZone('Europe/Prague');
         $logoutDate = \DateTime::createFromFormat('Y-m-d\TH:i:s', $logoutDate, $tz);
         if ($logoutDate === false) {
-            throw new InvalidArgumentException('Could not parse logout date.');
+            throw new UnexpectedValueException("Could not parse logout date '{$result->DateLogout}'.");
         }
         $this->loginData[self::LOGOUT_DATE] = $logoutDate;
 

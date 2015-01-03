@@ -12,7 +12,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
     protected $queries = array();
 
     /**
-     * @expectedException Skautis\Exception\AbortException
+     * @expectedException Skautis\InvalidArgumentException
      */
     public function testWebServiceConstructMissingWsdl()
     {

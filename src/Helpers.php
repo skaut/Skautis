@@ -2,9 +2,6 @@
 
 namespace Skautis;
 
-use Skautis\Exception\InvalidArgumentException;
-use Skautis\Exception\StaticClassException;
-
 
 /**
  * @author Petr Morávek <petr@pada.cz>
@@ -25,7 +22,7 @@ final class Helpers
      *
      * @param array $data
      * @return array
-     * @throws InvalidArgumentException pokud se nepodaří naparsovat datum
+     * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
      */
     public static function parseLoginData(array $data)
     {
@@ -38,7 +35,7 @@ final class Helpers
             $tz = new \DateTimeZone('Europe/Prague');
             $logoutDate = \DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout'], $tz);
             if ($logoutDate === false) {
-                throw new InvalidArgumentException('Could not parse logout date.');
+                throw new UnexpectedValueException("Could not parse logout date '{$data['skautIS_DateLogout']}'.");
             }
             $loginData[User::LOGOUT_DATE] = $logoutDate;
         } else {
