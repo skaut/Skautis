@@ -18,3 +18,6 @@ Jak knihovnu pouzit po uspesne instalaci a konfiguraci se dozvite v tomto [navod
 
 ##Internals
 Pokud potrebujete prizpusobit knihovnu Vasemu projektu uzitecne informace v sekci [internals](internals.md)
+
+##Cachovani webovych sluzeb
+Pro automaticke cachovani pozadavku na skautis jsou informace zde [cache](cache.md)

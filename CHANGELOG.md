@@ -40,3 +40,8 @@ Knihovna vyexportovana z Nette projektu
 * `BaseException` nahrazena pomocí [marker interface](http://en.wikipedia.org/wiki/Marker_interface_pattern), všechny
   výjimky knihovny je možné odchytit pomocí `Skautis\Exception`.
 * `AuthenticationException` a `PermissionException` dědí od obecnější `WsdlException`.
+* `WebServiceInterface` pridano. `WebService` uz nededi od `SoapClient`.
+* `AbstractDecorator` pridan pro urceni formy dekoratoru.
+* `CacheDecorator` pridan pro cachovani pozadavku na Skautis
+* `CacheInterface` pridano pro pouziti libovolne cache
+* `ArrayCache` pridano pro cache v ramci jednoho pozadavku
