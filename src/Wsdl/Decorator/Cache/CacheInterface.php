@@ -5,20 +5,11 @@ namespace Skautis\Wsdl\Decorator\Cache;
 interface CacheInterface
 {
     /**
-     * Zjisti jestli je dany klic v cache
-     *
-     * @var string $key
-     *
-     * @return bool
-     */
-    public function has($key);
-
-    /**
      * Ziska data z cache
      *
      * @var string $key
      *
-     * @return mixed
+     * @return mixed|null Cachovana hodnota nebo null pokud pro klic neni zadna cache
      */
     public function get($key);
 

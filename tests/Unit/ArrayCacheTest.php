@@ -12,9 +12,7 @@ class ArrayCacheTest extends \PHPUnit_Framework_TestCase
 	$key = 'asdasdqwer25erg';
 	$value = ['text' => 'Lorem ..', 'date' => new \DateTime()];
 
-	$this->assertFalse($cache->has($key));
         $cache->set($key, $value);
-	$this->assertTrue($cache->has($key));
 	$this->assertEquals($value, $cache->get($key));
     }
 }

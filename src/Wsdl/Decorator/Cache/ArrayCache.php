@@ -12,21 +12,16 @@ class ArrayCache implements CacheInterface
      */
     protected $data = [];
 
-
-    /**
-     * @inheritdoc
-     */
-    public function has($key)
-    {
-        return array_key_exists($key, $this->data);
-    }
-
     /**
      * @inheritdoc
      */
     public function get($key)
     {
-        return $this->data[$key];
+        if (array_key_exists($key, $this->data)) {
+            return $this->data[$key];
+        }
+
+        return null;
     }
 
     /**

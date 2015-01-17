@@ -25,8 +25,9 @@ class CacheDecorator extends AbstractDecorator
     {
         $callHash = $this->hashCall($functionName, $arguments);
 
-	if ($this->cache->has($callHash)) {
-            return $this->cache->get($callHash);
+        $cachedResponse = $this->cache->get($callHash);
+        if ($cachedResponse !== null) {
+            return $cachedResponse;
 	}
 
 	$response = $this->webService->call($functionName, $arguments);
