@@ -36,7 +36,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
         $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 
         try {
-            $webService->UserDetail();
+            $webService->call('UserDetail');
         } catch (\Exception $e) {
         }
 

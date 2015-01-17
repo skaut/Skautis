@@ -84,7 +84,7 @@ class Skautis
      * Trocha magie pro snadnější přístup k webovým službám.
      *
      * @param string $name
-     * @return WebService|mixed
+     * @return WebServiceInterface|mixed
      */
     public function __get($name)
     {

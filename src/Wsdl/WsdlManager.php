@@ -99,7 +99,7 @@ class WsdlManager
      *
      * @param string $name jméno nebo alias webové služby
      * @param string|null $loginId skautIS login token
-     * @return WebService|mixed
+     * @return WebServiceInterface
      */
     public function getWebService($name, $loginId = null)
     {
