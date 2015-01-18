@@ -2,7 +2,6 @@
 
 namespace Skautis\SessionAdapter;
 
-use Skautis\SessionAdapter\AdapterInterface;
 
 /**
  * Nepersestinenti adapter - vhodne jako stub pro testy nebo kdyz neni potreba ukladat
@@ -14,7 +13,7 @@ class FakeAdapter implements AdapterInterface
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * @inheritdoc

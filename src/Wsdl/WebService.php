@@ -117,7 +117,7 @@ class WebService extends SoapClient implements EventDispatcherInterface
 
         if (!isset($arguments[1]) || $arguments[1] === null) {
             $function_name = strtolower(substr($function_name, 0, 1)) . substr($function_name, 1); //nahrazuje lcfirst
-            $args =[[$function_name . "Input" => $args]];
+            $args = [[$function_name . "Input" => $args]];
             return $args;
         }
 
