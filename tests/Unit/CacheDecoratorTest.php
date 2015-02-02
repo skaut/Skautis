@@ -11,6 +11,35 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
         \Mockery::close();
     }
 
+    public function testDecoratorRequireRequest()
+    {
+	$value = ['id' => 'response'];
+	$args = ['id' => 'asd', 'txt' => 'uv'];
+
+	$webService = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
+	$webService->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($value);
+
+	$cache = new ArrayCache();
+
+        //Prazdna cache, musi poslat request
+	$decoratedServiceA = new CacheDecorator($webService, $cache);
+	$response = $decoratedServiceA->call('funkceA', $args);
+        $this->assertEquals($value, $response);
+
+
+        //Stejny request jina odpoved
+	$valueB = ['id' => 'Different response'];
+	$webServiceB = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
+	$webServiceB->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($valueB);
+
+        //Cache naplnena z prechoziho requestu
+	$decoratedServiceB = new CacheDecorator($webServiceB, $cache);
+        $response = $decoratedServiceB->call('funkceA', $args);
+
+        //Jelikoz tato instance provadi prvni request, nevrati data z Cache
+        $this->assertEquals($valueB, $response);
+    }
+
     public function testDecorator()
     {
 	$value = ['id' => 'response'];

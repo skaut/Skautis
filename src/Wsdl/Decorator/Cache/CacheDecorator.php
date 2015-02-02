@@ -12,6 +12,11 @@ class CacheDecorator extends AbstractDecorator
      */
     protected $cache;
 
+    /**
+     * @var bool
+     */
+    protected $succesfullRequest;
+
     public function __construct(WebServiceInterface $webService, CacheInterface $cache)
     {
 	$this->webService = $webService;
@@ -25,12 +30,21 @@ class CacheDecorator extends AbstractDecorator
     {
         $callHash = $this->hashCall($functionName, $arguments);
 
+        // Pozaduj alespon 1 supesny request na server (zadna Exception)
+        if (!$this->succesfullRequest) {
+            $response = $this->webService->call($functionName, $arguments);
+            $this->cache->set($callHash, $response);
+            $this->succesfullRequest = true;
+
+            return $response;
+        }
+
         $cachedResponse = $this->cache->get($callHash);
         if ($cachedResponse !== null) {
             return $cachedResponse;
 	}
 
-	$response = $this->webService->call($functionName, $arguments);
+        $response = $this->webService->call($functionName, $arguments);
 	$this->cache->set($callHash, $response);
 
 	return $response;
