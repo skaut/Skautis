@@ -62,7 +62,7 @@ class SkautisQuery implements \Serializable
      * @param array  $args  Argumenty pozadavku
      * @param string $trace Zasobnik volanych funkci
      */
-    public function __construct($fname, array $args = array(), array $trace = array()) {
+    public function __construct($fname, array $args = [], array $trace = []) {
         $this->fname = $fname;
         $this->args = $args;
         $this->trace = $trace;
@@ -70,7 +70,7 @@ class SkautisQuery implements \Serializable
     }
 
     public function serialize() {
-        $data = array(
+        $data = [
           'fname' => $this->fname,
 	  'args' => $this->args,
 	  'trace' => $this->trace,
@@ -78,7 +78,7 @@ class SkautisQuery implements \Serializable
 	  'result' => $this->result,
 	  'exception_class' => is_null($this->exception) ? "" : get_class($this->exception),
 	  'exception_string' => is_null($this->exception) ? "" : (string)$this->exception,
-        );
+        ];
         return serialize($data);
     }
 
@@ -89,7 +89,7 @@ class SkautisQuery implements \Serializable
         $this->trace = $data['trace'];
         $this->time = $data['time'];
 	$this->result = $data['result'];
-        $this->exceptionClass= $data['exception_class'];
+        $this->exceptionClass = $data['exception_class'];
 	$this->exceptionString = $data['exception_string'];
     }
 

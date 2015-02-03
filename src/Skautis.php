@@ -4,7 +4,6 @@ namespace Skautis;
 
 use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebService;
-use Skautis\SessionAdapter\AdapterInterface;
 
 
 /**

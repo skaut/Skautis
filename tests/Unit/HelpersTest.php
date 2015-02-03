@@ -16,12 +16,12 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
 
     public function testSetLoginData()
     {
-        $data = array(
+        $data = [
             'skautIS_Token' => "token",
             'skautIS_IDRole' => 33,
             'skautIS_IDUnit' => 100,
             'skautIS_DateLogout' => '2. 12. 2014 23:56:02'
-        );
+        ];
 
         $parsed = Helpers::parseLoginData($data);
 

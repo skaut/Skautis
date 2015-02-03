@@ -9,14 +9,14 @@ use Skautis\Wsdl\WebService;
 class WebServiceTest extends \PHPUnit_Framework_TestCase
 {
 
-    protected $queries = array();
+    protected $queries = [];
 
     /**
      * @expectedException Skautis\InvalidArgumentException
      */
     public function testWebServiceConstructMissingWsdl()
     {
-        $webService = new WebService("", array());
+        $webService = new WebService("", []);
     }
 
     public function queryCallback($query)
@@ -26,12 +26,12 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
 
     public function testCallback()
     {
-        $callback = array($this, 'queryCallback');
+        $callback = [$this, 'queryCallback'];
 
-        $data = array(
+        $data = [
             'ID_Application' => 123,
             Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-        );
+        ];
         $webService = new WebService("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
         $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 

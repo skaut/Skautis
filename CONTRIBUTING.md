@@ -16,5 +16,6 @@ Predpokladam znalost PHP, git a GitHub. Idealne PHPUnit take.
 * Dopln testy (pokud nevis o cem mluvim preskoc tento radek)
 * Pridej informace o zmenach do CHANGELOG.md
 * Pokud se jedna o vyznamnou zmenu/novou feature uprav dokumentaci ve slozce /docs
+* Git ``pre-commit`` hook opravuje formatovani, je dobre zkontrolovat jeho upravy
 * Posli Pull Request
 

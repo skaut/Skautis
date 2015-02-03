@@ -195,7 +195,7 @@ class User
             return $this;
         }
 
-        $result = $this->wsdlManager->getWebService('UserManagement', $loginId)->LoginUpdateRefresh(array("ID" => $loginId));
+        $result = $this->wsdlManager->getWebService('UserManagement', $loginId)->LoginUpdateRefresh(["ID" => $loginId]);
 
         $logoutDate = preg_replace('/\.(\d*)$/', '', $result->DateLogout); //skautIS vrací sekundy včetně desetinné části
         $tz = new \DateTimeZone('Europe/Prague');

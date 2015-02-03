@@ -11,10 +11,10 @@ class SessionAdaptersTest extends \PHPUnit_Framework_TestCase {
 
     public function getAdapters()
     {
-        return array(
-	    array(new FakeAdapter()),
-            array(new SessionAdapter()),
-	);
+        return [
+	    [new FakeAdapter()],
+            [new SessionAdapter()],
+	];
     }
 
     /**

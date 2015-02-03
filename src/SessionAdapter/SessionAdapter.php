@@ -2,7 +2,6 @@
 
 namespace Skautis\SessionAdapter;
 
-use Skautis\SessionAdapter\AdapterInterface;
 
 /**
  * Adapter pro pouziti $_SESSION ve SkautISu
@@ -16,7 +15,7 @@ class SessionAdapter implements AdapterInterface {
 
     public function __construct() {
         if (!isset($_SESSION["__" . __CLASS__])) {
- 	    $_SESSION["__" . __CLASS__] = array();
+ 	    $_SESSION["__" . __CLASS__] = [];
         }
 
         $this->session = &$_SESSION["__" . __CLASS__];
