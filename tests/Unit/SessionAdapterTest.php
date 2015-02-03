@@ -75,7 +75,7 @@ class SessionAdaptersTest extends \PHPUnit_Framework_TestCase {
 
 	$data = session_encode();
         session_unset();
-	$this->assertCount(0, $_SESSION);
+	$this->assertCount(0, (array)$_SESSION);
 
 	session_decode($data);
 	$this->assertCount(1, $_SESSION);
