@@ -14,7 +14,7 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
     public function testDecoratorRequireRequest()
     {
 	$value = ['id' => 'response'];
-	$args = ['id' => 'asd', 'txt' => 'uv'];
+	$args = ['asd', 'uv'];
 
 	$webService = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
 	$webService->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($value);
@@ -43,7 +43,7 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
     public function testDecorator()
     {
 	$value = ['id' => 'response'];
-	$args = ['id' => 'asd', 'txt' => 'uv'];
+	$args = ['asd', 'uv'];
 
 	$webService = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
 	$webService->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($value);
@@ -60,7 +60,8 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
 	$response = $decoratedService->call('funkceA', $args);
 	$this->assertEquals($value, $response);
 
-	$response = $decoratedService->call('funkceA', $args);
+        // __call() stejny jako call()
+	$response = $decoratedService->funkceA($args[0], $args[1]);
 	$this->assertEquals($value, $response);
 
 	// Stejne parametry jina funkce
@@ -69,7 +70,7 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
 
 
 	// Zmena obsahu parametru
-	$args['id'] = 'qwe';
+	$args[0] = 'qwe';
 	$webService->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($value);
 
 	$response = $decoratedService->call('funkceA', $args);
@@ -77,7 +78,7 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
 
 
 	// Odebrani parametru
-	unset($args['txt']);
+	unset($args['1']);
 	$webService->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($value);
 
 	$response = $decoratedService->call('funkceA', $args);

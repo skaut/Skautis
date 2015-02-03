@@ -57,6 +57,16 @@ class WebService implements WebServiceInterface, EventDispatcherInterface
         return $this->soapCall($functionName, $arguments);
     }
 
+
+    /**
+     * @inheritdoc
+     */
+    public function __call($functionName, $arguments)
+    {
+
+        return $this->call($functionName, $arguments);
+    }
+
     /**
      * Metoda provadejici SOAP pozadavek na servery Skautisu
      *

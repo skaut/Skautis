@@ -16,5 +16,12 @@ abstract class AbstractDecorator implements WebServiceInterface
     /**
      * @inheritdoc
      */
-    abstract function call($functionName, array $arguments = []);
+    abstract public function call($functionName, array $arguments = []);
+
+    /**
+     * @inheritdoc
+     */
+    public function __call($functionName, $arguments) {
+        return $this->call($functionName, $arguments);
+    }
 }
