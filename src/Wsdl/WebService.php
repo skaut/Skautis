@@ -13,7 +13,7 @@ use SoapClient;
 /**
  * @author Hána František <sinacek@gmail.com>
  */
-class WebService extends SoapClient implements EventDispatcherInterface
+class WebService implements WebServiceInterface, EventDispatcherInterface
 {
 
     use EventDispatcherTrait;
@@ -28,6 +28,10 @@ class WebService extends SoapClient implements EventDispatcherInterface
      */
     protected $init;
 
+    /**
+     * @var SoapClient
+     */
+    protected $soapClient;
 
     /**
      * @param mixed $wdl Odkaz na WSDL soubor
@@ -40,22 +44,27 @@ class WebService extends SoapClient implements EventDispatcherInterface
         $this->init = $soapOpts;
         if (empty($wsdl)) {
             throw new InvalidArgumentException("WSDL address cannot be empty.");
-        }
-        parent::__construct($wsdl, $soapOpts);
+	}
+
+        $this->soapClient = new SoapClient($wsdl, $soapOpts);
     }
 
     /**
-     * Magicka metoda starjici se spravne volani SOAP metod
-     *
-     * @param string $function_name Jmeno funkce volane na objektu
-     * @param array  $arguments     Argumenty funkce volane na objektu
-     *
-     * @return mixed
+     * @inheritdoc
      */
-    public function __call($function_name, $arguments)
+    public function call($functionName, array $arguments = [])
+    {
+        return $this->soapCall($functionName, $arguments);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function __call($functionName, $arguments)
     {
 
-        return $this->__soapCall($function_name, $arguments);
+        return $this->call($functionName, $arguments);
     }
 
     /**
@@ -66,7 +75,7 @@ class WebService extends SoapClient implements EventDispatcherInterface
      *
      * @return mixed
      */
-    public function __soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null)
+    protected function soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null)
     {
         $fname = ucfirst($function_name);
         $args = $this->prepareArgs($fname, $arguments);
@@ -76,7 +85,7 @@ class WebService extends SoapClient implements EventDispatcherInterface
         }
 
         try {
-            $soapResponse = parent::__soapCall($fname, $args);
+            $soapResponse = $this->soapClient->__soapCall($fname, $args);
 
             $soapResponse = $this->parseOutput($fname, $soapResponse);
 
