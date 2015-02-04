@@ -52,12 +52,12 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
 
     public function test__Call()
     {
-        $callback = array($this, 'queryCallback');
+        $callback = [$this, 'queryCallback'];
 
-        $data = array(
+        $data = [
             'ID_Application' => 123,
             Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-        );
+        ];
         $webService = new WebService("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
         $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 

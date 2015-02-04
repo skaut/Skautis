@@ -8,7 +8,7 @@ class ArrayCacheTest extends \PHPUnit_Framework_TestCase
     {
 	//@TODO $cache jako parametr a umoznit opakovane pouziti testu
         $cache = new ArrayCache();
- 
+
 	$key = 'asdasdqwer25erg';
 	$value = ['text' => 'Lorem ..', 'date' => new \DateTime()];
 
