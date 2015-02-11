@@ -3,8 +3,9 @@
 namespace Skautis\Wsdl\Decorator;
 
 use Skautis\Wsdl\WebServiceInterface;
+use Skautis\EventDispatcher\EventDispatcherInterface;
 
-abstract class AbstractDecorator implements WebServiceInterface
+abstract class AbstractDecorator implements WebServiceInterface, EventDispatcherInterface
 {
 
     /**
@@ -23,5 +24,13 @@ abstract class AbstractDecorator implements WebServiceInterface
      */
     public function __call($functionName, $arguments) {
         return $this->call($functionName, $arguments);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function subscribe($eventName, callable $callback)
+    {
+        $this->webService->subscribe($eventName, $callback);
     }
 }
