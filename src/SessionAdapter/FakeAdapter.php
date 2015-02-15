@@ -2,7 +2,6 @@
 
 namespace Skautis\SessionAdapter;
 
-
 /**
  * Nepersestinenti adapter - vhodne jako stub pro testy nebo kdyz neni potreba ukladat
  */
@@ -20,7 +19,7 @@ class FakeAdapter implements AdapterInterface
      */
     public function set($name, $object)
     {
-	$this->data[$name] = $object;
+        $this->data[$name] = $object;
     }
 
     /**
@@ -28,7 +27,7 @@ class FakeAdapter implements AdapterInterface
      */
     public function has($name)
     {
-	return isset($this->data[$name]);
+        return isset($this->data[$name]);
     }
 
     /**
@@ -36,6 +35,6 @@ class FakeAdapter implements AdapterInterface
      */
     public function get($name)
     {
-	return $this->data[$name];
+        return $this->data[$name];
     }
 }

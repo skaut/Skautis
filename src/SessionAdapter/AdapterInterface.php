@@ -5,7 +5,8 @@ namespace Skautis\SessionAdapter;
 /**
  * Interface umoznujici vytvoreni adapteru pro ruzne implementace Session
  */
-interface AdapterInterface {
+interface AdapterInterface
+{
 
     /**
      * Ulozi data do session

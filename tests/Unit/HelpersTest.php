@@ -5,7 +5,6 @@ namespace Test\Skautis;
 use Skautis\Helpers;
 use Skautis\User;
 
-
 class HelpersTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -30,5 +29,4 @@ class HelpersTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(100, $parsed[User::ID_UNIT]);
         $this->assertEquals("2014-12-02 23:56:02", $parsed[User::LOGOUT_DATE]->format('Y-m-d H:i:s'));
     }
-
 }

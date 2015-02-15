@@ -4,7 +4,6 @@ namespace Test\Skautis;
 
 use Skautis\Skautis;
 
-
 class SkautisTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -24,5 +23,4 @@ class SkautisTest extends \PHPUnit_Framework_TestCase
     {
         //@TODO
     }
-
 }

@@ -2,7 +2,6 @@
 
 namespace Skautis;
 
-
 /**
  * Vyhozena v případě pokusu o vytvoření instance statické třídy.
  *
@@ -10,5 +9,4 @@ namespace Skautis;
  */
 class StaticClassException extends \LogicException implements Exception
 {
-
 }

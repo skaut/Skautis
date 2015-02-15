@@ -6,7 +6,6 @@ use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\Config;
 use Skautis\User;
 
-
 /**
  * Třída pro správu webových služeb SkautISu
  */
@@ -199,5 +198,4 @@ class WsdlManager
             'callback' => $callback,
         ];
     }
-
 }

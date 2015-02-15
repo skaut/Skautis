@@ -2,7 +2,6 @@
 
 namespace Skautis\Wsdl;
 
-use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\EventDispatcher\EventDispatcherTrait;
 use Skautis\InvalidArgumentException;
 use Skautis\SkautisQuery;
@@ -13,7 +12,7 @@ use SoapClient;
 /**
  * @author Hána František <sinacek@gmail.com>
  */
-class WebService implements WebServiceInterface, EventDispatcherInterface
+class WebService implements WebServiceInterface
 {
 
     use EventDispatcherTrait;
@@ -34,9 +33,9 @@ class WebService implements WebServiceInterface, EventDispatcherInterface
     protected $soapClient;
 
     /**
-     * @param mixed $wdl Odkaz na WSDL soubor
-     * @param array $init Zakladni informace pro vsechny pozadavky
-     * @param bool $compression Ma pouzivat kompresi na prenasena data?
+     * @param mixed $wsdl Odkaz na WSDL soubor
+     * @param array $soapOpts Nastaveni SOAP requestu
+     * Ma pouzivat kompresi na prenasena data?
      * @throws InvalidArgumentException pokud je odkaz na WSDL soubor prázdný
      */
     public function __construct($wsdl, array $soapOpts)
@@ -44,7 +43,7 @@ class WebService implements WebServiceInterface, EventDispatcherInterface
         $this->init = $soapOpts;
         if (empty($wsdl)) {
             throw new InvalidArgumentException("WSDL address cannot be empty.");
-	}
+        }
 
         $this->soapClient = new SoapClient($wsdl, $soapOpts);
     }
@@ -63,19 +62,22 @@ class WebService implements WebServiceInterface, EventDispatcherInterface
      */
     public function __call($functionName, $arguments)
     {
-
         return $this->call($functionName, $arguments);
     }
 
     /**
      * Metoda provadejici SOAP pozadavek na servery Skautisu
      *
-     * @param string $function_name
-     * @param array $arguments ([0]=args [1]=cover)
+     * @see http://php.net/manual/en/soapclient.soapcall.php
      *
+     * @param string $function_name Nazev akce k provedeni na WebService
+     * @param array $arguments ([0]=args [1]=cover)
+     * @param array $options Nastaveni
+     * @param mixed $input_headers Hlavicky pouzite pri odesilani
+     * @param array $output_headers Hlavicky ktere prijdou s odpovedi
      * @return mixed
      */
-    protected function soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null)
+    protected function soapCall($function_name, $arguments, array $options = [], $input_headers = null, array &$output_headers = [])
     {
         $fname = ucfirst($function_name);
         $args = $this->prepareArgs($fname, $arguments);
@@ -85,7 +87,7 @@ class WebService implements WebServiceInterface, EventDispatcherInterface
         }
 
         try {
-            $soapResponse = $this->soapClient->__soapCall($fname, $args);
+            $soapResponse = $this->soapClient->__soapCall($fname, $args, $options, $input_headers, $output_headers);
 
             $soapResponse = $this->parseOutput($fname, $soapResponse);
 
@@ -93,10 +95,9 @@ class WebService implements WebServiceInterface, EventDispatcherInterface
                 $this->dispatch(self::EVENT_SUCCESS, $query->done($soapResponse));
             }
             return $soapResponse;
-        }
-        catch (SoapFault $e) {
+        } catch (SoapFault $e) {
             if ($this->hasListeners()) {
-                $this->dispatch(self::EVENT_FAILURE, $query->done(NULL, $e));
+                $this->dispatch(self::EVENT_FAILURE, $query->done(null, $e));
             }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
                 throw new AuthenticationException($e->getMessage(), $e->getCode(), $e);
@@ -166,7 +167,6 @@ class WebService implements WebServiceInterface, EventDispatcherInterface
             return [$ret->{$fname . "Result"}->{$fname . "Output"}]; //vraci pole se stdClass
         }
 
-        return $ret = $ret->{$fname . "Result"}->{$fname . "Output"}; //vraci pole se stdClass
+        return $ret->{$fname . "Result"}->{$fname . "Output"}; //vraci pole se stdClass
     }
-
 }

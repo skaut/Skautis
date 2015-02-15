@@ -16,5 +16,4 @@ interface WebServiceFactoryInterface
      * @return mixed
      */
     public function createWebService($url, array $options);
-
 }

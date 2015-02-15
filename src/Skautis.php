@@ -5,7 +5,6 @@ namespace Skautis;
 use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebService;
 
-
 /**
  * Třída pro práci se skautISem
  *
@@ -183,5 +182,4 @@ class Skautis
     {
         return ($this->log !== null) ? $this->log : [];
     }
-
 }

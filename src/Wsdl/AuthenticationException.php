@@ -2,7 +2,6 @@
 
 namespace Skautis\Wsdl;
 
-
 /**
  * Neplatné přihlášení spojené se skautISem.
  *
@@ -10,5 +9,4 @@ namespace Skautis\Wsdl;
  */
 class AuthenticationException extends WsdlException
 {
-
 }

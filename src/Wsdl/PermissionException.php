@@ -2,7 +2,6 @@
 
 namespace Skautis\Wsdl;
 
-
 /**
  * Nepovolený přístup ze strany SkautISu.
  *
@@ -10,5 +9,4 @@ namespace Skautis\Wsdl;
  */
 class PermissionException extends WsdlException
 {
-
 }
