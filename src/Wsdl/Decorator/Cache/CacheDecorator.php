@@ -19,7 +19,7 @@ class CacheDecorator extends AbstractDecorator
 
     public function __construct(WebServiceInterface $webService, CacheInterface $cache)
     {
-	$this->webService = $webService;
+        $this->webService = $webService;
         $this->cache = $cache;
     }
 
@@ -42,12 +42,12 @@ class CacheDecorator extends AbstractDecorator
         $cachedResponse = $this->cache->get($callHash);
         if ($cachedResponse !== null) {
             return $cachedResponse;
-	}
+        }
 
         $response = $this->webService->call($functionName, $arguments);
-	$this->cache->set($callHash, $response);
+        $this->cache->set($callHash, $response);
 
-	return $response;
+        return $response;
     }
 
     /**

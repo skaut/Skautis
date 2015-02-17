@@ -6,15 +6,16 @@ use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\SessionAdapter\SessionAdapter;
 use Skautis\SessionAdapter\FakeAdapter;
 
-class SessionAdaptersTest extends \PHPUnit_Framework_TestCase {
+class SessionAdapterTest extends \PHPUnit_Framework_TestCase
+{
 
 
     public function getAdapters()
     {
         return [
-	    [new FakeAdapter()],
+            [new FakeAdapter()],
             [new SessionAdapter()],
-	];
+        ];
     }
 
     /**
@@ -23,7 +24,6 @@ class SessionAdaptersTest extends \PHPUnit_Framework_TestCase {
      */
     public function testAdapterMethods(AdapterInterface $adapter)
     {
-
         $name = "asd";
         $data = new \StdClass();
 
@@ -49,41 +49,41 @@ class SessionAdaptersTest extends \PHPUnit_Framework_TestCase {
      */
     public function testSessionAdapter()
     {
-	session_start();
-	session_unset();
+        session_start();
+        session_unset();
 
-	$adapter = new SessionAdapter();
+        $adapter = new SessionAdapter();
 
-	$nameA = "promena by byla lepsi \$key";
-	$dataA = "somesuper data";
-	$nameB = "Klic sice je lepsi ale co se delat";
-	$dataB = "Ze sis radsi nenainstaloval Faker";
+        $nameA = "promena by byla lepsi \$key";
+        $dataA = "somesuper data";
+        $nameB = "Klic sice je lepsi ale co se delat";
+        $dataB = "Ze sis radsi nenainstaloval Faker";
         $this->assertFalse($adapter->has($nameA));
 
         $adapter->set($nameA, $dataA);
         $adapter->set($nameB, $dataB);
 
         $this->assertTrue($adapter->has($nameA));
-	$this->assertEquals($dataA, $adapter->get($nameA));
-	$this->assertEquals($dataB, $adapter->get($nameB));
-	$this->assertCount(1, $_SESSION);
+        $this->assertEquals($dataA, $adapter->get($nameA));
+        $this->assertEquals($dataB, $adapter->get($nameB));
+        $this->assertCount(1, $_SESSION);
 
-	$values = array_values($_SESSION);
-	$this->assertCount(2, $values[0]);
-	$this->assertContains($dataA, $values[0]);
-	$this->assertContains($dataB, $values[0]);
+        $values = array_values($_SESSION);
+        $this->assertCount(2, $values[0]);
+        $this->assertContains($dataA, $values[0]);
+        $this->assertContains($dataB, $values[0]);
 
-	$data = session_encode();
+        $data = session_encode();
         session_unset();
-	$this->assertCount(0, (array)$_SESSION);
+        $this->assertCount(0, (array)$_SESSION);
 
-	session_decode($data);
-	$this->assertCount(1, $_SESSION);
+        session_decode($data);
+        $this->assertCount(1, $_SESSION);
 
-	$values = array_values($_SESSION);
-	$this->assertCount(2, $values[0]);
+        $values = array_values($_SESSION);
+        $this->assertCount(2, $values[0]);
 
-	$adapterNew = new SessionAdapter();
+        $adapterNew = new SessionAdapter();
 
         $this->assertTrue($adapterNew->has($nameA));
         $this->assertTrue($adapterNew->has($nameB));

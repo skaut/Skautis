@@ -2,7 +2,6 @@
 
 namespace Skautis;
 
-
 /**
  * Třída pro uživatelské nastavení
  */
@@ -169,5 +168,4 @@ class Config
 
         return $soapOptions;
     }
-
 }

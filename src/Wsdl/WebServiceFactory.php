@@ -27,5 +27,4 @@ class WebServiceFactory implements WebServiceFactoryInterface
     {
         return new $this->class($url, $options);
     }
-
 }

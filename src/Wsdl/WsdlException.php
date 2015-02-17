@@ -4,7 +4,6 @@ namespace Skautis\Wsdl;
 
 use Skautis;
 
-
 /**
  * Obecná chyba při komunikaci s webovými službami.
  *
@@ -12,5 +11,4 @@ use Skautis;
  */
 class WsdlException extends \Exception implements Skautis\Exception
 {
-
 }

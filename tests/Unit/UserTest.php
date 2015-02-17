@@ -4,7 +4,6 @@ namespace Test\Skautis;
 
 use Skautis\User;
 
-
 class UserTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -67,5 +66,4 @@ class UserTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($user->getUnitId());
         $this->assertNull($user->getLogoutDate());
     }
-
 }

@@ -6,7 +6,6 @@ use Skautis;
 use Skautis\Wsdl\WebService;
 use Skautis\Exception as SkautisException;
 
-
 class WebServiceTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -17,7 +16,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
      */
     public function testWebServiceConstructMissingWsdl()
     {
-        $webService = new WebService("", []);
+        new WebService("", []);
     }
 
     public function queryCallback($query)
@@ -40,6 +39,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
             $webService->call('UserDetail');
             $this->fail();
         } catch (SkautisException $e) {
+            //Vyjimku chceme
         }
 
         $this->assertCount(1, $this->queries);
@@ -50,7 +50,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->queries[0]->hasFailed());
     }
 
-    public function test__Call()
+    public function testCall()
     {
         $callback = [$this, 'queryCallback'];
 
@@ -65,6 +65,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
             $webService->UserDetail();
             $this->fail();
         } catch (SkautisException $e) {
+            //Vyjimku chceme
         }
 
         $this->assertCount(1, $this->queries);

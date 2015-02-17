@@ -2,8 +2,9 @@
 
 namespace Skautis\Wsdl;
 
+use Skautis\EventDispatcher\EventDispatcherInterface;
 
-interface WebServiceInterface
+interface WebServiceInterface extends EventDispatcherInterface
 {
 
     /**

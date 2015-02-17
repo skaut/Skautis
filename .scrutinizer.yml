@@ -21,7 +21,7 @@ tools:
     php_analyzer: true
     php_analyzer:
         filter:
-            paths: ["src/*", "tests/*"]
+            paths: ["src/*"]
     sensiolabs_security_checker: true
     external_code_coverage:
         timeout: 600

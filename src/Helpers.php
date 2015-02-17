@@ -2,7 +2,6 @@
 
 namespace Skautis;
 
-
 /**
  * @author Petr Morávek <petr@pada.cz>
  */
@@ -44,5 +43,4 @@ final class Helpers
 
         return $loginData;
     }
-
 }

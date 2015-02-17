@@ -12,5 +12,4 @@ interface EventDispatcherInterface
      * @param callable $callback
      */
     public function subscribe($eventName, callable $callback);
-
 }

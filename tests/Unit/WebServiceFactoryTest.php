@@ -4,7 +4,6 @@ namespace Test\Skautis;
 
 use Skautis\Wsdl\WebServiceFactory;
 
-
 class WebServiceFactoryTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -42,5 +41,4 @@ class WebServiceStub
     {
         return $this->soapArgs;
     }
-
 }

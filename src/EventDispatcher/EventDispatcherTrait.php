@@ -41,5 +41,4 @@ trait EventDispatcherTrait
     {
         $this->listeners[$eventName][] = $callback;
     }
-
 }

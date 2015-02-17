@@ -5,7 +5,6 @@ namespace Skautis;
 use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\Wsdl\WsdlManager;
 
-
 /**
  * @author Petr Morávek <petr@pada.cz>
  */
@@ -47,7 +46,7 @@ class User
         $this->session = $session;
 
         if ($session !== null && $session->has(self::SESSION_ID)) {
-            $this->loginData = $session->get(self::SESSION_ID);
+            $this->loginData = (array)$session->get(self::SESSION_ID);
         }
     }
 
@@ -221,5 +220,4 @@ class User
             $this->session->set(self::SESSION_ID, $this->loginData);
         }
     }
-
 }

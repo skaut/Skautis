@@ -5,13 +5,14 @@ namespace Test\Skautis;
 use Skautis\Config;
 use Skautis\Wsdl\WsdlManager;
 
-
 class WsdlManagerTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testGetSupportedWebServices()
     {
+        /** @var \Skautis\Wsdl\WebServiceFactory */
         $factory = \Mockery::mock('\Skautis\Wsdl\WebServiceFactory');
+        /** @var \Skautis\Confi */
         $config = \Mockery::mock('\Skautis\Config');
         $manager = new WsdlManager($factory, $config);
 
@@ -45,5 +46,4 @@ class WsdlManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($wsA, $eventA);
         $this->assertSame($wsB, $eventB);
     }
-
 }
