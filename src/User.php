@@ -97,6 +97,20 @@ class User
     {
         $this->loginData = [];
 
+        return $this->updateLoginData($loginId, $roleId, $unitId, $logoutDate);
+    }
+    
+    /**
+     * Hromadná změna údajů, bez vymazání stávajících
+     *
+     * @param string|null $loginId
+     * @param int|null $roleId
+     * @param int|null $unitId
+     * @param \DateTime|null $logoutDate
+     * @return self
+     */
+    public function updateLoginData($loginId = null, $roleId = null, $unitId = null, \DateTime $logoutDate = null)
+    {
         if ($loginId !== null) {
             $this->loginData[self::ID_LOGIN] = $loginId;
         }
