@@ -4,14 +4,16 @@
 #SkautIS
 PHP knihovna pro připojení do [Skautisu](https://is.skaut.cz/)
 
-##Ukazka
+##Ukázka
 ```
-@TODO nejaka ukazka zajimave prace se skautisem (bez podrobnosti typu konfigurace)
+//získání podřízených jednotek k té kde jsem přihlášen rolí
+$myUnitId = $skautis->getUser()->getUnitId();
+$skautis->org->unitAll(array("ID_UnitParent"=>$myUnitId))
 ```
 
 ##Navod na pouziti
-Podrobny navod v [dokumentaci](docs/README.md)
+Podrobný návoud v [dokumentaci](docs/README.md).
 
 
-##Pozadavky
-PHP 5.4 a novejsi. Detaily v [composer.json](./composer.json)
+##Požadavky
+PHP 5.4 a novější. Detaily v [composer.json](./composer.json)
