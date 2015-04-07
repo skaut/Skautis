@@ -2,6 +2,7 @@
 
 namespace Test\Skautis;
 
+use Skautis\User;
 use Skautis\Wsdl\Decorator\Cache\ArrayCache;
 use Skautis\Wsdl\Decorator\Cache\CacheDecorator;
 
@@ -16,7 +17,7 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
     public function testDecoratorRequireRequest()
     {
         $value = ['id' => 'response'];
-        $args = ['asd', 'uv'];
+        $args = ['asd', 'uv', User::ID_LOGIN => 'a'];
 
         /** @var Skautis\Wsdl\WebServiceInterface */
         $webService = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
@@ -30,19 +31,16 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($value, $response);
 
 
-        //Stejny request jina odpoved
-        $valueB = ['id' => 'Different response'];
-
+        //Jina instance WS
         /** @var Skautis\Wsdl\WebServiceInterface */
         $webServiceB = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
-        $webServiceB->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($valueB);
 
         //Cache naplnena z prechoziho requestu
         $decoratedServiceB = new CacheDecorator($webServiceB, $cache);
         $response = $decoratedServiceB->call('funkceA', $args);
 
-        //Jelikoz tato instance provadi prvni request, nevrati data z Cache
-        $this->assertEquals($valueB, $response);
+        //Vraci data z cache
+        $this->assertEquals($value, $response);
     }
 
     public function testDecorator()

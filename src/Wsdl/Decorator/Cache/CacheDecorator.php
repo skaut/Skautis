@@ -2,6 +2,7 @@
 
 namespace Skautis\Wsdl\Decorator\Cache;
 
+use Skautis\User;
 use Skautis\Wsdl\Decorator\AbstractDecorator;
 use Skautis\Wsdl\WebServiceInterface;
 
@@ -13,10 +14,14 @@ class CacheDecorator extends AbstractDecorator
     protected $cache;
 
     /**
-     * @var bool
+     * @var array
      */
-    protected $succesfullRequest;
+    protected static $checkedLoginIds = array();
 
+    /**
+     * @param WebServiceInterface $webService
+     * @param CacheInterface $cache
+     */
     public function __construct(WebServiceInterface $webService, CacheInterface $cache)
     {
         $this->webService = $webService;
@@ -31,10 +36,10 @@ class CacheDecorator extends AbstractDecorator
         $callHash = $this->hashCall($functionName, $arguments);
 
         // Pozaduj alespon 1 supesny request na server (zadna Exception)
-        if (!$this->succesfullRequest) {
+        if (isset($arguments[User::ID_LOGIN]) && !in_array($arguments[User::ID_LOGIN], static::$checkedLoginIds)) {
             $response = $this->webService->call($functionName, $arguments);
             $this->cache->set($callHash, $response);
-            $this->succesfullRequest = true;
+            static::$checkedLoginIds[] = $arguments[User::ID_LOGIN];
 
             return $response;
         }
