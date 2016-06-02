@@ -32,6 +32,11 @@ class WebService implements WebServiceInterface
      */
     protected $soapClient;
 
+    private $exceptions = [
+        'EventFunction_LeaderMustBeAdult' => 'Skautis\Wsdl\Event\LeaderNotAdultException',
+        'EventFunction_AssistantMustBeAdult' => 'Skautis\Wsdl\Event\AssistantNotAdultException',
+    ];
+
     /**
      * @param mixed $wsdl Odkaz na WSDL soubor
      * @param array $soapOpts Nastaveni SOAP requestu
@@ -105,8 +110,21 @@ class WebService implements WebServiceInterface
             if (preg_match('/Nemáte oprávnění/', $e->getMessage())) {
                 throw new PermissionException($e->getMessage(), $e->getCode(), $e);
             }
-            throw new WsdlException($e->getMessage(), $e->getCode(), $e);
+
+            $this->resolveException($e);
         }
+    }
+
+    private function resolveException(SoapFault $e)
+    {
+        $message = $e->getMessage();
+        foreach($this->exceptions as $error => $exception) {
+            if(strpos($message, $error) !== FALSE) {
+                throw new $exception($e->getMessage(), $e->getCode(), $e);
+            }
+        }
+
+        throw new WsdlException($e->getMessage(), $e->getCode(), $e);
     }
 
     /**
