@@ -1,10 +1,10 @@
 #Prace se skautisem
 Když je uživatel přihlášen, je vše připraveno k posílání dotazů na servery SkautISu. SkautIS používá pro komunikaci [SOAP](http://cs.wikipedia.org/wiki/SOAP) protokol a k dispozici jsou tyto [služby](http://test-is.skaut.cz/JunakWebservice/).
 
-##Jak vypadá dotaz na server.
+##Jak vypadá dotaz na server?
 ###Objekt webové služby
 Jednotlivé služby mají vlastní objekt splňující ``Skautis\Wsdl\WebServiceInterface``. Tento objekt je potřeba získat z objektu knihovny. Tento objekt se dá používat nadále samostatně v aplikaci.
-Vyzkoušet si jak vypadají požadavky a odpovědi lze online na [ws.skautis.cz/testovani](http://ws.skautis.cz/testovani/).
+Vyzkoušet si jak vypadají požadavky a odpovědi lze online na [ws.skautis.cz/testovani](https://ws.skautis.cz/testovani/).
 ```php
 //$skautis je nakonfigurovaná knihovna s přihlášeným uživatelem
 
@@ -25,6 +25,13 @@ $params = ["ID_UnitParent " => "24404"]
 $data = $organizationUnit->unitAll($params);
 $data = $organizationUnit->call('unitAll', $params);
 ```
+###Obalovací tag
+Některé webové služby jako [PersonUpdate v OrganizationUnit](https://is.skaut.cz/JunakWebservice/OrganizationUnit.asmx?op=PersonUpdate) obsahují navíc tag, například <person>, který je potřeba zadat jako druhý parametr. Jeho absence se projeví chybovou hláškou "Nebyl zadán vstupní parametr person".
+```php
+$organizationUnit->personUpdate(array(...), "person");
+```
+
+
 
 ###Aliasy webových sluzeb
 Názvy služeb jsou dlouhé člověk je nechce psát stále dokola. Proto pro přístup k webové službě skautisu můžeme použít alias webové služby.
