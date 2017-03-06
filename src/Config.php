@@ -17,7 +17,7 @@ class Config
     const COMPRESSION_ENABLED = true;
     const COMPRESSION_DISABLED = false;
 
-    const URL_TEST = "http://test-is.skaut.cz/";
+    const URL_TEST = "https://test-is.skaut.cz/";
     const URL_PRODUCTION = "https://is.skaut.cz/";
 
     /**
