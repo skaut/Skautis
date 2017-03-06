@@ -16,4 +16,4 @@ Podrobný návoud v [dokumentaci](docs/README.md).
 
 
 ##Požadavky
-PHP 5.4 a novější. Detaily v [composer.json](./composer.json)
+PHP 5.6 a novější. Detaily v [composer.json](./composer.json)
