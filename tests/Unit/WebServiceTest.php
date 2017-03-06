@@ -32,7 +32,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
             'ID_Application' => 123,
             Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
         ];
-        $webService = new WebService("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
+        $webService = new WebService("https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
         $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 
         try {
@@ -58,7 +58,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
             'ID_Application' => 123,
             Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
         ];
-        $webService = new WebService("http://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
+        $webService = new WebService("https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
         $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 
         try {
