@@ -12,7 +12,7 @@ Predpokladam znalost PHP, git a GitHub. Idealne PHPUnit take.
 * Forkni tento repositar
 * naklonuj si repositar do sveho pocitace
 * Pokud jsi fanousek Test Driven Development napis testy (pokud nevis o cem mluvim preskoc tento radek)
-* Nakoduj zmeny ktere chces provest. Nezapomen dusledne psat @phpdocs. A napis komentare u slozitych casti.
+* Nakoduj zmeny ktere chces provest. Nezapomen dusledne psat `@phpdocs`. A napis komentare u slozitych casti.
 * Dopln testy (pokud nevis o cem mluvim preskoc tento radek)
 * Pridej informace o zmenach do CHANGELOG.md
 * Pokud se jedna o vyznamnou zmenu/novou feature uprav dokumentaci ve slozce /docs

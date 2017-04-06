@@ -5,10 +5,10 @@
 ## Verze 2.x
 
 ### v2.0.0
-* Změna namespace SkautIS => Skautis
-* Změna třídy SkautIS => Skautis
+* Změna namespace `SkautIS` -> `Skautis`
+* Změna třídy `SkautIS` -> `Skautis`
 * Třídy přímo komunikující se SkautISem vyčlněny do namespace ``Skautis\Wsdl``.
-* Třídy a jejich metody přejmenovány na čitelnější verze, např. "WS" -> "WebService"
+* Třídy a jejich metody přejmenovány na čitelnější verze, např. `WS` -> `WebService`
 * Nette komponenty exportovány do vlastního baličku
 * Požadována verze PHP >= 5.4
 * Konstruktor udělán public
@@ -42,7 +42,7 @@
 ## Verze 1.x
 
 ### v1.2.4
-Moznost pouziti vlastni tridy WS pomoci WSFactory
+Moznost pouziti vlastni tridy `WS` pomoci `WSFactory`
 
 ### v1.0
 Knihovna vyexportovana z Nette projektu

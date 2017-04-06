@@ -14,12 +14,12 @@ $skautisUser = $skautis->getUser();
 
 //Lokální kontrola podle času odhlášení
 if (!$skautisUser->isLoggedIn()) {
-    echo "Je potřeba se první přihlásit.";
+    echo "Je potřeba se nejprve přihlásit.";
 }
 
 //Ověření přihlášení na serveru SkautISu
 if (!$skautisUser->isLoggedIn(true)) {
-    echo "Je potřeba se první přihlásit.";
+    echo "Je potřeba se nejprve přihlásit.";
 }
 ```
 
