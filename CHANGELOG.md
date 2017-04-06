@@ -1,10 +1,10 @@
-#Changelog
+# Changelog
 
 Číslování verzí je od verze 2.0.0 v souladu se [Sématinckým verzováním](http://semver.org/)
 
-##Verze 2.x
+## Verze 2.x
 
-###v2.0.0
+### v2.0.0
 * Změna namespace SkautIS => Skautis
 * Změna třídy SkautIS => Skautis
 * Třídy přímo komunikující se SkautISem vyčlněny do namespace ``Skautis\Wsdl``.
@@ -39,10 +39,10 @@
 * `ArrayCache` přidáno pro cache v ramci jednoho požadavku
 
 
-##Verze 1.x
+## Verze 1.x
 
-###v1.2.4
+### v1.2.4
 Moznost pouziti vlastni tridy WS pomoci WSFactory
 
-###v1.0
+### v1.0
 Knihovna vyexportovana z Nette projektu

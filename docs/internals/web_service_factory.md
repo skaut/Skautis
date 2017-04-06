@@ -1,9 +1,9 @@
-#WebServiceFactory
+# WebServiceFactory
 
 Víme že Skautis vytváří objekty pro webové služby automaticky. WebServiceFactory dává způsob jak toto vytváření upravit.
 Předpokládejme že chceme logovat všechny request na Skautis a máme připravený [web service decorator](./web_service.md)
 
-##Implementace
+## Implementace
 ```PHP
 class LoggingWebServiceFactory implements WebServiceFactoryInterface
 {
