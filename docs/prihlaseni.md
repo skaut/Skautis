@@ -3,8 +3,7 @@ Celý proces přihlášení do externí aplikace je popsán v [dokumentaci Skaut
 
 ## Generování odkazu pro přihlášení
 Knihovna umožňuje vygenerovat odkaz, který přivede uživatele na stránky skautisu a po úspěšném příhlášení ho SkautIS přesměruje zpět do aplikace na předem definovanou adresu.
-```php
-<?php
+```PHP
 //Odkaz na který je uživatel přesměrován po úspěšném přihlášení
 $backLink = "https://moje-skautska-aplikace.skaut.cz/skautis-login-confirm";
 
@@ -17,8 +16,7 @@ echo '<a href="' . $loginUrl . '"> Prihlasit se</a>';
 
 ## Potvrzení přihlášení
 SkautIS uživatele po úspěšném přihlášení přesměruje na adresu nastavenou v předchozím kroce a pošle nám údaje přes $_POST. Tyto údaje je potřeba předat knihovně aby mohla komunikovat se skautisem.
-```php
-<?php
+```PHP
 //Na url https://moje-skautska-aplikace.skaut.cz/skautis-login-confirm
 $skautis->setLoginData($_POST);
 ```

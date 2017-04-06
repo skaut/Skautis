@@ -5,7 +5,7 @@ Když je uživatel přihlášen, je vše připraveno k posílání dotazů na se
 ### Objekt webové služby
 Jednotlivé služby mají vlastní objekt splňující ``Skautis\Wsdl\WebServiceInterface``. Tento objekt je potřeba získat z objektu knihovny. Tento objekt se dá používat nadále samostatně v aplikaci.
 Vyzkoušet si jak vypadají požadavky a odpovědi lze online na [ws.skautis.cz/testovani](https://ws.skautis.cz/testovani/).
-```php
+```PHP
 //$skautis je nakonfigurovaná knihovna s přihlášeným uživatelem
 
 //V seznamu služeb si najdu jmeno služby kterou chci použít a získám její objekt
@@ -28,7 +28,7 @@ $data = $organizationUnit->call('unitAll', $params);
 
 ### Obalovací tag
 Některé webové služby jako [PersonUpdate v OrganizationUnit](https://is.skaut.cz/JunakWebservice/OrganizationUnit.asmx?op=PersonUpdate) obsahují navíc tag, například <person>, který je potřeba zadat jako druhý parametr. Jeho absence se projeví chybovou hláškou "Nebyl zadán vstupní parametr person".
-```php
+```PHP
 $organizationUnit->personUpdate(array(...), "person");
 ```
 
@@ -45,7 +45,7 @@ Již předdefinované aliasy jsou k dispozici:
 * event => events => Events
 
 Tyto tři příkazy jsou naprosto ekvivalentní.
-```php
+```PHP
 //UserManagement je webová služba pro práci s uživateli SkautISu
 //UserDetail je akce na službě UserManagement k získání informací o uživateli
 //1940 je ID uzivatele okres blansko

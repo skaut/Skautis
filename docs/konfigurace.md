@@ -12,7 +12,7 @@ Centrální část knihovny je třída ``Skautis\Skautis``. Tu je potřeba sprá
 
 ### Rychlé pomocí singleton patternu
 Toto řešení funguje *out of the box* s minimálním nastavením. Je vhodné pro aplikace nevyužívající framework.
-```php
+```PHP
 //ID aplikace ziskane při registraci
 $applicationId = "moje-application-id";
 

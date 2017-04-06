@@ -5,7 +5,7 @@
 PHP knihovna pro připojení do [Skautisu](https://is.skaut.cz/)
 
 ## Ukázka
-```
+```PHP
 //získání podřízených jednotek k té kde jsem přihlášen rolí
 $myUnitId = $skautis->getUser()->getUnitId();
 $skautis->org->unitAll(array("ID_UnitParent"=>$myUnitId))
