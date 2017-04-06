@@ -6,4 +6,4 @@ Zde jsou popsané nejčastější problémy vzniklé nekompatibilitou mezi verz�
 Třídy, které dříve obsahovali SkautIS se nyní jmenují s malým "is", tedy Skautis namísto SkautIS.
 
 ## get...Id()
-Funkce $skautis->getNecoId() (getLoginId(), getRoleId(), getUnitId()) se přesunuly do třídy [User](/src/User.php), kterou získáme pomocí getUser(). Tedy přístup k nim je přes $skautis->getUser()->getNecoId().
+Funkce `$skautis->getNecoId()` (`getLoginId()`, `getRoleId()`, `getUnitId()`) se přesunuly do třídy [User](/src/User.php), kterou získáme pomocí `getUser()`. Tedy přístup k nim je přes `$skautis->getUser()->getNecoId()`.

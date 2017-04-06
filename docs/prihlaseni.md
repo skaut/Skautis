@@ -15,7 +15,7 @@ echo '<a href="' . $loginUrl . '"> Prihlasit se</a>';
 ```
 
 ## Potvrzení přihlášení
-SkautIS uživatele po úspěšném přihlášení přesměruje na adresu nastavenou v předchozím kroce a pošle nám údaje přes $_POST. Tyto údaje je potřeba předat knihovně aby mohla komunikovat se skautisem.
+SkautIS uživatele po úspěšném přihlášení přesměruje na adresu nastavenou v předchozím kroce a pošle nám údaje přes `$_POST`. Tyto údaje je potřeba předat knihovně aby mohla komunikovat se skautisem.
 ```PHP
 //Na url https://moje-skautska-aplikace.skaut.cz/skautis-login-confirm
 $skautis->setLoginData($_POST);
