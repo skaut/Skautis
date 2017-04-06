@@ -27,7 +27,7 @@ $skautis = Skautis\Skautis::getInstance($applicationId, $isTestMode);
 Tento způsob je poněkud zdlouhavý, ale dává možnost maximální flexibility.
 
 #### Konfigurace
-Veškerá konfigurace je udržována v jediném objektu, který je potřeba vztvořit a nastavit.
+Veškerá konfigurace je udržována v jediném objektu, který je potřeba vytvořit a nastavit.
 ```PHP
 //ID aplikace ziskane při registraci
 $applicationId = "moje-application-id";
