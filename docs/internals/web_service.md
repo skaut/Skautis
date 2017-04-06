@@ -1,10 +1,10 @@
-#WebService
+# WebService
 Předpokládejme že chceme logovat každý request na SkautIS a máme třídu ``Logger``.
 
-##DecoratorPattern
+## DecoratorPattern
 Decorator funguje tak že dostane objekt který dekoruje a on sám implementuje jeho interface a dá se tedy nadále používat místo něj.
 
-##Implementace
+## Implementace
 ```PHP
 class LoggerDecorator extends Skautis\Wsdl\Decorator\AbstractDecorator
 {

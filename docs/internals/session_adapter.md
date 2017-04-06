@@ -1,12 +1,12 @@
-#SessionAdapter
+# SessionAdapter
 
 Velmi jednoduše se může stát že aplikace kterou píšeme používá pro ``session`` nějaký objekt místo defaultního ``$_SESSION``. V takovém případě je potřeba napsat adaptér abz knihovna mohla pracovat se session.
 Předpákládejme že potřebujeme pracovat s Nette session.
 
-##Adapter pattern
+## Adapter pattern
 [Adapter patter](https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Adapter) je způsob kterým sjednocujeme interface.
 
-##Implementace
+## Implementace
 ```PHP
 class NetteSessionAdapter implements AdapterInterface
 {
