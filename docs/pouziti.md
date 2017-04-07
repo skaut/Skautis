@@ -1,5 +1,5 @@
 # Prace se skautisem
-Když je uživatel přihlášen, je vše připraveno k posílání dotazů na servery SkautISu. SkautIS používá pro komunikaci [SOAP](http://cs.wikipedia.org/wiki/SOAP) protokol a k dispozici jsou tyto [služby](http://test-is.skaut.cz/JunakWebservice/).
+Když je uživatel přihlášen, je vše připraveno k posílání dotazů na servery SkautISu. SkautIS používá pro komunikaci [SOAP](http://cs.wikipedia.org/wiki/SOAP) protokol a k dispozici jsou tyto [služby](https://test-is.skaut.cz/JunakWebservice/).
 
 ## Jak vypadá dotaz na server?
 ### Objekt webové služby
