@@ -11,9 +11,8 @@ $myUnitId = $skautis->getUser()->getUnitId();
 $skautis->org->unitAll(array("ID_UnitParent"=>$myUnitId))
 ```
 
-## Navod na pouziti
-Podrobný návoud v [dokumentaci](docs/README.md).
-
+## Návod na použití
+Podrobný návod v [dokumentaci](docs/README.md).
 
 ## Požadavky
 PHP 5.6 a novější. Detaily v [composer.json](./composer.json)
