@@ -31,7 +31,10 @@
     "autoload": {
         "psr-4": {
             "Skautis\\": "src/"
-        }
+        },
+        "classmap": [
+            "src/Wsdl/exceptions.php"
+        ]
     },
     "suggest": {
         "skautis/nette": "Integrace Skautis do Nette",
