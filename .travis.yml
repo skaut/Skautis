@@ -14,12 +14,19 @@ matrix:
 
 before_install:
   - composer self-update
+  - composer global require hirak/prestissimo 0.3.4
 
 install:
-  - composer install -o --dev --prefer-source
+  - composer install -o --dev --prefer-dist
 
 script: phpunit --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+
+cache:
+  directories:
+    - $HOME/.composer
+    - $HOME/.cache/composer
+    - $HOME/.config/composer
