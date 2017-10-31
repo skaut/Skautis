@@ -14,9 +14,10 @@ matrix:
 
 before_install:
   - composer self-update
+  - composer global require hirak/prestissimo 0.3.4
 
 install:
-  - composer install -o --dev --prefer-source
+  - composer install -o --dev --prefer-dist
 
 script: phpunit --coverage-clover=coverage.clover
 
