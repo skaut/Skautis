@@ -10,7 +10,7 @@ trait EventDispatcherTrait
 
 
     /**
-     * @param string|null $eventName
+     * @param int|null $eventName
      * @return bool
      */
     protected function hasListeners($eventName = null)
@@ -19,7 +19,7 @@ trait EventDispatcherTrait
     }
 
     /**
-     * @param string $eventName
+     * @param int $eventName
      * @param mixed $data
      */
     protected function dispatch($eventName, $data)

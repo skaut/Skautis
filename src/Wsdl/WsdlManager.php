@@ -188,7 +188,7 @@ class WsdlManager
     /**
      * Přidá listener na spravovaných vytvářených webových služeb.
      *
-     * @param string $eventName
+     * @param int $eventName
      * @param callable $callback
      */
     public function addWebServiceListener($eventName, callable $callback)
