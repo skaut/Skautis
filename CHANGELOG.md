@@ -2,6 +2,12 @@
 
 Číslování verzí je od verze 2.0.0 v souladu se [Sématinckým verzováním](http://semver.org/)
 
+## Verze 3.x
+
+### v3.0.0
+* Požadována verze PHP >=7.1
+* Odstranění podpory pro HHVM (HHVM dále [nedodržuje kompabilitu s PHP](https://hhvm.com/blog/2018/09/12/end-of-php-support-future-of-hack.html))
+
 ## Verze 2.x
 
 ### v2.0.0

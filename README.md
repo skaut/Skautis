@@ -15,4 +15,4 @@ $skautis->org->unitAll(array("ID_UnitParent"=>$myUnitId))
 Podrobný návod v [dokumentaci](docs/README.md).
 
 ## Požadavky
-PHP 5.6 a novější. Detaily v [composer.json](./composer.json)
+PHP 7.1 a novější. Detaily v [composer.json](./composer.json)
