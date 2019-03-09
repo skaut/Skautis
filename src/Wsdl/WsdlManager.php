@@ -45,10 +45,13 @@ class WsdlManager
     protected $supportedWebServices = [
         "ApplicationManagement",
         "ContentManagement",
+        "DocumentStorage",
         "Evaluation",
         "Events",
         "Exports",
         "GoogleApps",
+        "Grants",
+        "Insurance",
         "Journal",
         "Material",
         "Message",
