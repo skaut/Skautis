@@ -182,7 +182,7 @@ class WsdlManager
     public function isMaintenance()
     {
         $headers = get_headers($this->getWebServiceUrl("UserManagement"));
-        return !in_array('HTTP/1.1 200 OK', $headers);
+        return !$headers || !in_array('HTTP/1.1 200 OK', $headers);
     }
 
     /**
