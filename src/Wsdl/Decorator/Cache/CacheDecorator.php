@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\Wsdl\Decorator\Cache;
 
@@ -31,12 +32,12 @@ class CacheDecorator extends AbstractDecorator
     /**
      * @inheritdoc
      */
-    public function call($functionName, array $arguments = [])
+    public function call(string $functionName, array $arguments = [])
     {
         $callHash = $this->hashCall($functionName, $arguments);
 
-        // Pozaduj alespon 1 supesny request na server (zadna Exception)
-        if (isset($arguments[User::ID_LOGIN]) && !in_array($arguments[User::ID_LOGIN], static::$checkedLoginIds)) {
+        // Pozaduj alespon 1 supesny request na server (zadna Exception) - Kontrola prihlaseni
+        if (isset($arguments[User::ID_LOGIN]) && !in_array($arguments[User::ID_LOGIN], static::$checkedLoginIds, true)) {
             $response = $this->webService->call($functionName, $arguments);
             $this->cache->set($callHash, $response);
             static::$checkedLoginIds[] = $arguments[User::ID_LOGIN];
@@ -55,11 +56,7 @@ class CacheDecorator extends AbstractDecorator
         return $response;
     }
 
-    /**
-     * @var string $functionName
-     * @var array  $arguments
-     */
-    protected function hashCall($functionName, array $arguments)
+    protected function hashCall(string $functionName, array $arguments): string
     {
         return $functionName . '?' . http_build_query($arguments);
     }

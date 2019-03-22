@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\SessionAdapter;
 
@@ -15,17 +16,18 @@ class SessionAdapter implements AdapterInterface
 
     public function __construct()
     {
-        if (!isset($_SESSION["__" . __CLASS__])) {
-            $_SESSION["__" . __CLASS__] = [];
-        }
+      $sessionId = '__' . __CLASS__;
+      if (!isset($_SESSION[$sessionId])) {
+            $_SESSION[$sessionId] = [];
+      }
 
-        $this->session = &$_SESSION["__" . __CLASS__];
+        $this->session = &$_SESSION[$sessionId];
     }
 
     /**
      * @inheritdoc
      */
-    public function set($name, $object)
+    public function set(string $name, $object): void
     {
         $this->session[$name] = $object;
     }
@@ -33,7 +35,7 @@ class SessionAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function has($name)
+    public function has(string $name): bool
     {
         return isset($this->session[$name]);
     }
@@ -41,7 +43,7 @@ class SessionAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function get($name)
+    public function get(string $name)
     {
         return $this->session[$name];
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis;
 
@@ -24,7 +25,7 @@ class SkautisQuery implements \Serializable
     public $trace;
 
     /**
-     * @var int Doba trvani pozadvku
+     * @var float Doba trvani pozadvku
      */
     public $time;
 
@@ -44,7 +45,7 @@ class SkautisQuery implements \Serializable
      *
      * @var string
      */
-    protected $exceptionClass = "";
+    protected $exceptionClass = '';
 
     /**
      * Po unserializaci je zde text exxception
@@ -53,17 +54,20 @@ class SkautisQuery implements \Serializable
      *
      * @var string
      */
-    protected $exceptionString = "";
+    protected $exceptionString = '';
 
     /**
      *
      *
      * @param string $fname Nazev volane funkce
      * @param array  $args  Argumenty pozadavku
-     * @param string $trace Zasobnik volanych funkci
+     * @param array $trace Zasobnik volanych funkci
      */
-    public function __construct($fname, array $args = [], array $trace = [])
-    {
+    public function __construct(
+      string $fname,
+      array $args = [],
+      array $trace = []
+    ) {
         $this->fname = $fname;
         $this->args = $args;
         $this->trace = $trace;
@@ -78,8 +82,8 @@ class SkautisQuery implements \Serializable
             'trace' => $this->trace,
             'time' => $this->time,
             'result' => $this->result,
-            'exception_class' => is_null($this->exception) ? "" : get_class($this->exception),
-            'exception_string' => is_null($this->exception) ? "" : (string)$this->exception,
+            'exception_class' => $this->exception === null ? '' : get_class($this->exception),
+            'exception_string' => $this->exception === null ? '' : (string)$this->exception,
         ];
         return serialize($data);
     }
@@ -87,20 +91,20 @@ class SkautisQuery implements \Serializable
     public function unserialize($data)
     {
         $data = unserialize($data);
-        $this->fname = $data['fname'];
-        $this->args = $data['args'];
-        $this->trace = $data['trace'];
-        $this->time = $data['time'];
+        $this->fname = (string) $data['fname'];
+        $this->args = (array) $data['args'];
+        $this->trace = (array) $data['trace'];
+        $this->time = (float) $data['time'];
         $this->result = $data['result'];
-        $this->exceptionClass = $data['exception_class'];
-        $this->exceptionString = $data['exception_string'];
+        $this->exceptionClass = (string) $data['exception_class'];
+        $this->exceptionString = (string) $data['exception_string'];
     }
 
     /**
      * Oznac pozadavek za dokonceny a uloz vysledek
      *
      * @param mixed $result Odpoved ze serveru
-     * @param \Exception Výjimka v pripade problemu
+     * @param \Exception $e Výjimka v pripade problemu
      */
     public function done($result = null, \Exception $e = null)
     {
@@ -118,7 +122,7 @@ class SkautisQuery implements \Serializable
      *
      * @return string
      */
-    public function getExceptionClass()
+    public function getExceptionClass(): string
     {
         if ($this->exception === null) {
             return $this->exceptionClass;
@@ -132,7 +136,7 @@ class SkautisQuery implements \Serializable
      *
      * @return string
      */
-    public function getExceptionString()
+    public function getExceptionString(): string
     {
         if ($this->exception === null) {
             return $this->exceptionString;
@@ -146,7 +150,7 @@ class SkautisQuery implements \Serializable
      *
      * @return bool
      */
-    public function hasFailed()
+    public function hasFailed(): bool
     {
         return $this->exception !== null || strlen($this->exceptionClass) > 0;
     }

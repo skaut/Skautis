@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\Wsdl;
 
@@ -17,8 +18,8 @@ class WebService implements WebServiceInterface
 
     use EventDispatcherTrait;
 
-    const EVENT_SUCCESS = 1;
-    const EVENT_FAILURE = 2;
+    public const EVENT_SUCCESS = 'success';
+    public const EVENT_FAILURE = 'failure';
 
     /**
      * základní údaje volané při každém požadavku
@@ -42,7 +43,7 @@ class WebService implements WebServiceInterface
     {
         $this->init = $soapOpts;
         if (empty($wsdl)) {
-            throw new InvalidArgumentException("WSDL address cannot be empty.");
+            throw new InvalidArgumentException('WSDL address cannot be empty.');
         }
 
         $this->soapClient = new SoapClient($wsdl, $soapOpts);
@@ -51,7 +52,7 @@ class WebService implements WebServiceInterface
     /**
      * @inheritdoc
      */
-    public function call($functionName, array $arguments = [])
+    public function call(string $functionName, array $arguments = [])
     {
         return $this->soapCall($functionName, $arguments);
     }
@@ -60,7 +61,7 @@ class WebService implements WebServiceInterface
     /**
      * @inheritdoc
      */
-    public function __call($functionName, $arguments)
+    public function __call(string $functionName, array $arguments)
     {
         return $this->call($functionName, $arguments);
     }
@@ -77,8 +78,13 @@ class WebService implements WebServiceInterface
      * @param array $output_headers Hlavicky ktere prijdou s odpovedi
      * @return mixed
      */
-    protected function soapCall($function_name, $arguments, array $options = [], $input_headers = null, array &$output_headers = [])
-    {
+    protected function soapCall(
+      string $function_name,
+      array $arguments,
+      array $options = [],
+      ?array $input_headers = null,
+      array &$output_headers = []
+    ) {
         $fname = ucfirst($function_name);
         $args = $this->prepareArgs($fname, $arguments);
 
@@ -117,7 +123,7 @@ class WebService implements WebServiceInterface
      *
      * @return array Argumenty pro SoapClient::__soapCall
      */
-    protected function prepareArgs($function_name, array $arguments)
+    protected function prepareArgs($function_name, array $arguments): array
     {
         if (!isset($arguments[0]) || !is_array($arguments[0])) {
             $arguments[0] = [];
@@ -127,7 +133,7 @@ class WebService implements WebServiceInterface
 
         if (!isset($arguments[1]) || $arguments[1] === null) {
             $function_name = strtolower(substr($function_name, 0, 1)) . substr($function_name, 1); //nahrazuje lcfirst
-            $args = [[$function_name . "Input" => $args]];
+            $args = [[$function_name . 'Input' => $args]];
             return $args;
         }
 
@@ -152,7 +158,7 @@ class WebService implements WebServiceInterface
      *
      * @return array
      */
-    protected function parseOutput($fname, $ret)
+    protected function parseOutput(string $fname, $ret): array
     {
         //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
         if (!isset($ret->{$fname . "Result"})) {

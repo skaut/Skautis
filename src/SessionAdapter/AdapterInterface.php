@@ -1,8 +1,9 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\SessionAdapter;
 
-/**
+/**+
  * Interface umoznujici vytvoreni adapteru pro ruzne implementace Session
  */
 interface AdapterInterface
@@ -10,22 +11,18 @@ interface AdapterInterface
 
     /**
      * Ulozi data do session
-     *
-     * @return void
      */
-    public function set($name, $object);
+    public function set(string $name, $object): void ;
 
     /**
      * Overi existenci dat v session
-     *
-     * @return bool
      */
-    public function has($name);
+    public function has(string $name): bool;
 
     /**
      * Ziska data ze session
      *
      * @return mixed
      */
-    public function get($name);
+    public function get(string $name);
 }

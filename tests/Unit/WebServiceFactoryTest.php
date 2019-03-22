@@ -3,6 +3,7 @@
 namespace Test\Skautis;
 
 use Skautis\Wsdl\WebServiceFactory;
+use Skautis\Wsdl\WebServiceInterface;
 
 class WebServiceFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -19,7 +20,7 @@ class WebServiceFactoryTest extends \PHPUnit_Framework_TestCase
 }
 
 
-class WebServiceStub
+class WebServiceStub implements  WebServiceInterface
 {
 
     protected $wsdl;
@@ -41,4 +42,44 @@ class WebServiceStub
     {
         return $this->soapArgs;
     }
+
+  /**
+   * Přidá listener na událost.
+   */
+  public function subscribe(
+    string $eventName,
+    callable $callback
+  ): void {
+    // Empty
+  }
+
+  /**
+   * Zavola funkci na Skautisu
+   *
+   * @param string $functionName Jmeno funkce volane na skautisu
+   * @param array $arguments Argumenty funkce volane na skautisu
+   *
+   * @return mixed
+   */
+  public function call(
+    string $functionName,
+    array $arguments = []
+  ) {
+    return null;
+  }
+
+  /**
+   * Zavola funkci na Skautisu
+   *
+   * @param string $functionName Jmeno funkce volane na skautisu
+   * @param array $arguments Argumenty funkce volane na skautisu
+   *
+   * @return mixed
+   */
+  public function __call(
+    string $functionName,
+    array $arguments
+  ) {
+    return null;
+  }
 }

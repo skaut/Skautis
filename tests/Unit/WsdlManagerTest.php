@@ -4,6 +4,8 @@ namespace Test\Skautis;
 
 use Skautis\Config;
 use Skautis\Wsdl\WsdlManager;
+use Skautis\Wsdl\WebServiceInterface;
+use Skautis\Wsdl\WebServiceFactory;
 
 class WsdlManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,11 +25,11 @@ class WsdlManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWebService()
     {
-        $wsA = new \StdClass;
-        $wsB = new \StdClass;
+        $wsA =  \Mockery::mock(WebServiceInterface::class);
+        $wsB =\Mockery::mock(WebServiceInterface::class);
 
-        $factory = \Mockery::mock('\Skautis\Wsdl\WebServiceFactory');
-        $factory->shouldReceive("createWebService")->withAnyArgs()->twice()->andReturn($wsA, $wsB);
+        $factory = \Mockery::mock(WebServiceFactory::class);
+        $factory->shouldReceive('createWebService')->withAnyArgs()->twice()->andReturn($wsA, $wsB);
         $config = new Config('42');
 
         $manager = new WsdlManager($factory, $config);

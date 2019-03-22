@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\Wsdl\Decorator\Cache;
 
@@ -15,7 +16,7 @@ class ArrayCache implements CacheInterface
     /**
      * @inheritdoc
      */
-    public function get($key)
+    public function get(string $key)
     {
         if (array_key_exists($key, $this->data)) {
             return $this->data[$key];
@@ -27,7 +28,7 @@ class ArrayCache implements CacheInterface
     /**
      * @inheritdoc
      */
-    public function set($key, $value)
+    public function set(string $key, $value): void
     {
         $this->data[$key] = $value;
     }

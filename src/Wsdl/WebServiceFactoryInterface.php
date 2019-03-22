@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\Wsdl;
 
@@ -15,5 +16,5 @@ interface WebServiceFactoryInterface
      * @param array $options Globální nastavení pro všechny požadavky
      * @return mixed
      */
-    public function createWebService($url, array $options);
+    public function createWebService(string $url, array $options): WebServiceInterface;
 }

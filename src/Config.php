@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis;
 
@@ -8,17 +9,17 @@ namespace Skautis;
 class Config
 {
 
-    const CACHE_ENABLED = true;
-    const CACHE_DISABLED = false;
+    public const CACHE_ENABLED = true;
+    public const CACHE_DISABLED = false;
 
-    const TESTMODE_ENABLED = true;
-    const TESTMODE_DISABLED = false;
+    public const TESTMODE_ENABLED = true;
+    public const TESTMODE_DISABLED = false;
 
-    const COMPRESSION_ENABLED = true;
-    const COMPRESSION_DISABLED = false;
+    public const COMPRESSION_ENABLED = true;
+    public const COMPRESSION_DISABLED = false;
 
-    const URL_TEST = "https://test-is.skaut.cz/";
-    const URL_PRODUCTION = "https://is.skaut.cz/";
+    private const URL_TEST = 'https://test-is.skaut.cz/';
+    private const URL_PRODUCTION = 'https://is.skaut.cz/';
 
     /**
      * @var string
@@ -54,10 +55,14 @@ class Config
      * @param bool $compression cachovat WDSL?
      * @throws InvalidArgumentException
      */
-    public function __construct($appId, $isTestMode = false, $cache = true, $compression = true)
-    {
+    public function __construct(
+      string $appId,
+      bool $isTestMode = self::TESTMODE_DISABLED,
+      bool $cache = self::CACHE_ENABLED,
+      bool $compression = self::COMPRESSION_ENABLED
+    ) {
         if (empty($appId)) {
-            throw new InvalidArgumentException("AppId cannot be empty.");
+            throw new InvalidArgumentException('AppId cannot be empty.');
         }
         $this->appId = $appId;
         $this->setTestMode($isTestMode);
@@ -65,82 +70,60 @@ class Config
         $this->setCompression($compression);
     }
 
-    /**
-     * @return string
-     */
-    public function getAppId()
+    public function getAppId(): string
     {
         return $this->appId;
     }
 
-    /**
-     * @return bool
-     */
-    public function isTestMode()
+    public function isTestMode(): bool
     {
         return $this->testMode;
     }
 
-    /**
-     * @param bool $isTestMode
-     * @return self
-     */
-    public function setTestMode($isTestMode = true)
+    public function setTestMode(bool $isTestMode = true): self
     {
-        $this->testMode = (bool) $isTestMode;
+        $this->testMode = $isTestMode;
         return $this;
     }
 
     /**
      * Zjistí, jestli je WSDL cachované
-     *
-     * @return bool
      */
-    public function getCache()
+    public function getCache(): bool
     {
         return $this->cache;
     }
 
     /**
      * Vypne/zapne cachovaní WSDL
-     *
-     * @param bool $enabled
-     * @return self
      */
-    public function setCache($enabled)
+    public function setCache(bool $enabled): self
     {
-        $this->cache = (bool) $enabled;
+        $this->cache = $enabled;
         return $this;
     }
 
     /**
      * Zjistí, jestli se používá komprese dotazů na WSDL
-     *
-     * @return bool
      */
-    public function getCompression()
+    public function getCompression(): bool
     {
         return $this->compression;
     }
 
-    /**
+    /**+
      * Vypne/zapne kompresi dotazů na WSDL
-     *
-     * @param $enabled
-     * @return self
      */
-    public function setCompression($enabled)
+    public function setCompression(bool $enabled): self
     {
-        $this->compression = (bool) $enabled;
+        $this->compression = $enabled;
         return $this;
     }
 
     /**
      * Vací začátek URL adresy
-     *
-     * @return string
      */
-    public function getBaseUrl()
+    public function getBaseUrl(): string
     {
         return $this->testMode ? self::URL_TEST : self::URL_PRODUCTION;
     }
@@ -149,10 +132,8 @@ class Config
      * Na základě nastavení vrací argumenty pro SoapClient
      *
      * @see \SoapClient
-     *
-     * @return array
      */
-    public function getSoapOptions()
+    public function getSoapOptions(): array
     {
         $soapOptions = [
             'ID_Application' => $this->appId,

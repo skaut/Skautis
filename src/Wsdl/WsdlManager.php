@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\Wsdl;
 
@@ -25,7 +26,7 @@ class WsdlManager
     /**
      * Aliasy webových služeb pro rychlý přístup
      *
-     * @var array
+     * @var string[]
      */
     protected $aliases = [
         "user" => "UserManagement",
@@ -39,7 +40,7 @@ class WsdlManager
     /**
      * Dostupné webové služby SkautISu
      *
-     * @var array
+     * @var string[]
      */
     protected $supportedWebServices = [
         "ApplicationManagement",
@@ -85,10 +86,7 @@ class WsdlManager
         $this->config = $config;
     }
 
-    /**
-     * @return Config
-     */
-    public function getConfig()
+    public function getConfig(): Config
     {
         return $this->config;
     }
@@ -98,9 +96,8 @@ class WsdlManager
      *
      * @param string $name jméno nebo alias webové služby
      * @param string|null $loginId skautIS login token
-     * @return WebServiceInterface
      */
-    public function getWebService($name, $loginId = null)
+    public function getWebService(string $name, ?string $loginId = null): WebServiceInterface
     {
         $name = $this->getWebServiceName($name);
         $key = $loginId . '_' . $name . ($this->config->isTestMode() ? '_Test' : '');
@@ -119,9 +116,8 @@ class WsdlManager
      *
      * @param string $name jméno webové služby
      * @param array $options volby pro SoapClient
-     * @return WebService|mixed
      */
-    public function createWebService($name, array $options = [])
+    public function createWebService(string $name, array $options = []): WebServiceInterface
     {
         $webService = $this->webServiceFactory->createWebService($this->getWebServiceUrl($name), $options);
 
@@ -139,10 +135,10 @@ class WsdlManager
      * Vrací celé jméno webové služby
      *
      * @param string $name jméno nebo alias webové služby
-     * @return string
+     *
      * @throws WsdlException
      */
-    protected function getWebServiceName($name)
+    protected function getWebServiceName(string $name): string
     {
         if (in_array($name, $this->supportedWebServices)) {
             // služba s daným jménem existuje
@@ -157,29 +153,21 @@ class WsdlManager
 
     /**
      * Vrací URL webové služby podle jejího jména
-     *
-     * @param string $name celé jméno webové služby
-     * @return string
      */
-    protected function getWebServiceUrl($name)
+    protected function getWebServiceUrl(string $name): string
     {
         return $this->config->getBaseUrl() . "JunakWebservice/" . rawurlencode($name) . ".asmx?WSDL";
     }
 
     /**
      * Vrací seznam webových služeb, které podporuje
-     *
-     * @return array
      */
-    public function getSupportedWebServices()
+    public function getSupportedWebServices(): array
     {
         return $this->supportedWebServices;
     }
 
-    /**
-     * @return bool
-     */
-    public function isMaintenance()
+    public function isMaintenance(): bool
     {
         $headers = get_headers($this->getWebServiceUrl("UserManagement"));
         return !in_array('HTTP/1.1 200 OK', $headers);
@@ -187,11 +175,8 @@ class WsdlManager
 
     /**
      * Přidá listener na spravovaných vytvářených webových služeb.
-     *
-     * @param string $eventName
-     * @param callable $callback
      */
-    public function addWebServiceListener($eventName, callable $callback)
+    public function addWebServiceListener(string $eventName, callable $callback): void
     {
         $this->webServiceListeners[] = [
             'eventName' => $eventName,

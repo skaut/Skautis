@@ -1,9 +1,11 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis;
 
-use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebService;
+use Skautis\Wsdl\WebServiceInterface;
+use Skautis\Wsdl\WsdlManager;
 
 /**
  * Třída pro práci se skautISem
@@ -28,7 +30,7 @@ class Skautis
     private $user;
 
     /**
-     * @var SkautisQuery[]
+     * @var SkautisQuery[]|null
      */
     private $log;
 
@@ -43,103 +45,78 @@ class Skautis
         $this->user = $user;
     }
 
-    /**
-     * @return WsdlManager
-     */
-    public function getWsdlManager()
+    public function getWsdlManager(): WsdlManager
     {
         return $this->wsdlManager;
     }
 
-    /**
-     * @return Config
-     */
-    public function getConfig()
+    public function getConfig(): Config
     {
         return $this->wsdlManager->getConfig();
     }
 
-    /**
-     * @return User
-     */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->user;
     }
 
     /**
      * Získá objekt webové služby
-     *
-     * @param string $name
-     * @return WebService|mixed
      */
-    public function getWebService($name)
+    public function getWebService(string $name): Wsdl\WebServiceInterface
     {
         return $this->wsdlManager->getWebService($name, $this->user->getLoginId());
     }
 
     /**
      * Trocha magie pro snadnější přístup k webovým službám.
-     *
-     * @param string $name
-     * @return WebServiceInterface|mixed
      */
-    public function __get($name)
+    public function __get(string $name): WebServiceInterface
     {
         return $this->getWebService($name);
     }
 
     /**
      * Vrací URL na přihlášení
-     *
-     * @param string|null $backlink
-     * @return string
      */
-    public function getLoginUrl($backlink = null)
+    public function getLoginUrl(string $backlink = ''): string
     {
         $query = [];
         $query['appid'] = $this->getConfig()->getAppId();
         if (!empty($backlink)) {
             $query['ReturnUrl'] = $backlink;
         }
-        return $this->getConfig()->getBaseUrl() . "Login/?" . http_build_query($query, '', '&');
+        return $this->getConfig()->getBaseUrl() . 'Login/?' . http_build_query($query, '', '&');
     }
 
     /**
      * Vrací URL na odhlášení
-     *
-     * @return string
      */
-    public function getLogoutUrl()
+    public function getLogoutUrl(): string
     {
         $query = [];
         $query['appid'] = $this->getConfig()->getAppId();
         $query['token'] = $this->user->getLoginId();
-        return $this->getConfig()->getBaseUrl() . "Login/LogOut.aspx?" . http_build_query($query, '', '&');
+        return $this->getConfig()->getBaseUrl() . 'Login/LogOut.aspx?' . http_build_query($query, '', '&');
     }
 
     /**
      * Vrací URL k registraci
-     *
-     * @param string|null $backlink
-     * @return string
      */
-    public function getRegisterUrl($backlink = null)
+    public function getRegisterUrl(string $backlink = ''): string
     {
         $query = [];
         $query['appid'] = $this->getConfig()->getAppId();
         if (!empty($backlink)) {
             $query['ReturnUrl'] = $backlink;
         }
-        return $this->getConfig()->getBaseUrl() . "Login/Registration.aspx?" . http_build_query($query, '', '&');
+        return $this->getConfig()->getBaseUrl() . 'Login/Registration.aspx?' . http_build_query($query, '', '&');
     }
 
     /**
      * Hromadné nastavení po přihlášení
-     *
-     * @param array $data
      */
-    public function setLoginData(array $data)
+    public function setLoginData(array $data): void
     {
         $data = Helpers::parseLoginData($data);
         $this->getUser()->setLoginData($data[User::ID_LOGIN], $data[User::ID_ROLE], $data[User::ID_UNIT], $data[User::LOGOUT_DATE]);
@@ -147,10 +124,8 @@ class Skautis
 
     /**
      * Ověřuje, zda je skautIS odstaven pro údržbu
-     *
-     * @return boolean
      */
-    public function isMaintenance()
+    public function isMaintenance(): bool
     {
         return $this->wsdlManager->isMaintenance();
     }
@@ -158,7 +133,7 @@ class Skautis
     /**
      * Zapne logování všech SOAP callů
      */
-    public function enableDebugLog()
+    public function enableDebugLog(): void
     {
         if ($this->log !== null) {
             // Debug log byl již zapnut dříve.
@@ -175,11 +150,9 @@ class Skautis
 
     /**
      * Vrací zalogované SOAP cally
-     *
-     * @return SkautisQuery[]
      */
-    public function getDebugLog()
+    public function getDebugLog(): array
     {
-        return ($this->log !== null) ? $this->log : [];
+        return $this->log ?? [];
     }
 }
