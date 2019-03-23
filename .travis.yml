@@ -17,7 +17,9 @@ before_install:
 install:
   - composer install -o --dev --prefer-dist
 
-script: phpunit --coverage-clover=coverage.clover
+script:
+  - vendor/bin/parallel-lint --no-colors --no-progress  src tests
+  - vendor/bin/phpunit --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
