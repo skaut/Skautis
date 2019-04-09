@@ -19,6 +19,7 @@ install:
 
 script:
   - vendor/bin/parallel-lint --no-colors --no-progress  src tests
+  - vendor/bin/phpstan analyze --level 7 --autoload-file=vendor/autoload.php --no-progress  src
   - vendor/bin/phpunit --coverage-clover=coverage.clover
 
 after_script:
