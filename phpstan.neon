@@ -1,0 +1,5 @@
+parameters:
+  autoload_files:
+    - vendor/autoload.php
+  ignoreErrors:
+    - '#Call to an undefined method Skautis\\Wsdl\\WebServiceInterface::.*\(\)#'

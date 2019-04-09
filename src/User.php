@@ -103,11 +103,11 @@ class User
         }
 
         if ($roleId !== null) {
-            $this->loginData[self::ID_ROLE] = (int) $roleId;
+            $this->loginData[self::ID_ROLE] = $roleId;
         }
 
         if ($unitId !== null) {
-            $this->loginData[self::ID_UNIT] = (int) $unitId;
+            $this->loginData[self::ID_UNIT] = $unitId;
         }
 
         if ($logoutDate !== null) {
@@ -143,6 +143,10 @@ class User
             $this->confirmAuth();
         }
 
+        if ($this->getLogoutDate() === null) {
+          return false;
+        }
+
         return $this->isAuthConfirmed() && $this->getLogoutDate()->getTimestamp() > time();
     }
 
@@ -156,7 +160,7 @@ class User
 
     protected function setAuthConfirmed(bool $isConfirmed): void
     {
-        $this->loginData[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
+        $this->loginData[self::AUTH_CONFIRMED] = $isConfirmed;
         $this->saveToSession();
     }
 

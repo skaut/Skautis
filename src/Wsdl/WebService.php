@@ -74,7 +74,7 @@ class WebService implements WebServiceInterface
      * @param string $function_name Nazev akce k provedeni na WebService
      * @param array $arguments ([0]=args [1]=cover)
      * @param array $options Nastaveni
-     * @param mixed $input_headers Hlavicky pouzite pri odesilani
+     * @param array|null $input_headers Hlavicky pouzite pri odesilani
      * @param array $output_headers Hlavicky ktere prijdou s odpovedi
      * @return mixed
      */
@@ -97,12 +97,12 @@ class WebService implements WebServiceInterface
 
             $soapResponse = $this->parseOutput($fname, $soapResponse);
 
-            if ($this->hasListeners()) {
+            if (isset($query) && $this->hasListeners()) {
                 $this->dispatch(self::EVENT_SUCCESS, $query->done($soapResponse));
             }
             return $soapResponse;
         } catch (SoapFault $e) {
-            if ($this->hasListeners()) {
+            if (isset($query) && $this->hasListeners()) {
                 $this->dispatch(self::EVENT_FAILURE, $query->done(null, $e));
             }
             if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
