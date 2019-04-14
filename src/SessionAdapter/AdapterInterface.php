@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Skautis\SessionAdapter;
 
-/**+
+/**
  * Interface umoznujici vytvoreni adapteru pro ruzne implementace Session
  */
 interface AdapterInterface

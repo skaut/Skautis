@@ -30,6 +30,9 @@ class Skautis
     private $user;
 
     /**
+     * Zaznamy o provedenych dotazech na Skautis
+     * Pokud je null, query logging je vypnuto
+     *
      * @var SkautisQuery[]|null
      */
     private $log;
