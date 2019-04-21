@@ -33,13 +33,13 @@ Veškerá konfigurace je udržována v jediném objektu, který je potřeba vytv
 $applicationId = "moje-application-id";
 
 //Indikátor jestli se má použít test-is.skaut.cz
-$isTestMode = true;
+$isTestMode = Config::TEST_MODE_ENABLED;
 
 //Povol cache pro WSDL
-$cache = $true;
+$cache = Config::CACHE_ENABLED;
 
 //Povol kompresi pro data přenášená ze SkautISu
-$compression = true;
+$compression = Config::COMPRESSION_ENABLED;
 
 $config = new Skautis\Config($applicationId, $isTestMode, $cache, $compression);
 ```

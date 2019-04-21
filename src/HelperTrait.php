@@ -33,11 +33,13 @@ trait HelperTrait
      */
     public static function getInstance(
       string $appId,
-      bool $testMode = Config::TESTMODE_DISABLED,
+      bool $testMode = Config::TEST_MODE_DISABLED,
       bool $cache = Config::CACHE_DISABLED,
       bool $compression = Config::COMPRESSION_DISABLED
     ): Skautis {
-        if (!isset(self::$instances[$appId])) {
+        $cacheKey = "$appId-$testMode";
+
+        if (!isset(self::$instances[$cacheKey])) {
             $config = new Config(
               $appId,
               $testMode,
@@ -51,9 +53,9 @@ trait HelperTrait
             $sessionAdapter = new SessionAdapter();
             $user = new User($wsdlManager, $sessionAdapter);
 
-            self::$instances[$appId] = new Skautis($wsdlManager, $user);
+            self::$instances[$cacheKey] = new Skautis($wsdlManager, $user);
         }
 
-        return self::$instances[$appId];
+        return self::$instances[$cacheKey];
     }
 }

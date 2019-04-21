@@ -7,67 +7,61 @@ use Skautis\Config;
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {
 
-    public function testDefaultConfiguration()
+    public function testDefaultConfiguration(): void
     {
-        $config = new Config("asd123");
+        $config = new Config('asd123');
 
-        $this->assertEquals("asd123", $config->getAppId());
-        $this->assertSame(Config::TESTMODE_DISABLED, $config->isTestMode());
-        $this->assertSame(Config::CACHE_ENABLED, $config->getCache());
-        $this->assertSame(Config::COMPRESSION_ENABLED, $config->getCompression());
+        $this->assertEquals('asd123', $config->getAppId());
+        $this->assertTrue($config->isTestMode());
+        $this->assertTrue($config->isCacheEnabled());
+        $this->assertTrue($config->isCompressionEnabled());
     }
 
-    public function testConstructor()
+    public function testTestModeEnabled(): void
     {
-        $config = new Config('sad', true, false, false);
-
-        $this->assertSame('sad', $config->getAppId());
-        $this->assertSame(Config::TESTMODE_ENABLED, $config->isTestMode());
-        $this->assertSame(Config::CACHE_DISABLED, $config->getCache());
-        $this->assertSame(Config::COMPRESSION_DISABLED, $config->getCompression());
+        $config = new Config('asd123', Config::TEST_MODE_ENABLED);
+        $this->assertTrue($config->isTestMode());
     }
 
-    public function testTestMode()
+    public function testTestModeDisabled(): void
     {
-        $config = new Config("asd123");
-
-        $config->setTestMode(Config::TESTMODE_ENABLED);
-        $this->assertSame(Config::TESTMODE_ENABLED, $config->isTestMode());
-
-        $config->setTestMode(Config::TESTMODE_DISABLED);
-        $this->assertSame(Config::TESTMODE_DISABLED, $config->isTestMode());
+        $config = new Config('asd123', Config::TEST_MODE_DISABLED);
+        $this->assertFalse($config->isTestMode());
     }
 
-    public function testCache()
+    public function testCacheEnabled(): void
     {
-        $config = new Config("asd123");
-
-        $config->setCache(Config::CACHE_DISABLED);
-        $this->assertSame(Config::CACHE_DISABLED, $config->getCache());
-
-        $config->setCache(Config::CACHE_ENABLED);
-        $this->assertSame(Config::CACHE_ENABLED, $config->getCache());
+        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_ENABLED);
+        $this->assertTrue($config->isCacheEnabled());
     }
 
-    public function testCompression()
+    public function testCacheDisabled(): void
     {
-        $config = new Config("asd123");
-
-        $config->setCompression(Config::COMPRESSION_DISABLED);
-        $this->assertSame(Config::COMPRESSION_DISABLED, $config->getCompression());
-
-        $config->setCompression(Config::COMPRESSION_ENABLED);
-        $this->assertSame(Config::COMPRESSION_ENABLED, $config->getCompression());
+        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED);
+        $this->assertFalse($config->isCacheEnabled());
     }
 
-    public function testBaseUrl()
+    public function testCompressionEnabled(): void
     {
-        $config = new Config('sad');
+        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED, Config::COMPRESSION_ENABLED);
+        $this->assertTrue( $config->isCompressionEnabled());
+    }
 
-        $config->setTestMode(Config::TESTMODE_ENABLED);
-        $this->assertContains('test', $config->getBaseUrl());
+    public function testCompressionDisabled(): void
+    {
+        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED, Config::COMPRESSION_DISABLED);
+        $this->assertFalse( $config->isCompressionEnabled());
+    }
 
-        $config->setTestMode(Config::TESTMODE_DISABLED);
-        $this->assertNotContains('test', $config->getBaseUrl());
+    public function testBaseUrlTestModeEnabled(): void
+    {
+        $config = new Config('sad', Config::TEST_MODE_ENABLED);
+        $this->assertStringStartsWith('https://test', $config->getBaseUrl());
+    }
+
+    public function testBaseUrlTestModeDisabled(): void
+    {
+        $config = new Config('sad', Config::TEST_MODE_DISABLED);
+        $this->assertStringStartsWith('https://is.', $config->getBaseUrl());
     }
 }
