@@ -66,7 +66,7 @@ class Skautis
     /**
      * Získá objekt webové služby
      */
-    public function getWebService(string $name): Wsdl\WebServiceInterface
+    public function getWebService(string $name): WebServiceInterface
     {
         return $this->wsdlManager->getWebService($name, $this->user->getLoginId());
     }

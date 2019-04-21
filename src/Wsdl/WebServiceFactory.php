@@ -18,7 +18,7 @@ class WebServiceFactory implements WebServiceFactoryInterface
     public function __construct(string $className = WebService::class)
     {
        if (!is_a($className, WebServiceInterface::class, true)) {
-         throw new InvalidArgumentException("Argument must be class name of a class extending WebServiceInterface. '$className' given");
+         throw new InvalidArgumentException("Argument must be class name of a class implementing WebServiceInterface. '$className' given");
        }
 
         $this->class = $className;
