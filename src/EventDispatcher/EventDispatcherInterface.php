@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\EventDispatcher;
 
@@ -7,9 +8,6 @@ interface EventDispatcherInterface
 
     /**
      * Přidá listener na událost.
-     *
-     * @param string $eventName
-     * @param callable $callback
      */
-    public function subscribe($eventName, callable $callback);
+    public function subscribe(string $eventName, callable $callback): void;
 }

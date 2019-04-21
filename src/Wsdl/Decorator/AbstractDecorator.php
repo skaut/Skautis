@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\Wsdl\Decorator;
 
@@ -8,7 +9,7 @@ abstract class AbstractDecorator implements WebServiceInterface
 {
 
     /**
-     * @WebServiceInterface
+     * @var WebServiceInterface
      */
     protected $webService;
 
@@ -16,12 +17,12 @@ abstract class AbstractDecorator implements WebServiceInterface
     /**
      * @inheritdoc
      */
-    abstract public function call($functionName, array $arguments = []);
+    abstract public function call(string $functionName, array $arguments = []);
 
     /**
      * @inheritdoc
      */
-    public function __call($functionName, $arguments)
+    public function __call(string $functionName, array $arguments)
     {
         return $this->call($functionName, $arguments);
     }
@@ -29,7 +30,7 @@ abstract class AbstractDecorator implements WebServiceInterface
     /**
      * @inheritdoc
      */
-    public function subscribe($eventName, callable $callback)
+    public function subscribe(string $eventName, callable $callback): void
     {
         $this->webService->subscribe($eventName, $callback);
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis;
 
@@ -30,14 +31,19 @@ trait HelperTrait
      *
      * @return Skautis Sdilena instance Skautis knihovny pro cely beh PHP skriptu
      */
-    public static function getInstance($appId, $testMode = false, $cache = false, $compression = false)
-    {
+    public static function getInstance(
+      string $appId,
+      bool $testMode = Config::TESTMODE_DISABLED,
+      bool $cache = Config::CACHE_DISABLED,
+      bool $compression = Config::COMPRESSION_DISABLED
+    ): Skautis {
         if (!isset(self::$instances[$appId])) {
-            $config = new Config($appId);
-            $config->setTestMode($testMode);
-            $config->setCache($cache);
-            $config->setCompression($compression);
-
+            $config = new Config(
+              $appId,
+              $testMode,
+              $cache,
+              $compression
+            );
             $webServiceFactory = new WebServiceFactory();
             $wsdlManager = new WsdlManager($webServiceFactory, $config);
 
@@ -45,7 +51,7 @@ trait HelperTrait
             $sessionAdapter = new SessionAdapter();
             $user = new User($wsdlManager, $sessionAdapter);
 
-            self::$instances[$appId] = new self($wsdlManager, $user);
+            self::$instances[$appId] = new Skautis($wsdlManager, $user);
         }
 
         return self::$instances[$appId];

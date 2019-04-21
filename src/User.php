@@ -1,7 +1,9 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis;
 
+use DateTime;
 use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\Wsdl\WsdlManager;
 
@@ -11,12 +13,12 @@ use Skautis\Wsdl\WsdlManager;
 class User
 {
 
-    const ID_LOGIN = "ID_Login";
-    const ID_ROLE = "ID_Role";
-    const ID_UNIT = "ID_Unit";
-    const LOGOUT_DATE = "LOGOUT_Date";
-    const AUTH_CONFIRMED = "AUTH_Confirmed";
-    const SESSION_ID = "skautis_user_data";
+    public const ID_LOGIN = 'ID_Login';
+    public const ID_ROLE = 'ID_Role';
+    public const ID_UNIT = 'ID_Unit';
+    public const LOGOUT_DATE = 'LOGOUT_Date';
+    private const AUTH_CONFIRMED = 'AUTH_Confirmed';
+    private const SESSION_ID = 'skautis_user_data';
 
     /**
      * @var WsdlManager
@@ -24,7 +26,7 @@ class User
     private $wsdlManager;
 
     /**
-     * @var AdapterInterface
+     * @var AdapterInterface|null
      */
     private $session;
 
@@ -50,51 +52,38 @@ class User
         }
     }
 
-    /**
-     * @return string|null
-     */
-    public function getLoginId()
+    public function getLoginId(): ?string
     {
-        return isset($this->loginData[self::ID_LOGIN]) ? $this->loginData[self::ID_LOGIN] : null;
+        return $this->loginData[self::ID_LOGIN] ?? null;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getRoleId()
+    public function getRoleId(): ?int
     {
-        return isset($this->loginData[self::ID_ROLE]) ? $this->loginData[self::ID_ROLE] : null;
+        return $this->loginData[self::ID_ROLE] ?? null;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getUnitId()
+    public function getUnitId(): ?int
     {
-        return isset($this->loginData[self::ID_UNIT]) ? $this->loginData[self::ID_UNIT] : null;
+        return $this->loginData[self::ID_UNIT] ?? null;
     }
 
     /**
      * Vrací datum a čas automatického odhlášení ze skautISu
-     *
-     * @return \DateTime
      */
-    public function getLogoutDate()
+    public function getLogoutDate(): ?DateTime
     {
-        return isset($this->loginData[self::LOGOUT_DATE]) ? $this->loginData[self::LOGOUT_DATE] : null;
+        return $this->loginData[self::LOGOUT_DATE] ?? null;
     }
 
-    /**
+    /**+
      * Hromadné nastavení po přihlášení
-     *
-     * @param string|null $loginId
-     * @param int|null $roleId
-     * @param int|null $unitId
-     * @param \DateTime|null $logoutDate
-     * @return self
      */
-    public function setLoginData($loginId = null, $roleId = null, $unitId = null, \DateTime $logoutDate = null)
-    {
+    public function setLoginData(
+      ?string $loginId = null,
+      ?int $roleId = null,
+      ?int $unitId = null,
+      ?DateTime $logoutDate = null
+    ): self {
         $this->loginData = [];
 
         return $this->updateLoginData($loginId, $roleId, $unitId, $logoutDate);
@@ -102,25 +91,23 @@ class User
     
     /**
      * Hromadná změna údajů, bez vymazání stávajících
-     *
-     * @param string|null $loginId
-     * @param int|null $roleId
-     * @param int|null $unitId
-     * @param \DateTime|null $logoutDate
-     * @return self
      */
-    public function updateLoginData($loginId = null, $roleId = null, $unitId = null, \DateTime $logoutDate = null)
-    {
+    public function updateLoginData(
+      ?string $loginId = null,
+      ?int $roleId = null,
+      ?int $unitId = null,
+      ?DateTime $logoutDate = null
+    ): self {
         if ($loginId !== null) {
             $this->loginData[self::ID_LOGIN] = $loginId;
         }
 
         if ($roleId !== null) {
-            $this->loginData[self::ID_ROLE] = (int) $roleId;
+            $this->loginData[self::ID_ROLE] = $roleId;
         }
 
         if ($unitId !== null) {
-            $this->loginData[self::ID_UNIT] = (int) $unitId;
+            $this->loginData[self::ID_UNIT] = $unitId;
         }
 
         if ($logoutDate !== null) {
@@ -134,10 +121,8 @@ class User
 
     /**
      * Hromadný reset dat po odhlášení
-     *
-     * @return self
      */
-    public function resetLoginData()
+    public function resetLoginData(): self
     {
         return $this->setLoginData();
     }
@@ -147,9 +132,8 @@ class User
      * Pro správné fungování je nezbytně nutné, aby byl na serveru nastaven správný čas.
      *
      * @param bool $hardCheck vynutí kontrolu přihlášení na serveru
-     * @return bool
      */
-    public function isLoggedIn($hardCheck = false)
+    public function isLoggedIn(bool $hardCheck = false): bool
     {
         if (empty($this->loginData[self::ID_LOGIN])) {
             return false;
@@ -159,32 +143,31 @@ class User
             $this->confirmAuth();
         }
 
+        if ($this->getLogoutDate() === null) {
+          return false;
+        }
+
         return $this->isAuthConfirmed() && $this->getLogoutDate()->getTimestamp() > time();
     }
 
     /**
      * Bylo potvrzeno přihlášení dotazem na skautIS?
-     *
-     * @return bool
      */
-    protected function isAuthConfirmed()
+    protected function isAuthConfirmed(): bool
     {
         return !empty($this->loginData[self::AUTH_CONFIRMED]);
     }
 
-    /**
-     * @param bool $isConfirmed
-     */
-    protected function setAuthConfirmed($isConfirmed)
+    protected function setAuthConfirmed(bool $isConfirmed): void
     {
-        $this->loginData[self::AUTH_CONFIRMED] = (bool) $isConfirmed;
+        $this->loginData[self::AUTH_CONFIRMED] = $isConfirmed;
         $this->saveToSession();
     }
 
     /**
      * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
      */
-    protected function confirmAuth()
+    protected function confirmAuth(): void
     {
         try {
             $this->updateLogoutTime();
@@ -197,10 +180,9 @@ class User
     /**
      * Prodloužení přihlášení o 30 min
      *
-     * @return self
      * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
      */
-    public function updateLogoutTime()
+    public function updateLogoutTime(): self
     {
         $loginId = $this->getLoginId();
         if ($loginId === null) {
@@ -208,11 +190,11 @@ class User
             return $this;
         }
 
-        $result = $this->wsdlManager->getWebService('UserManagement', $loginId)->LoginUpdateRefresh(["ID" => $loginId]);
+        $result = $this->wsdlManager->getWebService('UserManagement', $loginId)->LoginUpdateRefresh(['ID' => $loginId]);
 
         $logoutDate = preg_replace('/\.(\d*)$/', '', $result->DateLogout); //skautIS vrací sekundy včetně desetinné části
         $tz = new \DateTimeZone('Europe/Prague');
-        $logoutDate = \DateTime::createFromFormat('Y-m-d\TH:i:s', $logoutDate, $tz);
+        $logoutDate = DateTime::createFromFormat('Y-m-d\TH:i:s', $logoutDate, $tz);
         if ($logoutDate === false) {
             throw new UnexpectedValueException("Could not parse logout date '{$result->DateLogout}'.");
         }
@@ -225,10 +207,8 @@ class User
 
     /**
      * Uloží nastavení do session
-     *
-     * @return void
      */
-    protected function saveToSession()
+    protected function saveToSession(): void
     {
         if ($this->session !== null) {
             $this->session->set(self::SESSION_ID, $this->loginData);

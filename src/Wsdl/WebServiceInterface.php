@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\Wsdl;
 
@@ -15,7 +16,7 @@ interface WebServiceInterface extends EventDispatcherInterface
      *
      * @return mixed
      */
-    public function call($functionName, array $arguments = []);
+    public function call(string $functionName, array $arguments = []);
 
     /**
      * Zavola funkci na Skautisu
@@ -25,5 +26,5 @@ interface WebServiceInterface extends EventDispatcherInterface
      *
      * @return mixed
      */
-    public function __call($functionName, $arguments);
+    public function __call(string $functionName, array $arguments);
 }

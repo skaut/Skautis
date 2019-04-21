@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Skautis\SessionAdapter;
 
@@ -17,7 +18,7 @@ class FakeAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function set($name, $object)
+    public function set(string $name, $object): void
     {
         $this->data[$name] = $object;
     }
@@ -25,7 +26,7 @@ class FakeAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function has($name)
+    public function has(string $name): bool
     {
         return isset($this->data[$name]);
     }
@@ -33,7 +34,7 @@ class FakeAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function get($name)
+    public function get(string $name)
     {
         return $this->data[$name];
     }
