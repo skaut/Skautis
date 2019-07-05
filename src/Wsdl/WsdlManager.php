@@ -24,49 +24,6 @@ class WsdlManager
     protected $config;
 
     /**
-     * Aliasy webových služeb pro rychlý přístup
-     *
-     * @var string[]
-     */
-    protected $aliases = [
-        "user" => "UserManagement",
-        "usr" => "UserManagement",
-        "org" => "OrganizationUnit",
-        "app" => "ApplicationManagement",
-        "event" => "Events",
-        "events" => "Events",
-    ];
-
-    /**
-     * Dostupné webové služby SkautISu
-     *
-     * @var string[]
-     */
-    protected $supportedWebServices = [
-        "ApplicationManagement",
-        "ContentManagement",
-        "DocumentStorage",
-        "Evaluation",
-        "Events",
-        "Exports",
-        "GoogleApps",
-        "Grants",
-        "Insurance",
-        "Journal",
-        "Material",
-        "Message",
-        "OrganizationUnit",
-        "Power",
-        "Reports",
-        "Summary",
-        "Task",
-        "Telephony",
-        "UserManagement",
-        "Vivant",
-        "Welcome",
-    ];
-
-    /**
      * @var array
      */
     protected $webServiceListeners = [];
@@ -97,12 +54,11 @@ class WsdlManager
     /**
      * Získá objekt webové služby
      *
-     * @param string $name jméno nebo alias webové služby
+     * @param string $name celé jméno webové služby
      * @param string|null $loginId skautIS login token
      */
     public function getWebService(string $name, ?string $loginId = null): WebServiceInterface
     {
-        $name = $this->getWebServiceName($name);
         $key = $loginId . '_' . $name;
 
         if (!isset($this->webServices[$key])) {
@@ -135,39 +91,15 @@ class WsdlManager
     }
 
     /**
-     * Vrací celé jméno webové služby
-     *
-     * @param string $name jméno nebo alias webové služby
-     *
-     * @throws WsdlException
-     */
-    protected function getWebServiceName(string $name): string
-    {
-        if (in_array($name, $this->supportedWebServices)) {
-            // služba s daným jménem existuje
-            return $name;
-        }
-        if (array_key_exists($name, $this->aliases) && in_array($this->aliases[$name], $this->supportedWebServices)) {
-            // je definovaný alias pro tuto službu
-            return $this->aliases[$name];
-        }
-        throw new WsdlException("Web service '$name' not found.");
-    }
-
-    /**
      * Vrací URL webové služby podle jejího jména
      */
     protected function getWebServiceUrl(string $name): string
     {
-        return $this->config->getBaseUrl() . "JunakWebservice/" . rawurlencode($name) . ".asmx?WSDL";
-    }
+        if (!WebServiceName::isValidServiceName($name)) {
+          throw new WsdlException("Web service '$name' not found.");
+        }
 
-    /**
-     * Vrací seznam webových služeb, které podporuje
-     */
-    public function getSupportedWebServices(): array
-    {
-        return $this->supportedWebServices;
+        return $this->config->getBaseUrl() . 'JunakWebservice/' . rawurlencode($name) . '.asmx?WSDL';
     }
 
     public function isMaintenance(): bool

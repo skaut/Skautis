@@ -12,6 +12,7 @@
 * ``EventDispatcher`` používá string místo int pro ``event name`` - zpětně nekompatibilní
 * Test mode je nastaven jako defaultní hodnota pro ``Config``, je to tak "bezpečnější" - zpětně nekompatibilní
 * ``Config`` je nyní immutable - zpětně nekompatibilní
+* Přidána třída s konstantami pro webové služby WebServiceName (rádoby enum)
 
 ## Verze 2.x
 
