@@ -13,6 +13,9 @@ Vyzkoušet si jak vypadají požadavky a odpovědi lze online na [ws.skautis.cz/
 //Pro práci s jednotkami ve  skautisu existuje služba OrganizationUnit
 $organizationUnit = $skautis->OrganizationUnit; // Skautis\Wsd\WebServiceInterface
 
+// Trochu delší ale více typovaný způsob - Při tomto použití se vám nestane překlep v názvu služby a má autocompletion
+$organizationUnit = $skautis->getWebService(WebServiceName::ORGANIZATION_UNIT); // Skautis\Wsd\WebServiceInterface
+
 //Na webove sluzbe se provádějí akce. Tyto akce zpravidla mají nějaké parametry které se zadávají pomocí asociativního pole
 //$params = ["nazev_atributu" => "hodnota_atributu"]
 //Například filtrovat podle nadřazené jednotky.
@@ -23,6 +26,8 @@ $params = ["ID_UnitParent " => "24404"]
 //$data = $sluzba->call('jmeno_funkce', $params);
 
 $data = $organizationUnit->unitAll($params);
+
+// Trochu delší ale více staticky typovaný způsob
 $data = $organizationUnit->call('unitAll', $params);
 ```
 

@@ -5,6 +5,7 @@ namespace Skautis;
 
 use DateTime;
 use Skautis\SessionAdapter\AdapterInterface;
+use Skautis\Wsdl\WebServiceName;
 use Skautis\Wsdl\WsdlManager;
 
 /**
@@ -190,7 +191,7 @@ class User
             return $this;
         }
 
-        $result = $this->wsdlManager->getWebService('UserManagement', $loginId)->LoginUpdateRefresh(['ID' => $loginId]);
+        $result = $this->wsdlManager->getWebService(WebServiceName::USER_MANAGEMENT, $loginId)->LoginUpdateRefresh(['ID' => $loginId]);
 
         $logoutDate = preg_replace('/\.(\d*)$/', '', $result->DateLogout); //skautIS vrací sekundy včetně desetinné části
         $tz = new \DateTimeZone('Europe/Prague');

@@ -4,7 +4,12 @@ declare(strict_types = 1);
 namespace Skautis;
 
 use Skautis\Wsdl\WebService;
+use Skautis\Wsdl\WebServiceAlias;
+use Skautis\Wsdl\WebServiceAliasNotFoundException;
 use Skautis\Wsdl\WebServiceInterface;
+use Skautis\Wsdl\WebServiceName;
+use Skautis\Wsdl\WebServiceNotFoundException;
+use Skautis\Wsdl\WsdlException;
 use Skautis\Wsdl\WsdlManager;
 
 /**
@@ -68,7 +73,8 @@ class Skautis
      */
     public function getWebService(string $name): WebServiceInterface
     {
-        return $this->wsdlManager->getWebService($name, $this->user->getLoginId());
+        $realServiceName = $this->getWebServiceName($name);
+        return $this->wsdlManager->getWebService($realServiceName, $this->user->getLoginId());
     }
 
     /**
@@ -158,4 +164,25 @@ class Skautis
     {
         return $this->log ?? [];
     }
+
+  /**
+   * Vrací celé jméno webové služby
+   *
+   * @param string $name jméno nebo alias webové služby
+   *
+   * @throws WsdlException
+   */
+  protected function getWebServiceName(string $name): string
+  {
+    if (WebServiceName::isValidServiceName($name)) {
+      return $name;
+    }
+
+    try {
+      return WebServiceAlias::resolveAlias($name);
+    }
+    catch (WebServiceAliasNotFoundException $ex) {
+      throw new WebServiceNotFoundException($name, 0, $ex);
+    }
+  }
 }
