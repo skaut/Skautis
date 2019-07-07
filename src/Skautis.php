@@ -18,6 +18,25 @@ use Skautis\Wsdl\WsdlManager;
  * Sdružuje všechny komponenty a zprostředkovává jejich komunikaci.
  *
  * @author Hána František <sinacek@gmail.com>
+ *
+ * @property-read WebServiceInterface $ApplicationManagement
+ * @property-read WebServiceInterface $ContentManagement
+ * @property-read WebServiceInterface $Evaluation
+ * @property-read WebServiceInterface $Events
+ * @property-read WebServiceInterface $Exports
+ * @property-read WebServiceInterface $GoogleApps
+ * @property-read WebServiceInterface $Journal
+ * @property-read WebServiceInterface $Material
+ * @property-read WebServiceInterface $Message
+ * @property-read WebServiceInterface $OrganizationUnit
+ * @property-read WebServiceInterface $Power
+ * @property-read WebServiceInterface $Reports
+ * @property-read WebServiceInterface $Summary
+ * @property-read WebServiceInterface $Task
+ * @property-read WebServiceInterface $Telephony
+ * @property-read WebServiceInterface $UserManagement
+ * @property-read WebServiceInterface $Vivant
+ * @property-read WebServiceInterface $Welcome
  */
 class Skautis
 {
