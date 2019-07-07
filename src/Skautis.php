@@ -104,7 +104,22 @@ class Skautis
         return $this->getWebService($name);
     }
 
-    /**
+  /**
+   * NEPOUŽÍVAT - vždy vyhodí výjimku
+   *
+   * @deprecated
+   * @param string $name
+   * @param mixed $value
+   */
+    public function __set(
+      $name,
+      $value
+    ) {
+      throw new DynamicPropertiesDisabledException();
+    }
+
+
+  /**
      * Vrací URL na přihlášení
      */
     public function getLoginUrl(string $backlink = ''): string
