@@ -4,6 +4,7 @@ namespace Test\Skautis;
 
 use PHPUnit_Framework_TestCase;
 use Skautis\Config;
+use Skautis\DynamicPropertiesDisabledException;
 use Skautis\Skautis;
 use Skautis\Wsdl\WebService;
 use Skautis\Wsdl\WebServiceInterface;
@@ -54,6 +55,13 @@ class SkautisTest extends PHPUnit_Framework_TestCase
 
       $this->assertSame($serviceA, $serviceB);
       $this->assertSame($serviceB, $serviceC);
+    }
+
+    public function testSettingWebService(): void {
+      $skautis = Skautis::getInstance('asd');
+
+      $this->expectException(DynamicPropertiesDisabledException::class);
+      $skautis->UserManagement = 'asd';
     }
 
     public function testEventSetter(): void
