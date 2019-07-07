@@ -13,6 +13,7 @@
 * Test mode je nastaven jako defaultní hodnota pro ``Config``, je to tak "bezpečnější" - zpětně nekompatibilní
 * ``Config`` je nyní immutable - zpětně nekompatibilní
 * Přidána třída s konstantami pro webové služby WebServiceName (rádoby enum)
+* PHPDoc annotace pro napovídání názvů webových služeb v IDE a statickou analýzu
 
 ## Verze 2.x
 
