@@ -23,7 +23,7 @@ $isTestMode = true;
 $skautis = Skautis\Skautis::getInstance($applicationId, $isTestMode);
 ```
 
-### Ruční vztvoření
+### Ruční vytvoření
 Tento způsob je poněkud zdlouhavý, ale dává možnost maximální flexibility.
 
 #### Konfigurace
@@ -66,7 +66,7 @@ $wsdlManager = new Skautis\Wsdl\WsdlManager($webServiceFactory, $config);
 #### User
 Na skautis může být přihlášen právě jeden uživatel. Informace o tomto uživateli jsou mezi requesty uloženy v session.
 ```PHP
-$user = new Skautis\User($wsdlManager, $essionAdapter);
+$user = new Skautis\User($wsdlManager, $sessionAdapter);
 ```
 
 #### Skautis
