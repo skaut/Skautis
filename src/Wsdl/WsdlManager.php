@@ -100,7 +100,7 @@ class WsdlManager
     public function getWebService(string $name, ?string $loginId = null): WebServiceInterface
     {
         $name = $this->getWebServiceName($name);
-        $key = $loginId . '_' . $name . ($this->config->isTestMode() ? '_Test' : '');
+        $key = $loginId . '_' . $name;
 
         if (!isset($this->webServices[$key])) {
             $options = $this->config->getSoapOptions();
