@@ -9,7 +9,9 @@
 * Odstranění podpory pro HHVM (HHVM dále [nedodržuje kompabilitu s PHP](https://hhvm.com/blog/2018/09/12/end-of-php-support-future-of-hack.html))
 * Scalar typehints pro metody
 * [Strict types](http://php.net/manual/en/functions.arguments.php#functions.arguments.type-declaration.strict) - zpětně nekompatibilní
-* Event dispatcher používá string místo int pro ``event name`` - zpětně nekompatibilní
+* ``EventDispatcher`` používá string místo int pro ``event name`` - zpětně nekompatibilní
+* Test mode je nastaven jako defaultní hodnota pro ``Config``, je to tak "bezpečnější" - zpětně nekompatibilní
+* ``Config`` je nyní immutable - zpětně nekompatibilní
 
 ## Verze 2.x
 
