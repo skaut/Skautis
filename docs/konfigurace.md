@@ -36,7 +36,7 @@ $applicationId = "moje-application-id";
 $isTestMode = true;
 
 //Povol cache pro WSDL
-$cache = $true;
+$cache = true;
 
 //Povol kompresi pro data přenášená ze SkautISu
 $compression = true;
