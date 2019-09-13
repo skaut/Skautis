@@ -2,9 +2,12 @@
 
 namespace Test\Skautis;
 
+use Mockery\MockInterface;
 use Skautis\User;
-use Skautis\Wsdl\Decorator\Cache\ArrayCache;
 use Skautis\Wsdl\Decorator\Cache\CacheDecorator;
+use Skautis\Wsdl\WebServiceInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
 {
@@ -19,24 +22,24 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
         $value = ['id' => 'response'];
         $args = ['asd', 'uv', User::ID_LOGIN => 'a'];
 
-        /** @var Skautis\Wsdl\WebServiceInterface */
-        $webService = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
+        /** @var WebServiceInterface|MockInterface $webService */
+        $webService = \Mockery::mock(WebServiceInterface::class);
         $webService->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($value);
 
-        $cache = new ArrayCache();
+        $cache = new Psr16Cache(new ArrayAdapter());
 
         //Prazdna cache, musi poslat request
-        $decoratedServiceA = new CacheDecorator($webService, $cache);
+        $decoratedServiceA = new CacheDecorator($webService, $cache, 30);
         $response = $decoratedServiceA->call('funkceA', $args);
         $this->assertEquals($value, $response);
 
 
         //Jina instance WS
-        /** @var Skautis\Wsdl\WebServiceInterface */
-        $webServiceB = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
+        /** @var WebServiceInterface|MockInterface $decoratedServiceB */
+        $webServiceB = \Mockery::mock(WebServiceInterface::class);
 
         //Cache naplnena z prechoziho requestu
-        $decoratedServiceB = new CacheDecorator($webServiceB, $cache);
+        $decoratedServiceB = new CacheDecorator($webServiceB, $cache, 30);
         $response = $decoratedServiceB->call('funkceA', $args);
 
         //Vraci data z cache
@@ -48,14 +51,13 @@ class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
         $value = ['id' => 'response'];
         $args = ['asd', 'uv'];
 
-        /** @var Skautis\Wsdl\WebServiceInterface */
-        $webService = \Mockery::mock('Skautis\Wsdl\WebServiceInterface');
+        /** @var WebServiceInterface|MockInterface $webService */
+        $webService = \Mockery::mock(WebServiceInterface::class);
         $webService->shouldReceive('call')->with('funkceA', $args)->once()->andReturn($value);
         $webService->shouldReceive('call')->with('funkceB', $args)->once()->andReturn($value);
 
-        $cache = new ArrayCache();
-
-        $decoratedService = new CacheDecorator($webService, $cache);
+        $cache = new Psr16Cache(new ArrayAdapter());
+        $decoratedService = new CacheDecorator($webService, $cache, 30);
 
 
 
