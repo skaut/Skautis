@@ -1,23 +1,35 @@
 # Cache
 
-Knihovna umoznuje cachovani pomoci [decorator paternu](https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Decorator). Pro cachovani pozadavku na skautis je mozno pouzit `CacheDecorator`.
+Knihovna umožňuje cachováni pomocí [decorator paternu](https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Decorator). Pro cachování požadavků na skautis je možno použít [``CacheDecorator``](../../src/Wsdl/Decorator/Cache/CacheDecorator.php).
 
+Pro cachování lze použít jakoukoliv cache implementující interface z [PSR-16](https://www.php-fig.org/psr/psr-16/). Existují bridge pro různé známé cache implementace, například [Symfony](https://symfony.com/doc/current/components/cache/psr6_psr16_adapters.html), [Doctrine](https://github.com/Roave/DoctrineSimpleCache), [Zend](https://docs.zendframework.com/zend-cache/psr16/).
 
-## Priklad
+## Příklad
 ```PHP
-//Ziskame webovou sluzbu ze skautisu
+// Získame webovou službu ze Skautisu
 $webService = $skautis->User;
 
-//Pouzijeme v knihovne existujici implementaci cache
-$cache = new ArrayCache();
+// Cache do které se má ukládat výsledek API callu
+// V tomto případě je použita Symfony cache obalená PSR-16 bridgem
+$cache = new \Symfony\Component\Cache\Psr16Cache(new \Symfony\Component\Cache\Adapter\ArrayAdapter());
 
-//Vytvorime cachovanou web service
-$cachedWebService = new CacheDecorator($webService, $cache);
+// Doba po kterou bude výsledek API callu uložen v cache
+$timeToLiveInSeconds = 10*60; 
 
-//Nyni muzeme pouzit cachovanou web service jako klasickou web service
+
+// Vytvoříme cachovanou web service
+$cachedWebService = new CacheDecorator($webService, $cache, $timeToLiveInSeconds);
+
+// Nyní můžeme použít cachovanou web service stejně jako obyčejnou web service
+
+// Nyní se provede API call na Skautis
+$cachedWebService->call('UserDetail', ['ID'=>1940]);
+
+// Další volání se stejnými parametry
+// Odpověď je brána z cache a API call se neprovádí
 $cachedWebService->call('UserDetail', ['ID'=>1940]);
 ```
 
-
-## Vlastni implementace cache
-Pro pouziti jine implementace cache je potreba vytvorit tridu implementujici [CacheInterface](../src/Wsdl/Decorator/Cache/CacheInterface). Nejjednodusi je pouzit [adapter pattern](https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Adapter) v kombinaci s jiz existujici implementaci cache. Napriklad [doctrine cache](https://github.com/doctrine/cache).
+### Pozor
+``CacheDecorator`` neumí rozpoznat který API call je read-only a cachuje vše. 
+Je tedy třeba věnovat zvýšenou pozornost při použití``CacheDecorator``. 
