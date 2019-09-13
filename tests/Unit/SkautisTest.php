@@ -6,12 +6,17 @@ use PHPUnit_Framework_TestCase;
 use Skautis\Config;
 use Skautis\DynamicPropertiesDisabledException;
 use Skautis\Skautis;
-use Skautis\Wsdl\WebService;
-use Skautis\Wsdl\WebServiceInterface;
+use Skautis\User;
 use Skautis\Wsdl\WebServiceName;
+use Skautis\Wsdl\WsdlManager;
 
 class SkautisTest extends PHPUnit_Framework_TestCase
 {
+
+    protected function tearDown()
+    {
+      \Mockery::close();
+    }
 
     public function testSingletonSameId(): void
     {
@@ -62,6 +67,39 @@ class SkautisTest extends PHPUnit_Framework_TestCase
 
       $this->expectException(DynamicPropertiesDisabledException::class);
       $skautis->UserManagement = 'asd';
+    }
+
+    public function testGetLoginURL(): void {
+      $skautis = Skautis::getInstance('asd');
+      $urlEncodedAddress = 'https://is.skaut.cz/Login/?appid=asd&ReturnUrl=https%3A%2F%2Fmy-web.nowhere%2Fasd';
+      $this->assertEquals($urlEncodedAddress, $skautis->getLoginUrl('https://my-web.nowhere/asd'));
+    }
+
+
+    public function testGetLogoutURL(): void {
+
+      /** @var User $user */
+      $user = \Mockery::mock(User::class);
+      $user->shouldReceive('getLoginId')
+        ->once()
+        ->andReturn('log://123out');
+
+      /** @var WsdlManager $wsdlManager */
+      $config = new Config('asd');
+      $wsdlManager = \Mockery::mock(WsdlManager::class);
+      $wsdlManager->shouldReceive('getConfig')
+        ->andReturn($config);
+
+      $skautis = new Skautis($wsdlManager, $user);
+
+      $urlEncodedAddress = 'https://test-is.skaut.cz/Login/LogOut.aspx?appid=asd&token=log%3A%2F%2F123out';
+      $this->assertEquals($urlEncodedAddress, $skautis->getLogoutUrl());
+    }
+
+    public function testGetRegisterURL(): void {
+      $skautis = Skautis::getInstance('asd');
+      $urlEncodedAddress = 'https://is.skaut.cz/Login/Registration.aspx?appid=asd';
+      $this->assertEquals($urlEncodedAddress, $skautis->getRegisterUrl());
     }
 
     public function testEventSetter(): void
