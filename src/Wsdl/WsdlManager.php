@@ -104,8 +104,21 @@ class WsdlManager
 
     public function isMaintenance(): bool
     {
-        $headers = get_headers($this->getWebServiceUrl("UserManagement"));
-        return !$headers || !in_array('HTTP/1.1 200 OK', $headers);
+        // Transformuje PHP error/warning do Exception
+        // Funkce get_headers totiž používá warning když má problém aby vysvětlil co se děje
+        // Pokud například DNS selže tak to hodí PHP warning, který nejde chytat jako exception
+        set_error_handler(function($errno, $errstr, $errfile, $errline) {
+          throw new MaintenanceErrorException($errstr, $errno, $errfile, $errline);
+        });
+
+        try {
+          $headers = get_headers($this->getWebServiceUrl('UserManagement'));
+
+          return !$headers || !in_array('HTTP/1.1 200 OK', $headers, true);
+        }
+        finally {
+          restore_error_handler();
+        }
     }
 
     /**

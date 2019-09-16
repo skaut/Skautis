@@ -10,7 +10,7 @@ use Skautis\Wsdl\WebServiceName;
 use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebServiceInterface;
 
-class WsdlManagerTest extends PHPUnit_Framework_TestCase
+class GetWebServiceTest extends PHPUnit_Framework_TestCase
 {
 
     public function testGetWebService(): void
