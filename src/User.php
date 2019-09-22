@@ -168,13 +168,15 @@ class User
     /**
      * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
      */
-    protected function confirmAuth(): void
+    protected function confirmAuth(): bool
     {
         try {
             $this->updateLogoutTime();
             $this->setAuthConfirmed(true);
+            return true;
         } catch (\Exception $e) {
             $this->setAuthConfirmed(false);
+            return false;
         }
     }
 
@@ -183,12 +185,12 @@ class User
      *
      * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
      */
-    public function updateLogoutTime(): self
+    public function updateLogoutTime(): bool
     {
         $loginId = $this->getLoginId();
         if ($loginId === null) {
             // Nemáme token, uživatel není přihlášen a není, co prodlužovat
-            return $this;
+            return false;
         }
 
         $result = $this->wsdlManager->getWebService(WebServiceName::USER_MANAGEMENT, $loginId)->LoginUpdateRefresh(['ID' => $loginId]);
@@ -203,7 +205,7 @@ class User
 
         $this->saveToSession();
 
-        return $this;
+        return true;
     }
 
     /**
