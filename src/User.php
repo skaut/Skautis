@@ -125,7 +125,10 @@ class User
      */
     public function resetLoginData(): self
     {
-        return $this->setLoginData();
+        $this->loginData = [];
+        $this->saveToSession();
+
+        return $this;
     }
 
     /**
