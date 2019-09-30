@@ -63,9 +63,9 @@ abstract class WebServiceName
 
 
   /**
-   * @return string[]
+   * @return string[]s
    */
-  private static function getConstants(): array
+  public static function getConstants(): array
   {
     if (!self::$cachedConstants) {
       $reflect = new ReflectionClass(static::class);
@@ -80,4 +80,6 @@ abstract class WebServiceName
   ): bool {
     return in_array($name, self::getConstants(), true);
   }
+
+
 }
