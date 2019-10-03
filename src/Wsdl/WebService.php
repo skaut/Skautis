@@ -34,19 +34,13 @@ class WebService implements WebServiceInterface
     protected $soapClient;
 
     /**
-     * @param mixed $wsdl Odkaz na WSDL soubor
      * @param array $soapOpts Nastaveni SOAP requestu
-     * Ma pouzivat kompresi na prenasena data?
      * @throws InvalidArgumentException pokud je odkaz na WSDL soubor prázdný
      */
-    public function __construct($wsdl, array $soapOpts)
+    public function __construct(SoapClient $soapClient, array $soapOpts)
     {
         $this->init = $soapOpts;
-        if (empty($wsdl)) {
-            throw new InvalidArgumentException('WSDL address cannot be empty.');
-        }
-
-        $this->soapClient = new SoapClient($wsdl, $soapOpts);
+        $this->soapClient = $soapClient;
     }
 
     /**
@@ -71,21 +65,22 @@ class WebService implements WebServiceInterface
      *
      * @see http://php.net/manual/en/soapclient.soapcall.php
      *
-     * @param string $function_name Nazev akce k provedeni na WebService
+     * @param string $functionName Nazev akce k provedeni na WebService
      * @param array $arguments ([0]=args [1]=cover)
      * @param array $options Nastaveni
-     * @param array|null $input_headers Hlavicky pouzite pri odesilani
-     * @param array $output_headers Hlavicky ktere prijdou s odpovedi
+     * @param array|null $inputHeaders Hlavicky pouzite pri odesilani
+     * @param array $outputHeaders Hlavicky ktere prijdou s odpovedi
+     *
      * @return mixed
      */
     protected function soapCall(
-      string $function_name,
+      string $functionName,
       array $arguments,
       array $options = [],
-      ?array $input_headers = null,
-      array &$output_headers = []
+      ?array $inputHeaders = null,
+      array &$outputHeaders = []
     ) {
-        $fname = ucfirst($function_name);
+        $fname = ucfirst($functionName);
         $args = $this->prepareArgs($fname, $arguments);
 
         if ($this->hasListeners()) {
@@ -93,7 +88,7 @@ class WebService implements WebServiceInterface
         }
 
         try {
-            $soapResponse = $this->soapClient->__soapCall($fname, $args, $options, $input_headers, $output_headers);
+            $soapResponse = $this->soapClient->__soapCall($fname, $args, $options, $inputHeaders, $outputHeaders);
 
             $soapResponse = $this->parseOutput($fname, $soapResponse);
 
@@ -103,43 +98,40 @@ class WebService implements WebServiceInterface
             return $soapResponse;
         } catch (SoapFault $e) {
             if (isset($query) && $this->hasListeners()) {
-                $this->dispatch(self::EVENT_FAILURE, $query->done(null, $e));
+              $this->dispatch(self::EVENT_FAILURE, $query->done(null, $e));
             }
-            if (preg_match('/Uživatel byl odhlášen/', $e->getMessage())) {
-                throw new AuthenticationException($e->getMessage(), $e->getCode(), $e);
-            }
-            if (preg_match('/Nemáte oprávnění/', $e->getMessage())) {
-                throw new PermissionException($e->getMessage(), $e->getCode(), $e);
-            }
-            throw new WsdlException($e->getMessage(), $e->getCode(), $e);
+
+            throw $this->convertToSkautisException($e);
         }
     }
 
     /**
      * Z defaultnich parametru a parametru callu vytvori argumenty pro SoapClient::__soapCall
      *
-     * @param string $function_name Jmeno funkce volane pres SOAP
+     * @param string $functionName Jmeno funkce volane pres SOAP
      * @param array $arguments      Argumenty k mergnuti s defaultnimy
      *
      * @return array Argumenty pro SoapClient::__soapCall
      */
-    protected function prepareArgs($function_name, array $arguments): array
+    protected function prepareArgs($functionName, array $arguments): array
     {
         if (!isset($arguments[0]) || !is_array($arguments[0])) {
             $arguments[0] = [];
         }
 
-        $args = array_merge($this->init, $arguments[0]); //k argumentum připoji vlastni informace o aplikaci a uzivateli
+        //k argumentum připoji vlastni informace o aplikaci a uzivateli
+        $args = array_merge($this->init, $arguments[0]);
 
         if (!isset($arguments[1]) || $arguments[1] === null) {
-            $function_name = strtolower(substr($function_name, 0, 1)) . substr($function_name, 1); //nahrazuje lcfirst
-            $args = [[$function_name . 'Input' => $args]];
+            $functionName = lcfirst($functionName);
+            $args = [[$functionName . 'Input' => $args]];
             return $args;
         }
 
         //pokud je zadan druhy parametr tak lze prejmenovat obal dat
-        $matches = preg_split('~/~', $arguments[1]); //rozdeli to na stringy podle /
-        $matches = array_reverse($matches); //pole se budou vytvaret zevnitr ven
+        $matches = explode('/', $arguments[1]);
+        //pole se budou vytvaret zevnitr ven
+        $matches = array_reverse($matches);
 
         $matches[] = 0; //zakladni obal 0=>...
 
@@ -161,18 +153,33 @@ class WebService implements WebServiceInterface
     protected function parseOutput(string $fname, $ret): array
     {
         //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
-        if (!isset($ret->{$fname . "Result"})) {
+        $result = $ret->{$fname . 'Result'};
+        if (!isset($result)) {
             return $ret;
         }
 
-        if (!isset($ret->{$fname . "Result"}->{$fname . "Output"})) {
-            return $ret->{$fname . "Result"}; //neobsahuje $fname.Output
+        $output = $result->{$fname . 'Output'};
+        if (!isset($output)) {
+            return $result; //neobsahuje $fname.Output
         }
 
-        if ($ret->{$fname . "Result"}->{$fname . "Output"} instanceof stdClass) { //vraci pouze jednu hodnotu misto pole?
-            return [$ret->{$fname . "Result"}->{$fname . "Output"}]; //vraci pole se stdClass
+        if ($output instanceof stdClass) { //vraci pouze jednu hodnotu misto pole?
+            return [$output]; //vraci pole se stdClass
         }
 
-        return $ret->{$fname . "Result"}->{$fname . "Output"}; //vraci pole se stdClass
+        return $output; //vraci pole se stdClass
+    }
+
+    private function convertToSkautisException(SoapFault $e): WsdlException
+    {
+      if (preg_match('/Uživatel byl odhlášen/ui', $e->getMessage())) {
+        return new AuthenticationException($e->getMessage(), $e->getCode(), $e);
+      }
+
+      if (preg_match('/Nemáte oprávnění/ui', $e->getMessage())) {
+        return new PermissionException($e->getMessage(), $e->getCode(), $e);
+      }
+
+      return new WsdlException($e->getMessage(), $e->getCode(), $e);
     }
 }

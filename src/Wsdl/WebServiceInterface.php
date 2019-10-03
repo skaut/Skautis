@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Skautis\Wsdl;
 
 use Skautis\EventDispatcher\EventDispatcherInterface;
+use Skautis\Exception as SkautisException;
 
 interface WebServiceInterface extends EventDispatcherInterface
 {
@@ -14,6 +15,8 @@ interface WebServiceInterface extends EventDispatcherInterface
      * @param string $functionName Jmeno funkce volane na skautisu
      * @param array  $arguments    Argumenty funkce volane na skautisu
      *
+     * @throws SkautisException
+     *
      * @return mixed
      */
     public function call(string $functionName, array $arguments = []);
@@ -23,6 +26,8 @@ interface WebServiceInterface extends EventDispatcherInterface
      *
      * @param string $functionName Jmeno funkce volane na skautisu
      * @param array  $arguments    Argumenty funkce volane na skautisu
+     *
+     * @throws SkautisException
      *
      * @return mixed
      */

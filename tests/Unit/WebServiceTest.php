@@ -5,6 +5,8 @@ namespace Test\Skautis;
 use Skautis;
 use Skautis\Wsdl\WebService;
 use Skautis\Exception as SkautisException;
+use Skautis\SkautisQuery;
+use Skautis\Wsdl\WebServiceFactory;
 
 class WebServiceTest extends \PHPUnit_Framework_TestCase
 {
@@ -12,12 +14,15 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
     protected $queries = [];
 
     /**
-     * @expectedException Skautis\InvalidArgumentException
+     * @var WebServiceFactory
      */
-    public function testWebServiceConstructMissingWsdl()
+    private $wsFactory;
+
+    protected function setUp()
     {
-        new WebService("", []);
+      $this->wsFactory = new WebServiceFactory();
     }
+
 
     public function queryCallback($query)
     {
@@ -32,7 +37,12 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
             'ID_Application' => 123,
             Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
         ];
-        $webService = new WebService("https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
+
+
+        $webService = $this->wsFactory->createWebService(
+          'https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL',
+          $data
+        );
         $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 
         try {
@@ -43,7 +53,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertCount(1, $this->queries);
-        $this->assertInstanceOf('Skautis\SkautisQuery', $this->queries[0]);
+        $this->assertInstanceOf(SkautisQuery::class, $this->queries[0]);
         $this->assertEquals('UserDetail', $this->queries[0]->fname);
         $this->assertGreaterThan(0, strlen($this->queries[0]->getExceptionString()));
         $this->assertEquals('SoapFault', $this->queries[0]->getExceptionClass());
@@ -58,7 +68,10 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
             'ID_Application' => 123,
             Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
         ];
-        $webService = new WebService("https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL", $data);
+        $webService = $this->wsFactory->createWebService(
+          'https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL',
+          $data
+        );
         $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 
         try {
@@ -69,7 +82,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertCount(1, $this->queries);
-        $this->assertInstanceOf('Skautis\SkautisQuery', $this->queries[0]);
+        $this->assertInstanceOf(SkautisQuery::class, $this->queries[0]);
         $this->assertEquals('UserDetail', $this->queries[0]->fname);
         $this->assertGreaterThan(0, strlen($this->queries[0]->getExceptionString()));
         $this->assertEquals('SoapFault', $this->queries[0]->getExceptionClass());
