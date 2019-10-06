@@ -116,6 +116,11 @@ final class Config
             'ID_Application' => $this->appId,
             'soap_version' => SOAP_1_2,
             'encoding' => 'utf-8',
+            'ssl_method' => SOAP_SSL_METHOD_TLS,
+            'exceptions' => true,
+            'trace' => true,
+            'user_agent' => 'Skautis PHP library',
+            'keep_alive' => true
         ];
 
         if ($this->compression) {
