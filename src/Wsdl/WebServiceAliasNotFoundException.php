@@ -17,8 +17,8 @@ class WebServiceAliasNotFoundException
 {
 
   public function __construct(
-    $alias,
-    $code = 0,
+    string $alias,
+    int $code = 0,
     Throwable $previous = null
   ) {
     parent::__construct("Alias '$alias' does not exist", $code, $previous);

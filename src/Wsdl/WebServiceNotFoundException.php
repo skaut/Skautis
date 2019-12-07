@@ -17,8 +17,8 @@ class WebServiceNotFoundException
 {
 
   public function __construct(
-    $name,
-    $code = 0,
+    string $name,
+    int $code = 0,
     Throwable $previous = null
   ) {
     parent::__construct("Webservice '$name' is not known by the Skautis library'", $code, $previous);

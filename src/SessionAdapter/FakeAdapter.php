@@ -11,7 +11,7 @@ class FakeAdapter implements AdapterInterface
     /**
      * Inmemory storage
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $data = [];
 

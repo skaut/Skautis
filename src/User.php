@@ -34,10 +34,9 @@ class User
     /**
      * Informace o přihlášení uživatele
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $loginData = [];
-
 
     /**
      * @param WsdlManager $wsdlManager
@@ -89,7 +88,7 @@ class User
 
         return $this->updateLoginData($loginId, $roleId, $unitId, $logoutDate);
     }
-    
+
     /**
      * Hromadná změna údajů, bez vymazání stávajících
      */

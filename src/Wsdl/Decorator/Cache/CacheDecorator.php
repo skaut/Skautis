@@ -16,9 +16,9 @@ class CacheDecorator extends AbstractDecorator
     protected $cache;
 
     /**
-     * @var array
+     * @var array<int, string>
      */
-    protected static $checkedLoginIds = array();
+    protected static $checkedLoginIds = [];
 
     /**
      * @var int
@@ -67,6 +67,9 @@ class CacheDecorator extends AbstractDecorator
         return $response;
     }
 
+	/**
+	 * @param array<string, mixed> $arguments
+	 */
     protected function hashCall(string $functionName, array $arguments): string
     {
         return $functionName . '?' . http_build_query($arguments);

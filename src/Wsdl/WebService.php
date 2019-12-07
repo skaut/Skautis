@@ -24,7 +24,8 @@ class WebService implements WebServiceInterface
     /**
      * základní údaje volané při každém požadavku
      * ID_Application, ID_Login
-     * @var array
+     *
+     * @var array<string, mixed>
      */
     protected $init;
 
@@ -34,7 +35,7 @@ class WebService implements WebServiceInterface
     protected $soapClient;
 
     /**
-     * @param array $soapOpts Nastaveni SOAP requestu
+     * @param array<string, mixed> $soapOpts Nastaveni SOAP requestu
      * @throws InvalidArgumentException pokud je odkaz na WSDL soubor prázdný
      */
     public function __construct(SoapClient $soapClient, array $soapOpts)
@@ -66,18 +67,17 @@ class WebService implements WebServiceInterface
      * @see http://php.net/manual/en/soapclient.soapcall.php
      *
      * @param string $functionName Nazev akce k provedeni na WebService
-     * @param array $arguments ([0]=args [1]=cover)
-     * @param array $options Nastaveni
-     * @param array|null $inputHeaders Hlavicky pouzite pri odesilani
-     * @param array $outputHeaders Hlavicky ktere prijdou s odpovedi
-     *
+     * @param array<int|string, mixed> $arguments ([0]=args [1]=cover)
+     * @param array<string, mixed> $options Nastaveni
+     * @param array<int, string> $inputHeaders Hlavicky pouzite pri odesilani
+     * @param array<int, string> $outputHeaders Hlavicky ktere prijdou s odpovedi
      * @return mixed
      */
     protected function soapCall(
       string $functionName,
       array $arguments,
       array $options = [],
-      ?array $inputHeaders = null,
+      array $inputHeaders = [],
       array &$outputHeaders = []
     ) {
         $fname = ucfirst($functionName);
@@ -109,11 +109,11 @@ class WebService implements WebServiceInterface
      * Z defaultnich parametru a parametru callu vytvori argumenty pro SoapClient::__soapCall
      *
      * @param string $functionName Jmeno funkce volane pres SOAP
-     * @param array $arguments      Argumenty k mergnuti s defaultnimy
+     * @param array<int|string, mixed> $arguments Argumenty k mergnuti s defaultnimy
      *
-     * @return array Argumenty pro SoapClient::__soapCall
+     * @return array<int, mixed> Argumenty pro SoapClient::__soapCall
      */
-    protected function prepareArgs($functionName, array $arguments): array
+    protected function prepareArgs(string $functionName, array $arguments): array
     {
         if (!isset($arguments[0]) || !is_array($arguments[0])) {
             $arguments[0] = [];
@@ -122,7 +122,7 @@ class WebService implements WebServiceInterface
         //k argumentum připoji vlastni informace o aplikaci a uzivateli
         $args = array_merge($this->init, $arguments[0]);
 
-        if (!isset($arguments[1]) || $arguments[1] === null) {
+        if (!isset($arguments[1])) {
             $functionName = lcfirst($functionName);
             $args = [[$functionName . 'Input' => $args]];
             return $args;
@@ -148,7 +148,7 @@ class WebService implements WebServiceInterface
      * @param string $fname Jméno funkce volané přes SOAP
      * @param mixed $ret    Odpoveď ze SoapClient::__soapCall
      *
-     * @return array
+     * @return array<int|string, mixed>
      */
     protected function parseOutput(string $fname, $ret): array
     {
