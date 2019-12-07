@@ -11,6 +11,8 @@ interface AdapterInterface
 
     /**
      * Ulozi data do session
+     *
+     * @param mixed $object
      */
     public function set(string $name, $object): void ;
 

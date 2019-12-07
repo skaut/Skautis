@@ -13,7 +13,8 @@ interface WebServiceFactoryInterface
      * Vytvoř nový objekt webové služby
      *
      * @param string $url Adresa WSDL souboru
-     * @param array $options Globální nastavení pro všechny požadavky
+     * @param array<string, mixed> $options Globální nastavení pro všechny požadavky
+     *
      * @return WebServiceInterface
      */
     public function createWebService(string $url, array $options): WebServiceInterface;

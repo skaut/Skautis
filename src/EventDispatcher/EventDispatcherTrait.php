@@ -6,7 +6,7 @@ namespace Skautis\EventDispatcher;
 trait EventDispatcherTrait
 {
 
-    /** @var callable[] */
+    /** @var array<string, callable[]> */
     private $listeners = [];
 
 

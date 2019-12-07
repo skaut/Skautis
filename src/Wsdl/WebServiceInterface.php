@@ -12,7 +12,7 @@ interface WebServiceInterface extends EventDispatcherInterface
      * Zavola funkci na Skautisu
      *
      * @param string $functionName Jmeno funkce volane na skautisu
-     * @param array  $arguments    Argumenty funkce volane na skautisu
+     * @param array<string, mixed> $arguments    Argumenty funkce volane na skautisu
      *
      * @return mixed
      */
@@ -22,7 +22,7 @@ interface WebServiceInterface extends EventDispatcherInterface
      * Zavola funkci na Skautisu
      *
      * @param string $functionName Jmeno funkce volane na skautisu
-     * @param array  $arguments    Argumenty funkce volane na skautisu
+     * @param array<string, mixed> $arguments    Argumenty funkce volane na skautisu
      *
      * @return mixed
      */

@@ -1,5 +1,10 @@
 parameters:
-  autoload_files:
-    - vendor/autoload.php
+  level: max
+  paths:
+    - src
   ignoreErrors:
-    - '#Call to an undefined method Skautis\\Wsdl\\WebServiceInterface::.*\(\)#'
+    -
+      count: 1
+      path: src/User.php
+      message: '#^Call to an undefined method Skautis\\Wsdl\\WebServiceInterface::LoginUpdateRefresh\(\)\.$#'
+      # there is __call method, also this method is mocked in tests

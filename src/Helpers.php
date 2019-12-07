@@ -23,6 +23,10 @@ final class Helpers
     /**
      * Parsuje pole dat zaslaných skautISem (například $_SESSION)
      *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     *
      * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
      */
     public static function parseLoginData(array $data): array

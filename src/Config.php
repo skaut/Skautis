@@ -109,6 +109,8 @@ final class Config
      * Neumožňujeme uživateli primo modifikovat options aby byly vzdy validni a kompatibilni se Skautis API
      *
      * @see \SoapClient
+     *
+     * @return array<string, mixed>
      */
     public function getSoapOptions(): array
     {

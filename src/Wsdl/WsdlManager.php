@@ -5,6 +5,7 @@ namespace Skautis\Wsdl;
 
 use Skautis\EventDispatcher\EventDispatcherInterface;
 use Skautis\Config;
+use Skautis\SkautisQuery;
 use Skautis\User;
 
 /**
@@ -24,14 +25,14 @@ class WsdlManager
     protected $config;
 
     /**
-     * @var array
+     * @var array<int, array{eventName: string, callback: (callable(SkautisQuery): void)}>
      */
     protected $webServiceListeners = [];
 
     /**
      * Pole aktivních webových služeb
      *
-     * @var array
+     * @var array<string, WebServiceInterface>
      */
     protected $webServices = [];
 
@@ -74,7 +75,7 @@ class WsdlManager
      * Vytváří objekt webové služby
      *
      * @param string $name jméno webové služby
-     * @param array $options volby pro SoapClient
+     * @param array<string, mixed> $options volby pro SoapClient
      */
     public function createWebService(string $name, array $options = []): WebServiceInterface
     {
@@ -123,6 +124,8 @@ class WsdlManager
 
     /**
      * Přidá listener na spravovaných vytvářených webových služeb.
+     *
+     * @param callable(SkautisQuery): void $callback
      */
     public function addWebServiceListener(string $eventName, callable $callback): void
     {

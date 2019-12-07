@@ -110,6 +110,10 @@ class Skautis
    * @deprecated
    * @param string $name
    * @param mixed $value
+   *
+   * @return void
+   *
+   * @phpstan-return never
    */
     public function __set(
       $name,
@@ -158,6 +162,8 @@ class Skautis
 
     /**
      * Hromadné nastavení po přihlášení
+     *
+     * @param array<string, mixed> $data
      */
     public function setLoginData(array $data): void
     {
@@ -184,7 +190,7 @@ class Skautis
         }
 
         $this->log = [];
-        $logger = function (SkautisQuery $query) {
+        $logger = function (SkautisQuery $query): void {
             $this->log[] = $query;
         };
         $this->wsdlManager->addWebServiceListener(WebService::EVENT_SUCCESS, $logger);
@@ -193,6 +199,8 @@ class Skautis
 
     /**
      * Vrací zalogované SOAP cally
+     *
+     * @return SkautisQuery[]
      */
     public function getDebugLog(): array
     {

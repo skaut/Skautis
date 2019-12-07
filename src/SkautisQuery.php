@@ -15,12 +15,14 @@ class SkautisQuery implements \Serializable
     public $fname;
 
     /**
-     * @var array Parametry SOAP requestu na server
+     * Parametry SOAP requestu na server
+     *
+     * @var array<int, mixed>
      */
     public $args;
 
     /**
-     * @var array Zasobnik volanych funkci
+     * @var array<int, array<string, mixed>> Zasobnik volanych funkci
      */
     public $trace;
 
@@ -29,6 +31,9 @@ class SkautisQuery implements \Serializable
      */
     public $time;
 
+	/**
+	 * @var mixed
+	 */
     public $result;
 
     /**
@@ -60,8 +65,8 @@ class SkautisQuery implements \Serializable
      *
      *
      * @param string $fname Nazev volane funkce
-     * @param array  $args  Argumenty pozadavku
-     * @param array $trace Zasobnik volanych funkci
+     * @param array<int, mixed> $args  Argumenty pozadavku
+     * @param array<int, array<string, mixed>> $trace Zasobnik volanych funkci
      */
     public function __construct(
       string $fname,
@@ -74,7 +79,7 @@ class SkautisQuery implements \Serializable
         $this->time = -microtime(true);
     }
 
-    public function serialize()
+    public function serialize(): string
     {
         $data = [
             'fname' => $this->fname,
@@ -88,7 +93,10 @@ class SkautisQuery implements \Serializable
         return serialize($data);
     }
 
-    public function unserialize($data)
+	/**
+	 * @param string $data
+	 */
+    public function unserialize($data): void
     {
         $data = unserialize($data);
         $this->fname = (string) $data['fname'];
@@ -106,7 +114,7 @@ class SkautisQuery implements \Serializable
      * @param mixed $result Odpoved ze serveru
      * @param \Exception $e Výjimka v pripade problemu
      */
-    public function done($result = null, \Exception $e = null)
+    public function done($result = null, \Exception $e = null): self
     {
         $this->time += microtime(true);
         $this->result = $result;
@@ -119,8 +127,6 @@ class SkautisQuery implements \Serializable
      * Vrati tridu exception
      *
      * Pouziva se tato metoda protoze SoapFault exception vyhozena SoapClientem nejde serializovat
-     *
-     * @return string
      */
     public function getExceptionClass(): string
     {
@@ -133,8 +139,6 @@ class SkautisQuery implements \Serializable
 
     /**
      * Vrati textovou podobu exception
-     *
-     * @return string
      */
     public function getExceptionString(): string
     {
@@ -147,8 +151,6 @@ class SkautisQuery implements \Serializable
 
     /**
      * Kontrola jestli se pozadavek zdaril
-     *
-     * @return bool
      */
     public function hasFailed(): bool
     {

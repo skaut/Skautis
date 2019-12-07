@@ -19,7 +19,7 @@ install:
 
 script:
   - vendor/bin/parallel-lint --no-colors --no-progress  src tests
-  - vendor/bin/phpstan analyze  -c phpstan.neon --level 7 --no-progress  src
+  - vendor/bin/phpstan analyze --no-progress
   - vendor/bin/phpunit --coverage-clover=coverage.clover
 
 after_script:

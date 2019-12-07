@@ -10,7 +10,7 @@ class SessionAdapter implements AdapterInterface
 {
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $session;
 
