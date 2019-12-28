@@ -168,18 +168,22 @@ class User
         $this->saveToSession();
     }
 
-    /**
-     * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
-     */
-    protected function confirmAuth(): bool
+  /**
+   * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
+   *
+   * @throws \Exception Pokud se authentikace nepovede
+   */
+    protected function confirmAuth(): void
     {
         try {
-            $this->updateLogoutTime();
+          $logoutTimeUpdated = $this->updateLogoutTime();
+          if(!$logoutTimeUpdated) {
+              throw new \RuntimeException('Updating logout time failed');
+            }
             $this->setAuthConfirmed(true);
-            return true;
         } catch (\Exception $e) {
             $this->setAuthConfirmed(false);
-            return false;
+            throw $e;
         }
     }
 
