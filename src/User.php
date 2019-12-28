@@ -80,7 +80,7 @@ class User
      * Hromadné nastavení po přihlášení
      */
     public function setLoginData(
-      ?string $loginId = null,
+      string $loginId,
       ?int $roleId = null,
       ?int $unitId = null,
       ?DateTime $logoutDate = null
