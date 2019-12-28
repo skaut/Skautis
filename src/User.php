@@ -80,7 +80,7 @@ class User
      * Hromadné nastavení po přihlášení
      */
     public function setLoginData(
-      ?string $loginId = null,
+      string $loginId,
       ?int $roleId = null,
       ?int $unitId = null,
       ?DateTime $logoutDate = null
@@ -125,7 +125,10 @@ class User
      */
     public function resetLoginData(): self
     {
-        return $this->setLoginData();
+        $this->loginData = [];
+        $this->saveToSession();
+
+        return $this;
     }
 
     /**
@@ -165,16 +168,22 @@ class User
         $this->saveToSession();
     }
 
-    /**
-     * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
-     */
+  /**
+   * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
+   *
+   * @throws \Exception Pokud se authentikace nepovede
+   */
     protected function confirmAuth(): void
     {
         try {
-            $this->updateLogoutTime();
+          $logoutTimeUpdated = $this->updateLogoutTime();
+          if(!$logoutTimeUpdated) {
+              throw new \RuntimeException('Updating logout time failed');
+            }
             $this->setAuthConfirmed(true);
         } catch (\Exception $e) {
             $this->setAuthConfirmed(false);
+            throw $e;
         }
     }
 
@@ -183,12 +192,12 @@ class User
      *
      * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
      */
-    public function updateLogoutTime(): self
+    public function updateLogoutTime(): bool
     {
         $loginId = $this->getLoginId();
         if ($loginId === null) {
             // Nemáme token, uživatel není přihlášen a není, co prodlužovat
-            return $this;
+            return false;
         }
 
         $result = $this->wsdlManager->getWebService(WebServiceName::USER_MANAGEMENT, $loginId)->LoginUpdateRefresh(['ID' => $loginId]);
@@ -203,7 +212,7 @@ class User
 
         $this->saveToSession();
 
-        return $this;
+        return true;
     }
 
     /**

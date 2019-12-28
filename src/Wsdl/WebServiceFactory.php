@@ -29,6 +29,11 @@ class WebServiceFactory implements WebServiceFactoryInterface
      */
     public function createWebService(string $url, array $options): WebServiceInterface
     {
-        return new $this->class($url, $options);
+        if (empty($url)) {
+          throw new InvalidArgumentException('WSDL URL cannot be empty.');
+        }
+
+        $soapClient = new \SoapClient($url, $options);
+        return new $this->class($soapClient, $options);
     }
 }
