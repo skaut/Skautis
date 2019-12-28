@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;

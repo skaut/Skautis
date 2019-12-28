@@ -1,12 +1,12 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Skautis;
-use Skautis\Wsdl\WebService;
 use Skautis\Exception as SkautisException;
 use Skautis\SkautisQuery;
+use Skautis\Wsdl\WebService;
 use Skautis\Wsdl\WebServiceFactory;
 
 class WebServiceTest extends TestCase

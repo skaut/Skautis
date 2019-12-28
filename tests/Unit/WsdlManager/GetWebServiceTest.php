@@ -1,14 +1,14 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit\WsdlManager;
 
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Skautis\Config;
 use Skautis\Wsdl\WebServiceFactoryInterface;
+use Skautis\Wsdl\WebServiceInterface;
 use Skautis\Wsdl\WebServiceName;
 use Skautis\Wsdl\WsdlManager;
-use Skautis\Wsdl\WebServiceInterface;
 
 class GetWebServiceTest extends TestCase
 {

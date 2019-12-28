@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 
 use PHPUnit\Framework\TestCase;

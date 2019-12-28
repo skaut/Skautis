@@ -39,7 +39,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Test\\Skautis\\": "tests/Unit/"
+            "Skaut\\Skautis\\Test\\Unit": "tests/Unit/"
         }
     },
     "suggest": {
