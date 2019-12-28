@@ -65,7 +65,7 @@ abstract class WebServiceName
   /**
    * @return string[]s
    */
-  public static function getConstants(): array
+  public static function getAll(): array
   {
     if (!self::$cachedConstants) {
       $reflect = new ReflectionClass(static::class);
@@ -78,7 +78,7 @@ abstract class WebServiceName
   public static function isValidServiceName(
     string $name
   ): bool {
-    return in_array($name, self::getConstants(), true);
+    return in_array($name, self::getAll(), true);
   }
 
 
