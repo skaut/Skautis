@@ -12,12 +12,8 @@ use DateTimeZone;
 final class Helpers
 {
 
-    /**
-     * @throws StaticClassException
-     */
     final private function __construct()
     {
-        throw new StaticClassException;
     }
 
     /**
