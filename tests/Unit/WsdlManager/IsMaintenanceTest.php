@@ -42,7 +42,7 @@ function get_headers(string $url){
 namespace Test\Skautis;
 
 use Mockery;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Skautis\Config;
 use Skautis\Wsdl\MaintenanceErrorException;
 use Skautis\Wsdl\WebServiceFactoryInterface;
@@ -50,7 +50,7 @@ use Skautis\Wsdl\WebServiceName;
 use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebServiceInterface;
 
-class IsMaintenanceTest extends PHPUnit_Framework_TestCase
+class IsMaintenanceTest extends TestCase
 {
 
   /**
@@ -58,7 +58,7 @@ class IsMaintenanceTest extends PHPUnit_Framework_TestCase
    */
   private $manager;
 
-  protected function setUp()
+  protected function setUp(): void
   {
     $factory = Mockery::mock(WebServiceFactoryInterface::class);
     $config = new Config('42');

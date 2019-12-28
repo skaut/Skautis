@@ -3,16 +3,17 @@
 namespace Test\Skautis;
 
 use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase;
 use Skautis\User;
 use Skautis\Wsdl\Decorator\Cache\CacheDecorator;
 use Skautis\Wsdl\WebServiceInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
-class CacheDecoratorTest extends \PHPUnit_Framework_TestCase
+class CacheDecoratorTest extends TestCase
 {
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \Mockery::close();
     }

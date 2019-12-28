@@ -6,10 +6,10 @@ declare(strict_types=1);
 namespace Test\Skautis;
 
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Skautis\Wsdl\WebServiceName;
 
-class WebServiceNameTest extends PHPUnit_Framework_TestCase
+class WebServiceNameTest extends TestCase
 {
 
   public function testIsValid(): void

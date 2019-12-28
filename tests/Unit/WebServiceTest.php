@@ -2,13 +2,14 @@
 
 namespace Test\Skautis;
 
+use PHPUnit\Framework\TestCase;
 use Skautis;
 use Skautis\Wsdl\WebService;
 use Skautis\Exception as SkautisException;
 use Skautis\SkautisQuery;
 use Skautis\Wsdl\WebServiceFactory;
 
-class WebServiceTest extends \PHPUnit_Framework_TestCase
+class WebServiceTest extends TestCase
 {
 
     protected $queries = [];
@@ -18,7 +19,7 @@ class WebServiceTest extends \PHPUnit_Framework_TestCase
      */
     private $wsFactory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
       $this->wsFactory = new WebServiceFactory();
     }

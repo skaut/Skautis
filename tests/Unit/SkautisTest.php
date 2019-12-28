@@ -2,7 +2,7 @@
 
 namespace Test\Skautis;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Skautis\Config;
 use Skautis\DynamicPropertiesDisabledException;
 use Skautis\Skautis;
@@ -10,10 +10,10 @@ use Skautis\User;
 use Skautis\Wsdl\WebServiceName;
 use Skautis\Wsdl\WsdlManager;
 
-class SkautisTest extends PHPUnit_Framework_TestCase
+class SkautisTest extends TestCase
 {
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
       \Mockery::close();
     }
@@ -104,6 +104,7 @@ class SkautisTest extends PHPUnit_Framework_TestCase
 
     public function testEventSetter(): void
     {
+      $this->markTestSkipped();
         //@TODO
     }
 }

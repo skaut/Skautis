@@ -2,11 +2,12 @@
 
 namespace Test\Skautis;
 
+use PHPUnit\Framework\TestCase;
 use Skautis\SessionAdapter\AdapterInterface;
 use Skautis\SessionAdapter\SessionAdapter;
 use Skautis\SessionAdapter\FakeAdapter;
 
-class SessionAdapterTest extends \PHPUnit_Framework_TestCase
+class SessionAdapterTest extends TestCase
 {
 
 
