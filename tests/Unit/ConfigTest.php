@@ -2,9 +2,10 @@
 
 namespace Test\Skautis;
 
+use PHPUnit\Framework\TestCase;
 use Skautis\Config;
 
-class ConfigTest extends \PHPUnit_Framework_TestCase
+class ConfigTest extends TestCase
 {
 
     public function testDefaultConfiguration(): void

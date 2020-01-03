@@ -2,13 +2,14 @@
 
 namespace Test\Skautis;
 
+use PHPUnit\Framework\TestCase;
 use Skautis\Helpers;
 use Skautis\User;
 
-class HelpersTest extends \PHPUnit_Framework_TestCase
+class HelpersTest extends TestCase
 {
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \Mockery::close();
     }

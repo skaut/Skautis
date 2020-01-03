@@ -2,14 +2,15 @@
 
 namespace Test\Skautis;
 
+use PHPUnit\Framework\TestCase;
 use Skautis\User;
 use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebService;
 
-class UserTest extends \PHPUnit_Framework_TestCase
+class UserTest extends TestCase
 {
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \Mockery::close();
     }

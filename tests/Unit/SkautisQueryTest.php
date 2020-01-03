@@ -2,9 +2,10 @@
 
 namespace Test\Skautis;
 
+use PHPUnit\Framework\TestCase;
 use Skautis\SkautisQuery;
 
-class SkautisQueryTest extends \PHPUnit_Framework_TestCase
+class SkautisQueryTest extends TestCase
 {
     public function testQuery()
     {
