@@ -1,12 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis;
+namespace Skaut\Skautis;
 
 use DateTime;
-use Skautis\SessionAdapter\AdapterInterface;
-use Skautis\Wsdl\WebServiceName;
-use Skautis\Wsdl\WsdlManager;
+use Skaut\Skautis\SessionAdapter\AdapterInterface;
+use Skaut\Skautis\Wsdl\WebServiceName;
+use Skaut\Skautis\Wsdl\WsdlManager;
 
 /**
  * @author Petr Morávek <petr@pada.cz>

@@ -1,14 +1,14 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
-use Skautis\EventDispatcher\EventDispatcherTrait;
-use Skautis\InvalidArgumentException;
-use Skautis\SkautisQuery;
+use Skaut\Skautis\EventDispatcher\EventDispatcherTrait;
+use Skaut\Skautis\InvalidArgumentException;
+use Skaut\Skautis\SkautisQuery;
+use SoapClient;
 use SoapFault;
 use stdClass;
-use SoapClient;
 
 /**
  * @author Hána František <sinacek@gmail.com>

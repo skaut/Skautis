@@ -3,8 +3,8 @@
 namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Skautis\Helpers;
-use Skautis\User;
+use Skaut\Skautis\Helpers;
+use Skaut\Skautis\User;
 
 class HelpersTest extends TestCase
 {

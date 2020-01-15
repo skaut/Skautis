@@ -34,12 +34,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Skautis\\": "src/"
+            "Skaut\\Skautis\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Skaut\\Skautis\\Test\\Unit": "tests/Unit/"
+            "Skaut\\Skautis\\Test\\Unit\\": "tests/Unit/"
         }
     },
     "suggest": {

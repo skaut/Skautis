@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\EventDispatcher;
+namespace Skaut\Skautis\EventDispatcher;
 
 trait EventDispatcherTrait
 {

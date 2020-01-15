@@ -3,7 +3,7 @@
 /**
  * Mocks built-in get_headers function
  */
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
 $GLOBALS['callNumber'] = 0;
 
@@ -43,10 +43,10 @@ namespace Skaut\Skautis\Test\Unit\WsdlManager;
 
 use Mockery;
 use PHPUnit\Framework\TestCase;
-use Skautis\Config;
-use Skautis\Wsdl\MaintenanceErrorException;
-use Skautis\Wsdl\WebServiceFactoryInterface;
-use Skautis\Wsdl\WsdlManager;
+use Skaut\Skautis\Config;
+use Skaut\Skautis\Wsdl\MaintenanceErrorException;
+use Skaut\Skautis\Wsdl\WebServiceFactoryInterface;
+use Skaut\Skautis\Wsdl\WsdlManager;
 
 class IsMaintenanceTest extends TestCase
 {

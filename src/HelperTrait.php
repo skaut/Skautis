@@ -1,11 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis;
+namespace Skaut\Skautis;
 
-use Skautis\Wsdl\WsdlManager;
-use Skautis\Wsdl\WebServiceFactory;
-use Skautis\SessionAdapter\SessionAdapter;
+use Skaut\Skautis\SessionAdapter\SessionAdapter;
+use Skaut\Skautis\Wsdl\WebServiceFactory;
+use Skaut\Skautis\Wsdl\WsdlManager;
 
 trait HelperTrait
 {

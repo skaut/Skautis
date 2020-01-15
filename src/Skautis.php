@@ -1,16 +1,17 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis;
+namespace Skaut\Skautis;
 
-use Skautis\Wsdl\WebService;
-use Skautis\Wsdl\WebServiceAlias;
-use Skautis\Wsdl\WebServiceAliasNotFoundException;
-use Skautis\Wsdl\WebServiceInterface;
-use Skautis\Wsdl\WebServiceName;
-use Skautis\Wsdl\WebServiceNotFoundException;
-use Skautis\Wsdl\WsdlException;
-use Skautis\Wsdl\WsdlManager;
+use Skaut\Skautis\Wsdl\WebService;
+use Skaut\Skautis\Wsdl\WebServiceAlias;
+use Skaut\Skautis\Wsdl\WebServiceAliasNotFoundException;
+use Skaut\Skautis\Wsdl\WebServiceInterface;
+use Skaut\Skautis\Wsdl\WebServiceName;
+use Skaut\Skautis\Wsdl\WebServiceNotFoundException;
+use Skaut\Skautis\Wsdl\WsdlException;
+use Skaut\Skautis\Wsdl\WsdlManager;
+use Skaut\Skautis\SkautisQuery;
 
 /**
  * Třída pro práci se skautISem

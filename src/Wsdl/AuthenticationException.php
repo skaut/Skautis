@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
 /**
  * Neplatné přihlášení spojené se skautISem.

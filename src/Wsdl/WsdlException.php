@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
-use Skautis;
+use Skaut\Skautis;
 
 /**
  * Obecná chyba při komunikaci s webovými službami.

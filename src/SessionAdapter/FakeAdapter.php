@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\SessionAdapter;
+namespace Skaut\Skautis\SessionAdapter;
 
 /**
  * Nepersestinenti adapter - vhodne jako stub pro testy nebo kdyz neni potreba ukladat

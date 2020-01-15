@@ -4,9 +4,9 @@ namespace Skaut\Skautis\Test\Unit;
 
 use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
-use Skautis\User;
-use Skautis\Wsdl\Decorator\Cache\CacheDecorator;
-use Skautis\Wsdl\WebServiceInterface;
+use Skaut\Skautis\User;
+use Skaut\Skautis\Wsdl\Decorator\Cache\CacheDecorator;
+use Skaut\Skautis\Wsdl\WebServiceInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
