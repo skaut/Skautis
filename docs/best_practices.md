@@ -30,15 +30,15 @@ Vhodné řešení by mohlo být namespacovat url ktera pracuji se skautisem my-w
 
 ## Používání komponent
 Knihovna se skladá z mnoha tříd. Mnoho z nich je považováno za interní a po konfiguraci knihvony na ně není dobré sahat.
-Spolehlivé a dopředně kompatibilní je používat ``Skautis\Skautis``, ``Skautis\Config``, ``Skautis\User`` a ``Skautis\Wsdl\WebServiceInterface``.
+Spolehlivé a dopředně kompatibilní je používat ``Skaut\Skautis\Skautis``, ``Skaut\Skautis\Config``, ``Skaut\Skautis\User`` a ``Skaut\Skautis\Wsdl\WebServiceInterface``.
 
 ## Chytání výjimek
-Knihovna používá pro všechny výjimky interface ``Skautis\Exception``.
+Knihovna používá pro všechny výjimky interface ``Skaut\Skautis\Exception``.
 ```PHP
 try {
     //nejaka práce se skautisem
 }
-catch (Skautis\Exception $e) {
+catch (Skaut\Skautis\Exception $e) {
     //Problem se skautisem.
 }
 catch (Exception $e) {

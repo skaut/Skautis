@@ -5,7 +5,8 @@
 ## Verze 3.x
 
 ### v3.0.0
-* Požadována verze PHP >=7.1
+* Požadována verze PHP >=7.2
+* Změna namespace ``\Skautis`` je nyní ``\Skaut\Skautis``
 * Odstranění podpory pro HHVM (HHVM dále [nedodržuje kompabilitu s PHP](https://hhvm.com/blog/2018/09/12/end-of-php-support-future-of-hack.html))
 * Scalar typehints pro metody
 * [Strict types](http://php.net/manual/en/functions.arguments.php#functions.arguments.type-declaration.strict) - zpětně nekompatibilní
@@ -17,6 +18,7 @@
 * Vlastní cache interface vyměněn za [PSR-16](https://www.php-fig.org/psr/psr-16/). Pro použití s cache různých frameworku existují adaptéry/bridge například [Symfony](https://symfony.com/doc/current/components/cache/psr6_psr16_adapters.html), [Doctrine](https://github.com/Roave/DoctrineSimpleCache), [Zend](https://docs.zendframework.com/zend-cache/psr16/)
 * ``isMaintenance`` nyní hází výjimku v případě problému se sítí (například DNS fail) místo PHP warningu
 * ``confirmAuth`` a ``updateLogoutTime`` nyní vrací bool jako indikátor uspěchu
+
 ## Verze 2.x
 
 ### v2.0.0

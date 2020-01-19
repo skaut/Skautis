@@ -7,6 +7,7 @@ Pro cachování lze použít jakoukoliv cache implementující interface z [PSR-
 ## Příklad
 ```PHP
 // Získame webovou službu ze Skautisu
+/** @var Skaut\Skautis\Skautis $skautis */
 $webService = $skautis->User;
 
 // Cache do které se má ukládat výsledek API callu
@@ -18,7 +19,7 @@ $timeToLiveInSeconds = 10*60;
 
 
 // Vytvoříme cachovanou web service
-$cachedWebService = new CacheDecorator($webService, $cache, $timeToLiveInSeconds);
+$cachedWebService = new \Skaut\Skautis\Wsdl\Decorator\Cache\CacheDecorator($webService, $cache, $timeToLiveInSeconds);
 
 // Nyní můžeme použít cachovanou web service stejně jako obyčejnou web service
 

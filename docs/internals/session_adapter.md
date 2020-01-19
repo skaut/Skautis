@@ -8,7 +8,7 @@ Předpákládejme že potřebujeme pracovat s Nette session.
 
 ## Implementace
 ```PHP
-class NetteSessionAdapter implements AdapterInterface
+class NetteSessionAdapter implements \Skaut\Skautis\SessionAdapter\AdapterInterface
 {
     //Nette session objekt
     protected $sessionSection;
@@ -20,13 +20,13 @@ class NetteSessionAdapter implements AdapterInterface
     }
 
     //Funkce pro nastavení dat do session
-    public function set($name, $object)
+    public function set($name, $object): void
     {
         $this->sessionSection->$name = $object;
     }
 
     //Funkce pro ověření existence dat v session
-    public function has($name)
+    public function has($name): bool
     {
         return isset($this->sessionSection->$name);
     }
