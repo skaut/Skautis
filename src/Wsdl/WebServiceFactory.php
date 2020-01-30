@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
-use Skautis\InvalidArgumentException;
+use Skaut\Skautis\InvalidArgumentException;
 
 /**
  * @inheritdoc

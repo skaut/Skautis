@@ -1,12 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl\Decorator\Cache;
+namespace Skaut\Skautis\Wsdl\Decorator\Cache;
 
 use Psr\SimpleCache\CacheInterface;
-use Skautis\User;
-use Skautis\Wsdl\Decorator\AbstractDecorator;
-use Skautis\Wsdl\WebServiceInterface;
+use Skaut\Skautis\User;
+use Skaut\Skautis\Wsdl\Decorator\AbstractDecorator;
+use Skaut\Skautis\Wsdl\WebServiceInterface;
 
 class CacheDecorator extends AbstractDecorator
 {

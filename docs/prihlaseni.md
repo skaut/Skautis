@@ -8,6 +8,7 @@ Knihovna umožňuje vygenerovat odkaz, který přivede uživatele na stránky sk
 $backLink = "https://moje-skautska-aplikace.skaut.cz/skautis-login-confirm";
 
 //Vygenerování odkazu
+/** @var Skaut\Skautis\Skautis $skautis */
 $loginUrl = $skautis->getLoginUrl($backLink);
 
 //Odkaz je klasická URL která se použít v jakémkoliv templatovacím jazyce nebo rovnou vypsat
@@ -18,6 +19,7 @@ echo '<a href="' . $loginUrl . '"> Prihlasit se</a>';
 SkautIS uživatele po úspěšném přihlášení přesměruje na adresu nastavenou v předchozím kroce a pošle nám údaje přes `$_POST`. Tyto údaje je potřeba předat knihovně aby mohla komunikovat se skautisem.
 ```PHP
 //Na url https://moje-skautska-aplikace.skaut.cz/skautis-login-confirm
+/** @var Skaut\Skautis\Skautis $skautis */
 $skautis->setLoginData($_POST);
 ```
 

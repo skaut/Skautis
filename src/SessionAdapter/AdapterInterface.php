@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\SessionAdapter;
+namespace Skaut\Skautis\SessionAdapter;
 
 /**
  * Interface umoznujici vytvoreni adapteru pro ruzne implementace Session

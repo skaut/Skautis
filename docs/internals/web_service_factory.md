@@ -5,7 +5,7 @@ Předpokládejme že chceme logovat všechny request na Skautis a máme připrav
 
 ## Implementace
 ```PHP
-class LoggingWebServiceFactory implements WebServiceFactoryInterface
+class LoggingWebServiceFactory implements \Skaut\Skautis\Wsdl\WebServiceFactoryInterface
 {
     //Logger pro logovani vsech requestu na SkautIS
     protected $logger;
@@ -18,7 +18,7 @@ class LoggingWebServiceFactory implements WebServiceFactoryInterface
 
     public function createWebService($url, array $options)
     {
-        $webService = new WebService($url, $options);
+        $webService = new \Skaut\Skautis\Wsdl\WebService($url, $options);
         $webService = new LoggerDecorator($webService, $this->logger);
         return $webService;
     }

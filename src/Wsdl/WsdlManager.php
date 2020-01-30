@@ -1,12 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
-use Skautis\EventDispatcher\EventDispatcherInterface;
-use Skautis\Config;
-use Skautis\SkautisQuery;
-use Skautis\User;
+use Skaut\Skautis\Config;
+use Skaut\Skautis\EventDispatcher\EventDispatcherInterface;
+use Skaut\Skautis\User;
+use Skaut\Skautis\SkautisQuery;
 
 /**
  * Třída pro správu webových služeb SkautISu

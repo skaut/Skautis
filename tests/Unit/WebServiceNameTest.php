@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 
 use PHPUnit\Framework\TestCase;
-use Skautis\Wsdl\WebServiceName;
+use Skaut\Skautis\Wsdl\WebServiceName;
 
 class WebServiceNameTest extends TestCase
 {

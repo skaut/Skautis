@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\SessionAdapter;
+namespace Skaut\Skautis\SessionAdapter;
 
 /**
  * Adapter pro pouziti $_SESSION ve SkautISu

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis;
+namespace Skaut\Skautis;
 
 /**
  * @author Petr Morávek <petr@pada.cz>

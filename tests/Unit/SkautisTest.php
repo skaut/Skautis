@@ -1,14 +1,14 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Skautis\Config;
-use Skautis\DynamicPropertiesDisabledException;
-use Skautis\Skautis;
-use Skautis\User;
-use Skautis\Wsdl\WebServiceName;
-use Skautis\Wsdl\WsdlManager;
+use Skaut\Skautis\Config;
+use Skaut\Skautis\DynamicPropertiesDisabledException;
+use Skaut\Skautis\Skautis;
+use Skaut\Skautis\User;
+use Skaut\Skautis\Wsdl\WebServiceName;
+use Skaut\Skautis\Wsdl\WsdlManager;
 
 class SkautisTest extends TestCase
 {

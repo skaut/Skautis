@@ -6,7 +6,7 @@ Decorator funguje tak že dostane objekt který dekoruje a on sám implementuje 
 
 ## Implementace
 ```PHP
-class LoggerDecorator extends Skautis\Wsdl\Decorator\AbstractDecorator
+class LoggerDecorator extends \Skaut\Skautis\Wsdl\Decorator\AbstractDecorator
 {
     protected $logger;
 

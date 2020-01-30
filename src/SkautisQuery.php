@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis;
+namespace Skaut\Skautis;
 
 /**
  * Trida slouzici pro debugovani SOAP pozadvku na servery Skautisu

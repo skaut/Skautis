@@ -1,5 +1,5 @@
 {
-    "name": "skautis/skautis",
+    "name": "skaut/skautis",
     "type": "library",
     "description": "Library for API calls to SkautIS",
     "keywords": ["skautis", "api", "soap", "skaut", "wsdl"],
@@ -34,12 +34,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Skautis\\": "src/"
+            "Skaut\\Skautis\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Test\\Skautis\\": "tests/Unit/"
+            "Skaut\\Skautis\\Test\\Unit\\": "tests/Unit/"
         }
     },
     "suggest": {

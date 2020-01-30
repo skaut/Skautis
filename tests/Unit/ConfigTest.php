@@ -1,9 +1,9 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Skautis\Config;
+use Skaut\Skautis\Config;
 
 class ConfigTest extends TestCase
 {

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl\Decorator;
+namespace Skaut\Skautis\Wsdl\Decorator;
 
-use Skautis\Wsdl\WebServiceInterface;
+use Skaut\Skautis\Wsdl\WebServiceInterface;
 
 abstract class AbstractDecorator implements WebServiceInterface
 {

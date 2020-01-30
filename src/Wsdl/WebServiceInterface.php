@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
-use Skautis\EventDispatcher\EventDispatcherInterface;
-use Skautis\Exception as SkautisException;
+use Skaut\Skautis\EventDispatcher\EventDispatcherInterface;
+use Skaut\Skautis\Exception as SkautisException;
 
 interface WebServiceInterface extends EventDispatcherInterface
 {

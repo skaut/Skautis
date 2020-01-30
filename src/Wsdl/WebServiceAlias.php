@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-namespace Skautis\Wsdl;
+namespace Skaut\Skautis\Wsdl;
 
 
 class WebServiceAlias

@@ -8,7 +8,7 @@ Protože SkautIS obsahuje důležitá a citlivá data, není vhodné používat 
 
 
 ## Instanciovani knihovny
-Centrální část knihovny je třída ``Skautis\Skautis``. Tu je potřeba správně nakonfigurovat.
+Centrální část knihovny je třída ``Skaut\Skautis\Skautis``. Tu je potřeba správně nakonfigurovat.
 
 ### Rychlé pomocí singleton patternu
 Toto řešení funguje *out of the box* s minimálním nastavením. Je vhodné pro aplikace nevyužívající framework.
@@ -20,7 +20,7 @@ $applicationId = "moje-application-id";
 $isTestMode = true;
 
 //
-$skautis = Skautis\Skautis::getInstance($applicationId, $isTestMode);
+$skautis = Skaut\Skautis\Skautis::getInstance($applicationId, $isTestMode);
 ```
 
 ### Ruční vytvoření
@@ -29,6 +29,8 @@ Tento způsob je poněkud zdlouhavý, ale dává možnost maximální flexibilit
 #### Konfigurace
 Veškerá konfigurace je udržována v jediném objektu, který je potřeba vytvořit a nastavit.
 ```PHP
+use Skaut\Skautis\Config;
+
 //ID aplikace ziskane při registraci
 $applicationId = "moje-application-id";
 
@@ -39,40 +41,40 @@ $isTestMode = Config::TEST_MODE_ENABLED;
 $cache = Config::CACHE_ENABLED;
 
 //Povol kompresi pro data přenášená ze SkautISu
-$compression = Config::COMPRESSION_ENABLED;
+$compression = Skaut\Skautis\Config::COMPRESSION_ENABLED;
 
-$config = new Skautis\Config($applicationId, $isTestMode, $cache, $compression);
+$config = new Config($applicationId, $isTestMode, $cache, $compression);
 ```
 
 #### Session
 Knihovna uchovává nějaké informace mezi requesty. K maximální kompatibilitě mezi různými frameworky knihovna používá [adapter pattern](https://github.com/domnikl/DesignPatternsPHP/tree/master/Structural/Adapter). Adapter pro ``$_SESSION`` je k dispozici v knihovne.
 ```PHP
 //Adapter pro $_SESSION
-$sessionAdapter = new Skautis\SessionAdapter\SessionAdapter();
+$sessionAdapter = new Skaut\Skautis\SessionAdapter\SessionAdapter();
 ```
 
 #### WebServiceFactory
 Tato komponenta se stará o správné vytváření objektů pro webové služby. Jedná se o [abstract factory pattern](https://github.com/domnikl/DesignPatternsPHP/tree/master/Creational/AbstractFactory) který je vhodný když je potřeba pro aplikaci nějakým způsobem upravit vytváření objektů webových služeb. Například přidat logování všech požadavků na SkautIS.
 ```PHP
-$webServiceFactory = new Skautis\Wsdl\WebServiceFactory();
+$webServiceFactory = new Skaut\Skautis\Wsdl\WebServiceFactory();
 ```
 
 #### WsdlManager
 Tato třída se stará o vše okolo požadavků na server.
 ```PHP
-$wsdlManager = new Skautis\Wsdl\WsdlManager($webServiceFactory, $config);
+$wsdlManager = new Skaut\Skautis\Wsdl\WsdlManager($webServiceFactory, $config);
 ```
 
 #### User
 Na skautis může být přihlášen právě jeden uživatel. Informace o tomto uživateli jsou mezi requesty uloženy v session.
 ```PHP
-$user = new Skautis\User($wsdlManager, $sessionAdapter);
+$user = new Skaut\Skautis\User($wsdlManager, $sessionAdapter);
 ```
 
 #### Skautis
 Všechno dohromady lepí třída ``Skautis``. To je také objekt se kterým budete pracovat.
 ```PHP
-$skautis = new Skautis\Skautis($wsdlManager, $user);
+$skautis = new Skaut\Skautis\Skautis($wsdlManager, $user);
 ```
 
 

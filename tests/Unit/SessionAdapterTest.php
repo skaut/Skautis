@@ -1,11 +1,11 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Skautis\SessionAdapter\AdapterInterface;
-use Skautis\SessionAdapter\SessionAdapter;
-use Skautis\SessionAdapter\FakeAdapter;
+use Skaut\Skautis\SessionAdapter\AdapterInterface;
+use Skaut\Skautis\SessionAdapter\FakeAdapter;
+use Skaut\Skautis\SessionAdapter\SessionAdapter;
 
 class SessionAdapterTest extends TestCase
 {

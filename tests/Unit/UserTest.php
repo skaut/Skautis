@@ -1,11 +1,11 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Skautis\User;
-use Skautis\Wsdl\WsdlManager;
-use Skautis\Wsdl\WebService;
+use Skaut\Skautis\User;
+use Skaut\Skautis\Wsdl\WebService;
+use Skaut\Skautis\Wsdl\WsdlManager;
 
 class UserTest extends TestCase
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Test\Skautis;
+namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Skautis\InvalidArgumentException;
-use Skautis\Wsdl\WebServiceFactory;
+use Skaut\Skautis\InvalidArgumentException;
+use Skaut\Skautis\Wsdl\WebServiceFactory;
 
 class WebServiceFactoryTest extends TestCase
 {
