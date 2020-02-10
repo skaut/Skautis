@@ -165,13 +165,17 @@ class WebService implements WebServiceInterface
      */
     protected function parseOutput(string $fname, $ret): array
     {
+        if (!$ret) {
+            return [];
+        }
+
         //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
-        $result = $ret->{$fname . 'Result'};
+        $result = $ret->{$fname . 'Result'} ?? null;
         if (!isset($result)) {
             return $ret;
         }
 
-        $output = $result->{$fname . 'Output'};
+        $output = $result->{$fname . 'Output'} ?? null;
         if (!isset($output)) {
             return $result; //neobsahuje $fname.Output
         }
