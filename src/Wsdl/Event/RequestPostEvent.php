@@ -28,14 +28,14 @@ class RequestPostEvent implements Serializable
     private $time;
 
 	  /**
-     * @var array|stdClass[]
+     * @var array<int|string, mixed>|\stdClass|null
      */
     private $result;
 
     /**
      * @param string $fname Nazev volane funkce
      * @param array<int, mixed> $args  Argumenty pozadavku
-     * @param array|StdClass[] $result
+     * @param array<int|string, mixed>|stdClass|null $result
      */
     public function __construct(
       string $fname,
@@ -94,9 +94,9 @@ class RequestPostEvent implements Serializable
     }
 
     /**
-     * @return array|StdClass[]
+     * @return array<int|string, mixed>|\stdClass|null
      */
-    public function getResult(): array
+    public function getResult()
     {
       return $this->result;
     }
