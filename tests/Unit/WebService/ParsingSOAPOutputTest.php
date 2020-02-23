@@ -31,7 +31,7 @@ class ParsingSOAPOutputTest extends TestCase
         return unserialize($text, ['allowed_classes' => [\stdClass::class]]);
     }
 
-    private function createMockedService(\stdClass $data): WebServiceInterface {
+    private function createMockedWebService(\stdClass $data): WebServiceInterface {
         $client = \Mockery::mock(\SoapClient::class);
         $client->shouldReceive('__soapCall')->once()->andReturn($data);
 
@@ -39,7 +39,7 @@ class ParsingSOAPOutputTest extends TestCase
     }
 
     public function testObjectForExistentRecord(): void {
-        $service = $this->createMockedService($this->loadData(__FUNCTION__));
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
 
         $result = $service->unitDetail(['ID' => 24404]);
 
@@ -49,7 +49,7 @@ class ParsingSOAPOutputTest extends TestCase
     }
 
     public function testNullForNonExistentRecord(): void {
-        $service = $this->createMockedService($this->loadData(__FUNCTION__));
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
 
         $result = $service->unitDetail(['ID' => 999]);
 
@@ -57,7 +57,7 @@ class ParsingSOAPOutputTest extends TestCase
     }
 
     public function testArrayOfResults(): void {
-        $service = $this->createMockedService($this->loadData(__FUNCTION__));
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
 
         $results = $service->unitAll(['ID_UnitParent' => 24404]);
 
@@ -70,7 +70,7 @@ class ParsingSOAPOutputTest extends TestCase
     }
 
     public function testEmptyArrayOfResults(): void {
-        $service = $this->createMockedService($this->loadData(__FUNCTION__));
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
 
         $result = $service->unitAll(['ID_UnitParent' => 999]);
 

@@ -235,7 +235,7 @@ class WebService implements WebServiceInterface
         */
 
         if (!$ret) {
-            throw new \RuntimeException("unexpected output");
+            throw new ParsingFailedException('Unexpected output from Skautis');
         }
 
         // Pokud byl vracen prazdny objekt predstavujici neexistujici vec
@@ -246,7 +246,7 @@ class WebService implements WebServiceInterface
         // Pokud obsahuje *Result pak se  bud jedna o existujici jeden objekt, vice objektu nebo prazdny seznam objektu
         $result = $ret->{$fname . 'Result'} ?? null;
         if (!isset($result)) {
-            throw new \RuntimeException("unexpected output");
+            throw new ParsingFailedException('Unexpected output from Skautis');
         }
 
         $output = $result->{$fname . 'Output'} ?? null;
