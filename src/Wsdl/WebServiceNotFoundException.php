@@ -6,14 +6,11 @@ declare(strict_types=1);
 namespace Skaut\Skautis\Wsdl;
 
 
-use Skaut\Skautis\Exception;
 use Throwable;
 
 class WebServiceNotFoundException
   extends
-  \RuntimeException
-  implements
-  Exception
+  WsdlException
 {
 
   public function __construct(
