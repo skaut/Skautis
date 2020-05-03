@@ -2,9 +2,17 @@
     "name": "skaut/skautis",
     "type": "library",
     "description": "Library for API calls to SkautIS",
-    "keywords": ["skautis", "api", "soap", "skaut", "wsdl"],
+    "keywords": [
+        "skautis",
+        "api",
+        "soap",
+        "skaut",
+        "wsdl"
+    ],
     "homepage": "https://github.com/skaut/Skautis",
-    "license": ["BSD-3-Clause"],
+    "license": [
+        "BSD-3-Clause"
+    ],
     "authors": [
         {
             "name": "František Hána",
