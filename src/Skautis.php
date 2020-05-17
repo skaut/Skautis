@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Skaut\Skautis;
 
-use Skaut\Skautis\Wsdl\WebService;
 use Skaut\Skautis\Wsdl\WebServiceAlias;
 use Skaut\Skautis\Wsdl\WebServiceAliasNotFoundException;
 use Skaut\Skautis\Wsdl\WebServiceInterface;
@@ -11,7 +10,6 @@ use Skaut\Skautis\Wsdl\WebServiceName;
 use Skaut\Skautis\Wsdl\WebServiceNotFoundException;
 use Skaut\Skautis\Wsdl\WsdlException;
 use Skaut\Skautis\Wsdl\WsdlManager;
-use Skaut\Skautis\SkautisQuery;
 
 /**
  * Třída pro práci se skautISem
@@ -53,15 +51,6 @@ class Skautis
      * @var User
      */
     private $user;
-
-    /**
-     * Zaznamy o provedenych dotazech na Skautis
-     * Pokud je null, query logging je vypnuto
-     *
-     * @var SkautisQuery[]|null
-     */
-    private $log;
-
 
     /**
      * @param WsdlManager $wsdlManager
@@ -178,34 +167,6 @@ class Skautis
     public function isMaintenance(): bool
     {
         return $this->wsdlManager->isMaintenance();
-    }
-
-    /**
-     * Zapne logování všech SOAP callů
-     */
-    public function enableDebugLog(): void
-    {
-        if ($this->log !== null) {
-            // Debug log byl již zapnut dříve.
-            return;
-        }
-
-        $this->log = [];
-        $logger = function (SkautisQuery $query): void {
-            $this->log[] = $query;
-        };
-        $this->wsdlManager->addWebServiceListener(WebService::EVENT_SUCCESS, $logger);
-        $this->wsdlManager->addWebServiceListener(WebService::EVENT_FAILURE, $logger);
-    }
-
-    /**
-     * Vrací zalogované SOAP cally
-     *
-     * @return SkautisQuery[]
-     */
-    public function getDebugLog(): array
-    {
-        return $this->log ?? [];
     }
 
   /**

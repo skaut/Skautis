@@ -27,11 +27,4 @@ abstract class AbstractDecorator implements WebServiceInterface
         return $this->call($functionName, $arguments);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function subscribe(string $eventName, callable $callback): void
-    {
-        $this->webService->subscribe($eventName, $callback);
-    }
 }

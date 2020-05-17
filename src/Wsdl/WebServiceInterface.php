@@ -3,10 +3,9 @@ declare(strict_types = 1);
 
 namespace Skaut\Skautis\Wsdl;
 
-use Skaut\Skautis\EventDispatcher\EventDispatcherInterface;
 use Skaut\Skautis\Exception as SkautisException;
 
-interface WebServiceInterface extends EventDispatcherInterface
+interface WebServiceInterface
 {
 
     /**

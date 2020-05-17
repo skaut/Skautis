@@ -3,23 +3,20 @@ declare(strict_types = 1);
 
 namespace Skaut\Skautis\Wsdl;
 
-use Skaut\Skautis\EventDispatcher\EventDispatcherTrait;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Skaut\Skautis\InvalidArgumentException;
-use Skaut\Skautis\SkautisQuery;
+use Skaut\Skautis\Wsdl\Event\RequestFailEvent;
+use Skaut\Skautis\Wsdl\Event\RequestPostEvent;
+use Skaut\Skautis\Wsdl\Event\RequestPreEvent;
 use SoapClient;
-use SoapFault;
 use stdClass;
+use Throwable;
 
 /**
  * @author Hána František <sinacek@gmail.com>
  */
 class WebService implements WebServiceInterface
 {
-
-    use EventDispatcherTrait;
-
-    public const EVENT_SUCCESS = 'success';
-    public const EVENT_FAILURE = 'failure';
 
     /**
      * základní údaje volané při každém požadavku
@@ -35,13 +32,22 @@ class WebService implements WebServiceInterface
     protected $soapClient;
 
     /**
+     * @var EventDispatcherInterface|null
+     */
+    private $eventDispatcher;
+
+    /**
      * @param array<string, mixed> $soapOpts Nastaveni SOAP requestu
      * @throws InvalidArgumentException pokud je odkaz na WSDL soubor prázdný
      */
-    public function __construct(SoapClient $soapClient, array $soapOpts)
-    {
+    public function __construct(
+      SoapClient $soapClient,
+      array $soapOpts,
+      ?EventDispatcherInterface $eventDispatcher
+    ) {
         $this->init = $soapOpts;
         $this->soapClient = $soapClient;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -83,25 +89,32 @@ class WebService implements WebServiceInterface
         $fname = ucfirst($functionName);
         $args = $this->prepareArgs($fname, $arguments);
 
-        if ($this->hasListeners()) {
-            $query = new SkautisQuery($fname, $args, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        if ($this->eventDispatcher !== null) {
+            $event = new RequestPreEvent($fname, $args, $options, $inputHeaders, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            $this->eventDispatcher->dispatch($event);
         }
 
+        $requestStart = microtime(true);
         try {
             $soapResponse = $this->soapClient->__soapCall($fname, $args, $options, $inputHeaders, $outputHeaders);
-
             $soapResponse = $this->parseOutput($fname, $soapResponse);
 
-            if (isset($query) && $this->hasListeners()) {
-                $this->dispatch(self::EVENT_SUCCESS, $query->done($soapResponse));
-            }
-            return $soapResponse;
-        } catch (SoapFault $e) {
-            if (isset($query) && $this->hasListeners()) {
-              $this->dispatch(self::EVENT_FAILURE, $query->done(null, $e));
+            if ($this->eventDispatcher !== null) {
+                $duration = microtime(true) - $requestStart;
+                $event = new RequestPostEvent($fname, $args, $soapResponse, $duration);
+                $this->eventDispatcher->dispatch($event);
             }
 
-            throw $this->convertToSkautisException($e);
+            return $soapResponse;
+        } catch (Throwable $t) {
+
+            if ($this->eventDispatcher !== null) {
+              $duration = microtime(true) - $requestStart;
+              $event = new RequestFailEvent($fname, $args, $t, $duration);
+              $this->eventDispatcher->dispatch($event);
+            }
+
+            throw $this->convertToSkautisException($t);
         }
     }
 
@@ -170,7 +183,7 @@ class WebService implements WebServiceInterface
         return $output; //vraci pole se stdClass
     }
 
-    private function convertToSkautisException(SoapFault $e): WsdlException
+    private function convertToSkautisException(Throwable $e): WsdlException
     {
       if (preg_match('/Uživatel byl odhlášen/ui', $e->getMessage())) {
         return new AuthenticationException($e->getMessage(), $e->getCode(), $e);
