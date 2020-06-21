@@ -102,9 +102,4 @@ class SkautisTest extends TestCase
       $this->assertEquals($urlEncodedAddress, $skautis->getRegisterUrl());
     }
 
-    public function testEventSetter(): void
-    {
-      $this->markTestSkipped();
-        //@TODO
-    }
 }
