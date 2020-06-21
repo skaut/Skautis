@@ -7,7 +7,7 @@ namespace Skaut\Skautis\Wsdl;
 
 class MaintenanceErrorException
   extends
-  \RuntimeException
+  WsdlException
 {
 
   /**
