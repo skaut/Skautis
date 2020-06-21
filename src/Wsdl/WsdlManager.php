@@ -4,9 +4,7 @@ declare(strict_types = 1);
 namespace Skaut\Skautis\Wsdl;
 
 use Skaut\Skautis\Config;
-use Skaut\Skautis\EventDispatcher\EventDispatcherInterface;
 use Skaut\Skautis\User;
-use Skaut\Skautis\SkautisQuery;
 
 /**
  * Třída pro správu webových služeb SkautISu
@@ -23,11 +21,6 @@ class WsdlManager
      * @var Config
      */
     protected $config;
-
-    /**
-     * @var array<int, array{eventName: string, callback: (callable(SkautisQuery): void)}>
-     */
-    protected $webServiceListeners = [];
 
     /**
      * Pole aktivních webových služeb
@@ -79,16 +72,7 @@ class WsdlManager
      */
     public function createWebService(string $name, array $options = []): WebServiceInterface
     {
-        $webService = $this->webServiceFactory->createWebService($this->getWebServiceUrl($name), $options);
-
-        if ($webService instanceof EventDispatcherInterface) {
-            // Zaregistruj listenery na vytvořeném objektu webové služby, pokud je to podporováno
-            foreach ($this->webServiceListeners as $listener) {
-                $webService->subscribe($listener['eventName'], $listener['callback']);
-            }
-        }
-
-        return $webService;
+        return $this->webServiceFactory->createWebService($this->getWebServiceUrl($name), $options);
     }
 
     /**
@@ -122,16 +106,4 @@ class WsdlManager
         }
     }
 
-    /**
-     * Přidá listener na spravovaných vytvářených webových služeb.
-     *
-     * @param callable(SkautisQuery): void $callback
-     */
-    public function addWebServiceListener(string $eventName, callable $callback): void
-    {
-        $this->webServiceListeners[] = [
-            'eventName' => $eventName,
-            'callback' => $callback,
-        ];
-    }
 }

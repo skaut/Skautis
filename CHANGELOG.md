@@ -18,6 +18,7 @@
 * Vlastní cache interface vyměněn za [PSR-16](https://www.php-fig.org/psr/psr-16/). Pro použití s cache různých frameworku existují adaptéry/bridge například [Symfony](https://symfony.com/doc/current/components/cache/psr6_psr16_adapters.html), [Doctrine](https://github.com/Roave/DoctrineSimpleCache), [Zend](https://docs.zendframework.com/zend-cache/psr16/)
 * ``isMaintenance`` nyní hází výjimku v případě problému se sítí (například DNS fail) místo PHP warningu
 * ``confirmAuth`` a ``updateLogoutTime`` nyní vrací bool jako indikátor uspěchu
+* Vlastní event dispatcher byl nahrazen [PSR-14](https://www.php-fig.org/psr/psr-14/) - zpětně nekompatibilní.
 
 ## Verze 2.x
 

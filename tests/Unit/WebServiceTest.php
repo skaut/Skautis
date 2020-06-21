@@ -2,91 +2,61 @@
 
 namespace Skaut\Skautis\Test\Unit;
 
+use Mockery;
+use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Skaut\Skautis;
 use Skaut\Skautis\Exception as SkautisException;
-use Skaut\Skautis\SkautisQuery;
 use Skaut\Skautis\Wsdl\WebService;
 use Skaut\Skautis\Wsdl\WebServiceFactory;
 
 class WebServiceTest extends TestCase
 {
 
-    protected $queries = [];
-
     /**
      * @var WebServiceFactory
      */
     private $wsFactory;
 
+    /**
+     * @var MockInterface|EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     protected function setUp(): void
     {
-      $this->wsFactory = new WebServiceFactory();
-    }
+        $this->eventDispatcher = Mockery::mock(EventDispatcherInterface::class);
 
-
-    public function queryCallback($query)
-    {
-        $this->queries[] = $query;
-    }
-
-    public function testCallback()
-    {
-        $callback = [$this, 'queryCallback'];
-
-        $data = [
-            'ID_Application' => 123,
-            Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-        ];
-
-
-        $webService = $this->wsFactory->createWebService(
-          'https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL',
-          $data
+        $this->wsFactory = new WebServiceFactory(
+          WebService::class,
+          $this->eventDispatcher
         );
-        $webService->subscribe(WebService::EVENT_FAILURE, $callback);
-
-        try {
-            $webService->call('UserDetail');
-            $this->fail();
-        } catch (SkautisException $e) {
-            //Vyjimku chceme
-        }
-
-        $this->assertCount(1, $this->queries);
-        $this->assertInstanceOf(SkautisQuery::class, $this->queries[0]);
-        $this->assertEquals('UserDetail', $this->queries[0]->fname);
-        $this->assertGreaterThan(0, strlen($this->queries[0]->getExceptionString()));
-        $this->assertEquals('SoapFault', $this->queries[0]->getExceptionClass());
-        $this->assertTrue($this->queries[0]->hasFailed());
     }
 
-    public function testCall()
+    public function testFailCall(): void
     {
-        $callback = [$this, 'queryCallback'];
-
         $data = [
-            'ID_Application' => 123,
-            Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+          'ID_Application' => 123,
+          Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
         ];
         $webService = $this->wsFactory->createWebService(
           'https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL',
           $data
         );
-        $webService->subscribe(WebService::EVENT_FAILURE, $callback);
 
-        try {
-            $webService->UserDetail();
-            $this->fail();
-        } catch (SkautisException $e) {
-            //Vyjimku chceme
-        }
+        $preEventCheck = static function ($obj): bool {
+            return $obj instanceof Skautis\Wsdl\Event\RequestPreEvent;
+        };
 
-        $this->assertCount(1, $this->queries);
-        $this->assertInstanceOf(SkautisQuery::class, $this->queries[0]);
-        $this->assertEquals('UserDetail', $this->queries[0]->fname);
-        $this->assertGreaterThan(0, strlen($this->queries[0]->getExceptionString()));
-        $this->assertEquals('SoapFault', $this->queries[0]->getExceptionClass());
-        $this->assertTrue($this->queries[0]->hasFailed());
+        $failEventCheck = static function ($obj): bool {
+            return $obj instanceof Skautis\Wsdl\Event\RequestFailEvent;
+        };
+
+        $this->eventDispatcher->expects('dispatch')->withArgs($preEventCheck)->once();
+        $this->eventDispatcher->expects('dispatch')->withArgs($failEventCheck)->once();
+
+        $this->expectException(SkautisException::class);
+        $webService->UserDetail();
     }
 }
