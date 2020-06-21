@@ -3,7 +3,8 @@ declare(strict_types = 1);
 
 namespace Skaut\Skautis;
 
-use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
 use Skaut\Skautis\SessionAdapter\AdapterInterface;
 use Skaut\Skautis\Wsdl\WebServiceName;
 use Skaut\Skautis\Wsdl\WsdlManager;
@@ -70,7 +71,7 @@ class User
     /**
      * Vrací datum a čas automatického odhlášení ze skautISu
      */
-    public function getLogoutDate(): ?DateTime
+    public function getLogoutDate(): ?DateTimeImmutable
     {
         return $this->loginData[self::LOGOUT_DATE] ?? null;
     }
@@ -82,7 +83,7 @@ class User
       string $loginId,
       ?int $roleId = null,
       ?int $unitId = null,
-      ?DateTime $logoutDate = null
+      ?DateTimeImmutable $logoutDate = null
     ): self {
         $this->loginData = [];
 
@@ -96,7 +97,7 @@ class User
       ?string $loginId = null,
       ?int $roleId = null,
       ?int $unitId = null,
-      ?DateTime $logoutDate = null
+      ?DateTimeImmutable $logoutDate = null
     ): self {
         if ($loginId !== null) {
             $this->loginData[self::ID_LOGIN] = $loginId;
@@ -201,12 +202,7 @@ class User
 
         $result = $this->wsdlManager->getWebService(WebServiceName::USER_MANAGEMENT, $loginId)->LoginUpdateRefresh(['ID' => $loginId]);
 
-        $logoutDate = preg_replace('/\.(\d*)$/', '', $result->DateLogout); //skautIS vrací sekundy včetně desetinné části
-        $tz = new \DateTimeZone('Europe/Prague');
-        $logoutDate = DateTime::createFromFormat('Y-m-d\TH:i:s', $logoutDate, $tz);
-        if ($logoutDate === false) {
-            throw new UnexpectedValueException("Could not parse logout date '{$result->DateLogout}'.");
-        }
+        $logoutDate = $this->parseDate($result->DateLogout);
         $this->loginData[self::LOGOUT_DATE] = $logoutDate;
 
         $this->saveToSession();
@@ -222,5 +218,23 @@ class User
         if ($this->session !== null) {
             $this->session->set(self::SESSION_ID, $this->loginData);
         }
+    }
+
+    private function parseDate(string $dateText): DateTimeImmutable {
+      //skautIS vrací sekundy včetně desetinné části
+      $dateTextWithoutDecimals = preg_replace('/\.(\d*)$/', '', $dateText);
+
+      if (!is_string($dateTextWithoutDecimals)) {
+        throw new UnexpectedValueException("Could not parse date '$dateText'.");
+      }
+
+      $tz = new DateTimeZone('Europe/Prague');
+      $dateTime =  DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $dateTextWithoutDecimals, $tz);
+
+      if ($dateTime === false) {
+        throw new UnexpectedValueException("Could not parse date '$dateText'.");
+      }
+
+      return $dateTime;
     }
 }

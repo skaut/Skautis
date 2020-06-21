@@ -19,6 +19,7 @@
 * ``isMaintenance`` nyní hází výjimku v případě problému se sítí (například DNS fail) místo PHP warningu
 * ``confirmAuth`` a ``updateLogoutTime`` nyní vrací bool jako indikátor uspěchu
 * Vlastní event dispatcher byl nahrazen [PSR-14](https://www.php-fig.org/psr/psr-14/) - zpětně nekompatibilní.
+* DateTime bylo nahrazeno za DateTimeImmutable
 
 ## Verze 2.x
 

@@ -27,7 +27,7 @@ class UserTest extends TestCase
 
     public function testSetLoginData(): void
     {
-        $dt = new \DateTime;
+        $dt = new \DateTimeImmutable;
         $user = $this->makeUser();
         $this->assertFalse($user->isLoggedIn());
 
@@ -51,7 +51,7 @@ class UserTest extends TestCase
         $wsdlManager->shouldReceive('getWebService')->once()->andReturn($ws);
 
         $user = new User($wsdlManager);
-        $user->setLoginData('token', 33, 100, new \DateTime('+1 day'));
+        $user->setLoginData('token', 33, 100, new \DateTimeImmutable('+1 day'));
 
         $this->assertTrue($user->isLoggedIn(true));
     }
@@ -60,7 +60,7 @@ class UserTest extends TestCase
     {
         $user = $this->makeUser();
 
-        $user->setLoginData('token', 33, 100, new \DateTime);
+        $user->setLoginData('token', 33, 100, new \DateTimeImmutable);
         $this->assertEquals(33, $user->getRoleId());
 
         $user->resetLoginData();

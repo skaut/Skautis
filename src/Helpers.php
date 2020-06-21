@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Skaut\Skautis;
 
-use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 
 /**
@@ -34,7 +34,7 @@ final class Helpers
 
         if (isset($data['skautIS_DateLogout'])) {
             $tz = new DateTimeZone('Europe/Prague');
-            $logoutDate = DateTime::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout'], $tz);
+            $logoutDate = DateTimeImmutable::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout'], $tz);
             if ($logoutDate === false) {
                 throw new UnexpectedValueException("Could not parse logout date '{$data['skautIS_DateLogout']}'.");
             }
