@@ -1,0 +1,34 @@
+# https://editorconfig.org/
+
+root = true
+
+[*]
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
+charset = utf-8
+
+[*.php]
+indent_style = space
+indent_size = 4
+
+[*.md]
+indent_style = space
+indent_size = 4
+max_line_length = 80
+
+[*.{sh, yml, yaml}]
+indent_size = 2
+indent_style = space
+
+[*.neon]
+indent_style = space
+indent_size = 2
+
+[*.{xml, xml.dist}]
+indent_style = space
+indent_size = 4
+
+[composer.json]
+indent_style = space
+indent_size = 4
