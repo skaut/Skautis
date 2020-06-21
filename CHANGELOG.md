@@ -7,6 +7,7 @@
 ### v3.0.0
 * Požadována verze PHP >=7.2
 * Změna namespace ``\Skautis`` je nyní ``\Skaut\Skautis``
+* Místo prázdného objektu typu ``\stdClass`` se  nyní vrací null pro jeden výsledek, nebo prazdne pole pokud se jednalo o dotaz vracející kolekci.
 * Odstranění podpory pro HHVM (HHVM dále [nedodržuje kompabilitu s PHP](https://hhvm.com/blog/2018/09/12/end-of-php-support-future-of-hack.html))
 * Scalar typehints pro metody
 * [Strict types](http://php.net/manual/en/functions.arguments.php#functions.arguments.type-declaration.strict) - zpětně nekompatibilní

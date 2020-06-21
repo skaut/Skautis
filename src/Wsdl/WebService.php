@@ -77,7 +77,7 @@ class WebService implements WebServiceInterface
      * @param array<string, mixed> $options Nastaveni
      * @param array<int, string> $inputHeaders Hlavicky pouzite pri odesilani
      * @param array<int, string> $outputHeaders Hlavicky ktere prijdou s odpovedi
-     * @return mixed
+     * @return array<int|string, mixed>|stdClass|null
      */
     protected function soapCall(
       string $functionName,
@@ -161,23 +161,108 @@ class WebService implements WebServiceInterface
      * @param string $fname Jméno funkce volané přes SOAP
      * @param mixed $ret    Odpoveď ze SoapClient::__soapCall
      *
-     * @return array<int|string, mixed>
+     * @return array<int|string, mixed>|\stdClass|null
      */
-    protected function parseOutput(string $fname, $ret): array
+    protected function parseOutput(string $fname, $ret)
     {
-        //pokud obsahuje Output tak vždy vrací pole i s jedním prvkem.
-        $result = $ret->{$fname . 'Result'};
+
+        /*
+            Pokud se jedna o request ktery ma vracet jednu hodnotu a ta existuje, skautis vraci primo objekt odpovedi
+                Napriklad:
+                <UnitDetailResponse xmlns="https://is.skaut.cz/">
+                    <UnitDetailResult>
+                        data jednoho objektu
+                    </UnitDetailResult>
+                </UnitDetailResponse>
+
+            To SoapClient naparsuje jako:
+                class stdClass#25 (1) {
+                    public $UnitDetailResult =>
+                        class stdClass#26 (48) {
+                            data objectu
+                        }
+                }
+
+
+
+            Pokud se jedna o request ktery ma vracet jednu hodnotu a ta neexistuje, skautis vraci jeden self-closing tag
+            Napriklad:
+                <UnitDetailResponse xmlns="https://is.skaut.cz/" />
+
+            To SoapClient naparsuje jako:
+                class stdClass#25 (0) {
+                }
+
+            Pokud se jedna o request ktery ma vracet vice hodnot, vraci *Result/*Output
+            Napriklad:
+                <UnitAllResponse xmlns="https://is.skaut.cz/">
+                    <UnitAllResult>
+                        <UnitAllOutput>
+                            data jednoho objektu
+                        </UnitAllOutput>
+                        <UnitAllOutput>
+                            data dalsiho objektu
+                        </UnitAllOutput>
+                    </UnitAllResult>
+                </UnitAllResponse>
+
+            To SoapClient naparsuje jako:
+                class stdClass#25 (1) {
+                    public $UnitAllResult =>
+                        class stdClass#26 (1) {
+                            public $UnitAllOutput =>
+                                array(2) {
+                                    stdClass - data jednoho objektu,
+                                    stdClass - data dalsiho objektu,
+                                }
+                        }
+                    }
+                }
+
+            Pokud se jedna o request ktery ma vracet vice hodnot, vraci klasickou dvojici tagu
+            Napriklad:
+                <UnitAllResponse xmlns="https://is.skaut.cz/">
+                    <UnitAllResult />
+                </UnitAllResponse>
+
+            To SoapClient naparsuje jako:
+                class stdClass#25 (1) {
+                    public $UnitAllResult =>
+                        class stdClass#26 (0) {
+                        }
+                }
+
+        */
+
+        if (!$ret) {
+            throw new ParsingFailedException('Unexpected output from Skautis');
+        }
+
+        // Pokud byl vracen prazdny objekt predstavujici neexistujici vec
+        if ($ret instanceof stdClass && count((array) $ret) === 0) {
+            return null;
+        }
+
+        // Pokud obsahuje *Result pak se  bud jedna o existujici jeden objekt, vice objektu nebo prazdny seznam objektu
+        $result = $ret->{$fname . 'Result'} ?? null;
         if (!isset($result)) {
-            return $ret;
+            throw new ParsingFailedException('Unexpected output from Skautis');
         }
 
-        $output = $result->{$fname . 'Output'};
+        $output = $result->{$fname . 'Output'} ?? null;
+        // Pokud obsahuje *Result, ale zadny *Output pak se jedna o jeden
         if (!isset($output)) {
-            return $result; //neobsahuje $fname.Output
+            // Vraci prazdny object
+            if ($result instanceof stdClass && count((array) $result) === 0) {
+                return [];
+            }
+
+            return $result;
         }
 
-        if ($output instanceof stdClass) { //vraci pouze jednu hodnotu misto pole?
-            return [$output]; //vraci pole se stdClass
+        // Vraci pouze jednu hodnotu misto pole?
+        if ($output instanceof stdClass) {
+            return [$output];
         }
 
         return $output; //vraci pole se stdClass
