@@ -1,0 +1,132 @@
+name: main
+
+on:
+  push:
+    branches:
+      - 3.x
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-18.04
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        php-versions: ['7.3', '7.4', '8.0']
+        experimental: [ false ]
+        include:
+          - php-versions: '8.1'
+            experimental: true
+    name: Unit tests on PHP ${{ matrix.php-versions }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Cache/Restore dependencies
+        uses: "actions/cache@v2"
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: php-${{ matrix.php-version }}
+          restore-keys: php-${{ matrix.php-version }}
+
+      - name: Install Dependencies
+        run: composer update --no-interaction --prefer-dist -a -o
+
+      - name: Run Tests
+        run: vendor/bin/phpunit
+
+  code-coverage:
+    runs-on: ubuntu-20.04
+    name: Collecting code-coverage
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          coverage: xdebug
+
+      - name: Cache/Restore dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: php-7.4
+          restore-keys: php-7.4
+
+      - name: Install Dependencies
+        run: composer update --no-interaction --prefer-dist -a -o
+
+      - name: Run Tests
+        run: vendor/bin/phpunit --coverage-clover clover.xml
+
+      - name: Upload coverage results to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          composer global require php-coveralls/php-coveralls
+          php-coveralls --coverage_clover=clover.xml -v  --json_path coveralls.json
+
+  validate-syntax:
+    runs-on: ubuntu-20.04
+    name: Checking coding standard
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+
+      - name: Cache/Restore dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: php-7.4
+          restore-keys: php-7.4
+
+      - name: Install Dependencies
+        run: composer update --no-interaction --prefer-dist -a -o
+
+      - name: Check coding standard
+        run: vendor/bin/parallel-lint --no-colors --no-progress  src tests
+
+  phpstan:
+    runs-on: ubuntu-20.04
+    name: Performing static analysis (PHPStan)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+
+      - name: Cache/Restore dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: php-7.4
+          restore-keys: php-7.4
+
+      - name: Install Dependencies
+        run: composer update --no-interaction --prefer-dist -a -o
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyze --no-progress
