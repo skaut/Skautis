@@ -124,7 +124,7 @@ class WebService implements WebServiceInterface
      * @param string $functionName Jmeno funkce volane pres SOAP
      * @param array<int|string, mixed> $arguments Argumenty k mergnuti s defaultnimy
      *
-     * @return array<int, mixed> Argumenty pro SoapClient::__soapCall
+     * @return array<int|string, mixed> Argumenty pro SoapClient::__soapCall
      */
     protected function prepareArgs(string $functionName, array $arguments): array
     {
