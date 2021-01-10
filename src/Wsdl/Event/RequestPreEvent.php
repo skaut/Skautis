@@ -16,7 +16,7 @@ class RequestPreEvent implements Serializable
     /**
      * Parametry SOAP requestu na server
      *
-     * @var array<int, mixed>
+     * @var array<int|string, mixed>
      */
     private $args;
 
@@ -38,7 +38,7 @@ class RequestPreEvent implements Serializable
 
     /**
      * @param string $fname Nazev volane funkce
-     * @param array<int, mixed> $args  Argumenty pozadavku
+     * @param array<int|string, mixed> $args  Argumenty pozadavku
      * @param array<string, mixed> $options
      * @param array<int, string> $inputHeaders
      * @param array<int, array<string, mixed>> $trace Zasobnik volanych funkci
@@ -88,7 +88,7 @@ class RequestPreEvent implements Serializable
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int|string, mixed>
      */
     public function getArgs(): array
     {

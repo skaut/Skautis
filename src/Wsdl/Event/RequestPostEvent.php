@@ -17,7 +17,7 @@ class RequestPostEvent implements Serializable
     /**
      * Parametry SOAP requestu na server
      *
-     * @var array<int, mixed>
+     * @var array<int|string, mixed>
      */
     private $args;
 
@@ -34,7 +34,7 @@ class RequestPostEvent implements Serializable
 
     /**
      * @param string $fname Nazev volane funkce
-     * @param array<int, mixed> $args  Argumenty pozadavku
+     * @param array<int|string, mixed> $args  Argumenty pozadavku
      * @param array<int|string, mixed>|stdClass|null $result
      */
     public function __construct(
@@ -78,7 +78,7 @@ class RequestPostEvent implements Serializable
     }
 
     /**
-     * @return array<int, mixed>
+     * @return array<int|string, mixed>
      */
     public function getArgs(): array
     {
