@@ -12,11 +12,13 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        php-versions: ['7.3', '7.4', '8.0']
+        php-versions: ['7.3', '7.4', '8.0', '8.1']
         experimental: [ false ]
+        composer-extra-flags: [ "" ]
         include:
-          - php-versions: '8.1'
+          - php-versions: '8.2'
             experimental: true
+            composer-extra-flags: "--ignore-platform-req=php+"
     name: Unit tests on PHP ${{ matrix.php-versions }}
     steps:
       - name: Checkout
@@ -37,7 +39,7 @@ jobs:
           restore-keys: php-${{ matrix.php-version }}
 
       - name: Install Dependencies
-        run: composer update --no-interaction --prefer-dist -a -o
+        run: composer update ${{ matrix.composer-extra-flags }} --no-interaction --prefer-dist -a -o
 
       - name: Run Tests
         run: vendor/bin/phpunit
@@ -79,15 +81,25 @@ jobs:
 
   validate-syntax:
     runs-on: ubuntu-20.04
-    name: Checking coding standard
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        php-versions: [ '7.3', '7.4', '8.0', '8.1' ]
+        experimental: [ false ]
+        composer-extra-flags: [ "" ]
+        include:
+          - php-versions: '8.2'
+            experimental: true
+            composer-extra-flags: "--ignore-platform-req=php+"
+    name: Checking coding standard for PHP ${{ matrix.php-versions }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install PHP
+      - name: Install PHP ${{ matrix.php-versions }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: ${{ matrix.php-versions }}
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v2
@@ -95,26 +107,36 @@ jobs:
           path: |
             ~/.composer/cache
             vendor
-          key: php-7.4
-          restore-keys: php-7.4
+          key: php-${{ matrix.php-versions }}
+          restore-keys: php-${{ matrix.php-versions }}
 
       - name: Install Dependencies
-        run: composer update --no-interaction --prefer-dist -a -o
+        run: composer update ${{ matrix.composer-extra-flags }} --no-interaction --prefer-dist -a -o
 
       - name: Check coding standard
         run: vendor/bin/parallel-lint --no-colors --no-progress  src tests
 
   phpstan:
     runs-on: ubuntu-20.04
-    name: Performing static analysis (PHPStan)
+    name: Performing static analysis (PHPStan) for PHP ${{ matrix.php-versions }}
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        php-versions: [ '7.3', '7.4', '8.0', '8.1' ]
+        experimental: [ false ]
+        composer-extra-flags: [ "" ]
+        include:
+          - php-versions: '8.2'
+            experimental: true
+            composer-extra-flags: "--ignore-platform-req=php+"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install PHP
+      - name: Install PHP ${{ matrix.php-versions }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: ${{ matrix.php-versions }}
 
       - name: Cache/Restore dependencies
         uses: actions/cache@v2
@@ -122,11 +144,11 @@ jobs:
           path: |
             ~/.composer/cache
             vendor
-          key: php-7.4
-          restore-keys: php-7.4
+          key: php-${{ matrix.php-versions }}
+          restore-keys: php-${{ matrix.php-versions }}
 
       - name: Install Dependencies
-        run: composer update --no-interaction --prefer-dist -a -o
+        run: composer update ${{ matrix.composer-extra-flags }} --no-interaction --prefer-dist -a -o
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyze --no-progress
