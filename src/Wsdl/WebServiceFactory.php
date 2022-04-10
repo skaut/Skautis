@@ -47,4 +47,12 @@ final class WebServiceFactory implements WebServiceFactoryInterface
         $soapClient = new \SoapClient($url, $options);
         return new $this->class($soapClient, $options, $this->eventDispatcher);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
 }

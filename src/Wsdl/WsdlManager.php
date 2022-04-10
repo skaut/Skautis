@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Skaut\Skautis\Wsdl;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Skaut\Skautis\Config;
 use Skaut\Skautis\User;
 
@@ -73,6 +74,13 @@ class WsdlManager
     public function createWebService(string $name, array $options = []): WebServiceInterface
     {
         return $this->webServiceFactory->createWebService($this->getWebServiceUrl($name), $options);
+    }
+
+    /**
+     * Nastaví event dispatcher.
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void {
+        $this->webServiceFactory->setEventDispatcher($eventDispatcher);
     }
 
     /**
