@@ -88,7 +88,7 @@ class WebService implements WebServiceInterface
     ) {
         $fname = ucfirst($functionName);
         $args = $this->prepareArgs($fname, $arguments);
-        $trace = null;
+        $trace = [];
 
         if ($this->eventDispatcher !== null) {
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);

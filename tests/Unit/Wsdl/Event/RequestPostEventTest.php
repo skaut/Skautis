@@ -21,8 +21,9 @@ class RequestPostEventTest extends TestCase
         ];
         $result = [(object)['a' => 'b']];
         $duration = 11.11;
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $event = new RequestPostEvent('asd', $args, $result, $duration);
+        $event = new RequestPostEvent('asd', $args, $result, $duration, $trace);
 
         $serialized = serialize($event);
         /** @var RequestPostEvent $unserialized */

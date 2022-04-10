@@ -17,8 +17,9 @@ class RequestFailEventTest extends TestCase
     public function testExceptionMessage(): void
     {
         $throwable = new RuntimeException('my message');
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $event = new RequestFailEvent('asd', [], $throwable, 30);
+        $event = new RequestFailEvent('asd', [], $throwable, 30, $trace);
         $this->assertStringContainsString('my message', $event->getExceptionString());
         $this->assertSame(RuntimeException::class, $event->getExceptionClass());
     }
@@ -31,8 +32,9 @@ class RequestFailEventTest extends TestCase
                 'argument' => 'value',
             ],
         ];
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $event = new RequestFailEvent('asd', $args, $throwable, 30.22);
+        $event = new RequestFailEvent('asd', $args, $throwable, 30.22, $trace);
 
         $serialized = serialize($event);
         /** @var RequestFailEvent $unserialized */
@@ -56,8 +58,9 @@ class RequestFailEventTest extends TestCase
                 'argument' => 'value',
             ],
         ];
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $event = new RequestFailEvent('asd', $args, $throwable, 30.22);
+        $event = new RequestFailEvent('asd', $args, $throwable, 30.22, $trace);
 
         $serialized = serialize($event);
         $unserialized = unserialize($serialized);

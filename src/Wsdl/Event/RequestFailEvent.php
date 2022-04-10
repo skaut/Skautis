@@ -55,6 +55,7 @@ class RequestFailEvent implements Serializable
     /**
      * @param string $fname Nazev volane funkce
      * @param array<int|string, mixed> $args  Argumenty pozadavku
+     * @param array<int, array<string, mixed>> $trace Zasobnik volanych funkci
      */
     public function __construct(
       string $fname,
