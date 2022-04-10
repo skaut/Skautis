@@ -33,6 +33,12 @@ class RequestPostEvent implements Serializable
     private $result;
 
     /**
+     * @var array<int, array<string, mixed>> Zasobnik volanych funkci
+     */
+    private $trace;
+
+
+    /**
      * @param string $fname Nazev volane funkce
      * @param array<int|string, mixed> $args  Argumenty pozadavku
      * @param array<int|string, mixed>|stdClass|null $result
@@ -41,12 +47,14 @@ class RequestPostEvent implements Serializable
       string $fname,
       array $args,
       $result,
-      float $duration
+      float $duration,
+      array $trace
     ) {
         $this->fname = $fname;
         $this->args = $args;
         $this->result = $result;
         $this->time = $duration;
+        $this->trace = $trace;
     }
 
     /**
@@ -116,4 +124,11 @@ class RequestPostEvent implements Serializable
       return $this->result;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getTrace(): array
+    {
+        return $this->trace;
+    }
 }

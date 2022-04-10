@@ -88,9 +88,11 @@ class WebService implements WebServiceInterface
     ) {
         $fname = ucfirst($functionName);
         $args = $this->prepareArgs($fname, $arguments);
+        $trace = null;
 
         if ($this->eventDispatcher !== null) {
-            $event = new RequestPreEvent($fname, $args, $options, $inputHeaders, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            $event = new RequestPreEvent($fname, $args, $options, $inputHeaders, $trace);
             $this->eventDispatcher->dispatch($event);
         }
 
@@ -101,7 +103,7 @@ class WebService implements WebServiceInterface
 
             if ($this->eventDispatcher !== null) {
                 $duration = microtime(true) - $requestStart;
-                $event = new RequestPostEvent($fname, $args, $soapResponse, $duration);
+                $event = new RequestPostEvent($fname, $args, $soapResponse, $duration, $trace);
                 $this->eventDispatcher->dispatch($event);
             }
 
@@ -110,7 +112,7 @@ class WebService implements WebServiceInterface
 
             if ($this->eventDispatcher !== null) {
               $duration = microtime(true) - $requestStart;
-              $event = new RequestFailEvent($fname, $args, $t, $duration);
+              $event = new RequestFailEvent($fname, $args, $t, $duration, $trace);
               $this->eventDispatcher->dispatch($event);
             }
 

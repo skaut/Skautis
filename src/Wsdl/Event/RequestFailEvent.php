@@ -47,6 +47,12 @@ class RequestFailEvent implements Serializable
     private $exceptionString;
 
     /**
+     * @var array<int, array<string, mixed>> Zasobnik volanych funkci
+     */
+    private $trace;
+
+
+    /**
      * @param string $fname Nazev volane funkce
      * @param array<int|string, mixed> $args  Argumenty pozadavku
      */
@@ -54,7 +60,8 @@ class RequestFailEvent implements Serializable
       string $fname,
       array $args,
       Throwable $throwable,
-      float $duration
+      float $duration,
+      array $trace
     ) {
         $this->fname = $fname;
         $this->args = $args;
@@ -62,6 +69,7 @@ class RequestFailEvent implements Serializable
         $this->exceptionClass = get_class($throwable);
         $this->exceptionString = (string) $throwable;
         $this->time = $duration;
+        $this->trace = $trace;
     }
 
     /**
@@ -162,4 +170,11 @@ class RequestFailEvent implements Serializable
       return $this->throwable;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getTrace(): array
+    {
+        return $this->trace;
+    }
 }
