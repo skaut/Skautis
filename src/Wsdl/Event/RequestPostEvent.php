@@ -68,6 +68,7 @@ class RequestPostEvent implements Serializable
             'args' => $this->args,
             'time' => $this->time,
             'result' => $this->result,
+            'trace' => $this->trace,
         ];
     }
 
@@ -85,6 +86,7 @@ class RequestPostEvent implements Serializable
         $this->args = (array) $data['args'];
         $this->time = (float) $data['time'];
         $this->result = (array) $data['result'];
+        $this->trace = (array) $data['trace'];
     }
 
     /**

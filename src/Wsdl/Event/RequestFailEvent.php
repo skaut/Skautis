@@ -83,6 +83,7 @@ class RequestFailEvent implements Serializable
             'time' => $this->time,
             'exception_class' =>  $this->exceptionClass,
             'exception_string' => $this->exceptionString,
+            'trace' => $this->trace,
         ];
     }
 
@@ -100,6 +101,7 @@ class RequestFailEvent implements Serializable
         $this->time = (float) $data['time'];
         $this->exceptionClass = (string) $data['exception_class'];
         $this->exceptionString = (string) $data['exception_string'];
+        $this->trace = (array) $data['trace'];
     }
 
     /**
