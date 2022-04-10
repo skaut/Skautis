@@ -22,7 +22,7 @@ interface WebServiceFactoryInterface
     public function createWebService(string $url, array $options): WebServiceInterface;
 
     /**
-     * Nastaví event dispatcher.
+     * Nastaví event dispatcher, pokud uz neni nastaven.
      *
      * @param EventDispatcherInterface $eventDispatcher
      * @return void

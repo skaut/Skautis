@@ -53,6 +53,10 @@ final class WebServiceFactory implements WebServiceFactoryInterface
      */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
     {
+        if ($this->eventDispatcher != null) {
+            throw new InvalidArgumentException("Event dispatcher is already set.");
+        }
+
         $this->eventDispatcher = $eventDispatcher;
     }
 }
