@@ -64,29 +64,42 @@ class RequestFailEvent implements Serializable
         $this->time = $duration;
     }
 
-    public function serialize(): string
-    {
-        $data = [
+    /**
+     * @return array<mixed>
+     */
+    public function __serialize(): array {
+        return [
             'fname' => $this->fname,
             'args' => $this->args,
             'time' => $this->time,
             'exception_class' =>  $this->exceptionClass,
             'exception_string' => $this->exceptionString,
         ];
-        return serialize($data);
     }
 
-	/**
-	 * @param string $data
-	 */
-    public function unserialize($data): void
+    public function serialize(): string
     {
-        $data = unserialize($data, ['allowed_classes' => [self::class]]);
+        return serialize($this->__serialize());
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    public function __unserialize(array $data): void {
         $this->fname = (string) $data['fname'];
         $this->args = (array) $data['args'];
         $this->time = (float) $data['time'];
         $this->exceptionClass = (string) $data['exception_class'];
         $this->exceptionString = (string) $data['exception_string'];
+    }
+
+    /**
+	 * @param string $data
+	 */
+    public function unserialize($data): void
+    {
+        $data = unserialize($data, ['allowed_classes' => [self::class]]);
+        $this->__unserialize($data);
     }
 
     /**

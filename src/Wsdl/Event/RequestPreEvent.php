@@ -57,16 +57,35 @@ class RequestPreEvent implements Serializable
         $this->trace = $trace;
     }
 
-    public function serialize(): string
+    /**
+     * @return array<mixed>
+     */
+    public function __serialize(): array
     {
-        $data = [
+        return [
             'fname' => $this->fname,
             'args' => $this->args,
             'options' => $this->options,
             'inputHeaders' => $this->inputHeaders,
             'trace' => $this->trace,
         ];
-        return serialize($data);
+    }
+
+    public function serialize(): string
+    {
+        return serialize($this->__serialize());
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->fname = (string) $data['fname'];
+        $this->args = (array) $data['args'];
+        $this->options = (array) $data['options'];
+        $this->inputHeaders = (array) $data['inputHeaders'];
+        $this->trace = (array) $data['trace'];
     }
 
     /**
@@ -75,11 +94,7 @@ class RequestPreEvent implements Serializable
     public function unserialize($data): void
     {
         $data = unserialize($data, ['allowed_classes' => [self::class]]);
-        $this->fname = (string) $data['fname'];
-        $this->args = (array) $data['args'];
-        $this->options = (array) $data['options'];
-        $this->inputHeaders = (array) $data['inputHeaders'];
-        $this->trace = (array) $data['trace'];
+        $this->__unserialize($data);
     }
 
     public function getFname(): string

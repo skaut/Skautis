@@ -49,15 +49,33 @@ class RequestPostEvent implements Serializable
         $this->time = $duration;
     }
 
-    public function serialize(): string
+    /**
+     * @return array<mixed>
+     */
+    public function __serialize(): array
     {
-        $data = [
+        return [
             'fname' => $this->fname,
             'args' => $this->args,
             'time' => $this->time,
             'result' => $this->result,
         ];
-        return serialize($data);
+    }
+
+    public function serialize(): string
+    {
+        return serialize($this->__serialize());
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->fname = (string) $data['fname'];
+        $this->args = (array) $data['args'];
+        $this->time = (float) $data['time'];
+        $this->result = (array) $data['result'];
     }
 
     /**
@@ -66,10 +84,7 @@ class RequestPostEvent implements Serializable
     public function unserialize($data): void
     {
         $data = unserialize($data, ['allowed_classes' => [self::class, stdClass::class]]);
-        $this->fname = (string) $data['fname'];
-        $this->args = (array) $data['args'];
-        $this->time = (float) $data['time'];
-        $this->result = (array) $data['result'];
+        $this->__unserialize($data);
     }
 
     public function getFname(): string
