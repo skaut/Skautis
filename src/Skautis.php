@@ -4,6 +4,7 @@ namespace Skautis;
 
 use Skautis\Wsdl\WsdlManager;
 use Skautis\Wsdl\WebService;
+use Skautis\Wsdl\WebServiceInterface;
 
 /**
  * Třída pro práci se skautISem
