@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Skaut\Skautis\Wsdl;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
+
 /**
  * Interface továrny pro vytváření objektů webových služeb
  */
@@ -18,4 +20,12 @@ interface WebServiceFactoryInterface
      * @return WebServiceInterface
      */
     public function createWebService(string $url, array $options): WebServiceInterface;
+
+    /**
+     * Nastaví event dispatcher, pokud uz neni nastaven.
+     *
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return void
+     */
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void;
 }

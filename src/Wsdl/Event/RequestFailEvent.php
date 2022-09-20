@@ -47,14 +47,22 @@ class RequestFailEvent implements Serializable
     private $exceptionString;
 
     /**
+     * @var array<int, array<string, mixed>> Zasobnik volanych funkci
+     */
+    private $trace;
+
+
+    /**
      * @param string $fname Nazev volane funkce
      * @param array<int|string, mixed> $args  Argumenty pozadavku
+     * @param array<int, array<string, mixed>> $trace Zasobnik volanych funkci
      */
     public function __construct(
       string $fname,
       array $args,
       Throwable $throwable,
-      float $duration
+      float $duration,
+      array $trace
     ) {
         $this->fname = $fname;
         $this->args = $args;
@@ -62,6 +70,7 @@ class RequestFailEvent implements Serializable
         $this->exceptionClass = get_class($throwable);
         $this->exceptionString = (string) $throwable;
         $this->time = $duration;
+        $this->trace = $trace;
     }
 
     /**
@@ -74,6 +83,7 @@ class RequestFailEvent implements Serializable
             'time' => $this->time,
             'exception_class' =>  $this->exceptionClass,
             'exception_string' => $this->exceptionString,
+            'trace' => $this->trace,
         ];
     }
 
@@ -91,6 +101,7 @@ class RequestFailEvent implements Serializable
         $this->time = (float) $data['time'];
         $this->exceptionClass = (string) $data['exception_class'];
         $this->exceptionString = (string) $data['exception_string'];
+        $this->trace = (array) $data['trace'];
     }
 
     /**
@@ -162,4 +173,11 @@ class RequestFailEvent implements Serializable
       return $this->throwable;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getTrace(): array
+    {
+        return $this->trace;
+    }
 }
