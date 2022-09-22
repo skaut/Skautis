@@ -118,7 +118,9 @@ final class Config
             'ID_Application' => $this->appId,
             'soap_version' => SOAP_1_2,
             'encoding' => 'utf-8',
-            'ssl_method' => SOAP_SSL_METHOD_TLS,
+            'stream_context' => stream_context_create([
+                'ssl' => ['crypto_method' => STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT]
+            ]),
             'exceptions' => true,
             'trace' => true,
             'user_agent' => 'Skautis PHP library',
