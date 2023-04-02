@@ -70,7 +70,15 @@ class SkautisQuery implements \Serializable
         $this->time = -microtime(true);
     }
 
+    /**
+     * @deprecated use __serialize
+     */
     public function serialize()
+    {
+        return serialize($this->__serialize());
+    }
+
+    public function __serialize(): array
     {
         $data = [
             'fname' => $this->fname,
@@ -81,12 +89,19 @@ class SkautisQuery implements \Serializable
             'exception_class' => is_null($this->exception) ? "" : get_class($this->exception),
             'exception_string' => is_null($this->exception) ? "" : (string)$this->exception,
         ];
-        return serialize($data);
+        return $data;
     }
 
+    /**
+     * @deprecated use __unserialize
+     */
     public function unserialize($data)
     {
-        $data = unserialize($data);
+        $this->__unserialize(unserialize($data));
+    }
+
+    public function __unserialize(array $data): void
+    {
         $this->fname = $data['fname'];
         $this->args = $data['args'];
         $this->trace = $data['trace'];
