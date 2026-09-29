@@ -1,64 +1,32 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl\Event;
 
-use Serializable;
-
-class RequestPreEvent implements Serializable
+/**
+ * Dispatched before a SOAP request is sent.
+ */
+final class RequestPreEvent
 {
-
     /**
-     * @var string Nazev funkce volane pomoci SOAP requestu
-     */
-    private $fname;
-
-    /**
-     * Parametry SOAP requestu na server
-     *
-     * @var array<int|string, mixed>
-     */
-    private $args;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private $options;
-
-    /**
-     * @var array<int, string>
-     */
-    private $inputHeaders;
-
-    /**
-     * @var array<int, array<string, mixed>> Zasobnik volanych funkci
-     */
-    private $trace;
-
-
-    /**
-     * @param string $fname Nazev volane funkce
-     * @param array<int|string, mixed> $args  Argumenty pozadavku
-     * @param array<string, mixed> $options
-     * @param array<int, string> $inputHeaders
-     * @param array<int, array<string, mixed>> $trace Zasobnik volanych funkci
+     * @param string                           $fname        skautIS method name
+     * @param array<int|string, mixed>         $args         arguments as sent to SoapClient
+     * @param array<string, mixed>             $options
+     * @param array<int, mixed>                $inputHeaders
+     * @param array<int, array<string, mixed>> $trace        debug_backtrace() of the call
      */
     public function __construct(
-      string $fname,
-      array $args,
-      array $options,
-      array $inputHeaders,
-      array $trace
+        private string $fname,
+        private array $args,
+        private array $options,
+        private array $inputHeaders,
+        private array $trace,
     ) {
-        $this->fname = $fname;
-        $this->args = $args;
-        $this->options = $options;
-        $this->inputHeaders = $inputHeaders;
-        $this->trace = $trace;
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function __serialize(): array
     {
@@ -71,35 +39,22 @@ class RequestPreEvent implements Serializable
         ];
     }
 
-    public function serialize(): string
-    {
-        return serialize($this->__serialize());
-    }
-
     /**
-     * @param array<mixed> $data
+     * @param array<string, mixed> $data
      */
     public function __unserialize(array $data): void
     {
-        $this->fname = (string) $data['fname'];
-        $this->args = (array) $data['args'];
-        $this->options = (array) $data['options'];
-        $this->inputHeaders = (array) $data['inputHeaders'];
-        $this->trace = (array) $data['trace'];
-    }
-
-    /**
-     * @param string $data
-     */
-    public function unserialize($data): void
-    {
-        $data = unserialize($data, ['allowed_classes' => [self::class]]);
-        $this->__unserialize($data);
+        /** @var array{fname: string, args: array<int|string, mixed>, options: array<string, mixed>, inputHeaders: array<int, mixed>, trace: array<int, array<string, mixed>>} $data */
+        $this->fname = $data['fname'];
+        $this->args = $data['args'];
+        $this->options = $data['options'];
+        $this->inputHeaders = $data['inputHeaders'];
+        $this->trace = $data['trace'];
     }
 
     public function getFname(): string
     {
-      return $this->fname;
+        return $this->fname;
     }
 
     /**
@@ -107,7 +62,7 @@ class RequestPreEvent implements Serializable
      */
     public function getArgs(): array
     {
-      return $this->args;
+        return $this->args;
     }
 
     /**
@@ -115,15 +70,15 @@ class RequestPreEvent implements Serializable
      */
     public function getOptions(): array
     {
-      return $this->options;
+        return $this->options;
     }
 
     /**
-     * @return array<int, string>
+     * @return array<int, mixed>
      */
     public function getInputHeaders(): array
     {
-      return $this->inputHeaders;
+        return $this->inputHeaders;
     }
 
     /**
@@ -131,7 +86,6 @@ class RequestPreEvent implements Serializable
      */
     public function getTrace(): array
     {
-      return $this->trace;
+        return $this->trace;
     }
-
 }

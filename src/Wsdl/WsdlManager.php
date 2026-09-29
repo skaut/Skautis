@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl;
 
@@ -8,37 +9,17 @@ use Skaut\Skautis\Config;
 use Skaut\Skautis\User;
 
 /**
- * Třída pro správu webových služeb SkautISu
+ * Creates and keeps the web service objects.
  */
 class WsdlManager
 {
+    /** @var array<string, WebServiceInterface> */
+    protected array $webServices = [];
 
-    /**
-     * @var WebServiceFactoryInterface
-     */
-    protected $webServiceFactory;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * Pole aktivních webových služeb
-     *
-     * @var array<string, WebServiceInterface>
-     */
-    protected $webServices = [];
-
-
-    /**
-     * @param WebServiceFactoryInterface $webServiceFactory továrna pro vytváření objektů webových služeb
-     * @param Config $config
-     */
-    public function __construct(WebServiceFactoryInterface $webServiceFactory, Config $config)
-    {
-        $this->webServiceFactory = $webServiceFactory;
-        $this->config = $config;
+    public function __construct(
+        protected readonly WebServiceFactoryInterface $webServiceFactory,
+        protected readonly Config $config,
+    ) {
     }
 
     public function getConfig(): Config
@@ -47,16 +28,16 @@ class WsdlManager
     }
 
     /**
-     * Získá objekt webové služby
-     *
-     * @param string $name celé jméno webové služby
+     * @param string      $name    full name of the web service
      * @param string|null $loginId skautIS login token
+     *
+     * @throws WsdlException
      */
     public function getWebService(string $name, ?string $loginId = null): WebServiceInterface
     {
-        $key = $loginId . '_' . $name;
+        $key = $loginId.'_'.$name;
 
-        if (!isset($this->webServices[$key])) {
+        if (! isset($this->webServices[$key])) {
             $options = $this->config->getSoapOptions();
             $options[User::ID_LOGIN] = $loginId;
             $this->webServices[$key] = $this->createWebService($name, $options);
@@ -66,10 +47,9 @@ class WsdlManager
     }
 
     /**
-     * Vytváří objekt webové služby
+     * @param array<string, mixed> $options SoapClient options plus ID_Application and ID_Login
      *
-     * @param string $name jméno webové služby
-     * @param array<string, mixed> $options volby pro SoapClient
+     * @throws WsdlException
      */
     public function createWebService(string $name, array $options = []): WebServiceInterface
     {
@@ -77,41 +57,52 @@ class WsdlManager
     }
 
     /**
-     * Nastaví event dispatcher.
+     * The factory accepts one dispatcher only; combine listeners in your own dispatcher.
      */
-    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void {
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
+    {
         $this->webServiceFactory->setEventDispatcher($eventDispatcher);
     }
 
     /**
-     * Vrací URL webové služby podle jejího jména
+     * Whether skautIS is down for maintenance (or unreachable).
+     *
+     * @throws MaintenanceErrorException on a network error such as a DNS failure
      */
-    protected function getWebServiceUrl(string $name): string
-    {
-        if (!WebServiceName::isValidServiceName($name)) {
-          throw new WsdlException("Web service '$name' not found.");
-        }
-
-        return $this->config->getBaseUrl() . 'JunakWebservice/' . rawurlencode($name) . '.asmx?WSDL';
-    }
-
     public function isMaintenance(): bool
     {
-        // Transformuje PHP error/warning do Exception
-        // Funkce get_headers totiž používá warning když má problém aby vysvětlil co se děje
-        // Pokud například DNS selže tak to hodí PHP warning, který nejde chytat jako exception
-        set_error_handler(function($errno, $errstr, $errfile, $errline) {
-          throw new MaintenanceErrorException($errstr, $errno, $errfile, $errline);
+        // get_headers() reports network problems as PHP warnings; turn them into an exception
+        set_error_handler(static function (int $errno, string $errstr, string $errfile, int $errline): never {
+            throw new MaintenanceErrorException($errstr, $errno, $errfile, $errline);
         });
 
         try {
-          $headers = get_headers($this->getWebServiceUrl('UserManagement'));
+            $headers = get_headers($this->getWebServiceUrl(WebServiceName::USER_MANAGEMENT));
+            if ($headers === false) {
+                return true;
+            }
 
-          return !$headers || !in_array('HTTP/1.1 200 OK', $headers, true);
-        }
-        finally {
-          restore_error_handler();
+            foreach ($headers as $header) {
+                if (\is_string($header) && preg_match('~^HTTP/\S+\s+200\b~', $header) === 1) {
+                    return false;
+                }
+            }
+
+            return true;
+        } finally {
+            restore_error_handler();
         }
     }
 
+    /**
+     * @throws WsdlException
+     */
+    protected function getWebServiceUrl(string $name): string
+    {
+        if (! WebServiceName::isValidServiceName($name)) {
+            throw new WebServiceNotFoundException($name);
+        }
+
+        return $this->config->getBaseUrl().'JunakWebservice/'.rawurlencode($name).'.asmx?WSDL';
+    }
 }

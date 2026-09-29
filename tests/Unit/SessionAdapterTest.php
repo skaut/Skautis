@@ -1,94 +1,70 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Skaut\Skautis\Test\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Skaut\Skautis\SessionAdapter\AdapterInterface;
 use Skaut\Skautis\SessionAdapter\FakeAdapter;
 use Skaut\Skautis\SessionAdapter\SessionAdapter;
+use stdClass;
 
-class SessionAdapterTest extends TestCase
+final class SessionAdapterTest extends TestCase
 {
-
-
-    public function getAdapters()
+    /**
+     * @return iterable<string, array{AdapterInterface}>
+     */
+    public static function provideAdapters(): iterable
     {
-        return [
-            [new FakeAdapter()],
-            [new SessionAdapter()],
-        ];
+        yield 'fake' => [new FakeAdapter()];
+        yield 'native session' => [new SessionAdapter()];
     }
 
-    /**
-     * @dataProvider getAdapters
-     * @runInSeparateProcess
-     */
-    public function testAdapterMethods(AdapterInterface $adapter)
+    #[DataProvider('provideAdapters')]
+    #[RunInSeparateProcess]
+    public function testAdapterMethods(AdapterInterface $adapter): void
     {
-        $name = "asd";
-        $data = new \StdClass();
+        $name = 'asd';
+        $data = new stdClass();
+        $data->data = ['user_id' => 123, 'token' => 'asdqwe'];
 
-        $data->data['user_id'] = 123;
-        $data->data['token'] = 'asdqwe';
-
-        $this->assertFalse($adapter->has($name));
+        self::assertFalse($adapter->has($name));
+        self::assertNull($adapter->get($name));
 
         $adapter->set($name, $data);
 
-        $this->assertTrue($adapter->has($name));
-        $this->assertEquals($data, $adapter->get($name));
-
-
-        $object = $adapter->get($name);
-        $this->assertEquals(123, $object->data['user_id']);
-        $this->assertEquals("asdqwe", $object->data['token']);
+        self::assertTrue($adapter->has($name));
+        self::assertSame($data, $adapter->get($name));
     }
 
-
-    /**
-     * @runInSeparateProcess
-     */
-    public function testSessionAdapter()
+    #[RunInSeparateProcess]
+    public function testSessionAdapterSurvivesSessionEncoding(): void
     {
         session_start();
         session_unset();
 
         $adapter = new SessionAdapter();
 
-        $nameA = "promena by byla lepsi \$key";
-        $dataA = "somesuper data";
-        $nameB = "Klic sice je lepsi ale co se delat";
-        $dataB = "Ze sis radsi nenainstaloval Faker";
-        $this->assertFalse($adapter->has($nameA));
+        $adapter->set('a', 'some data');
+        $adapter->set('b', 'other data');
 
-        $adapter->set($nameA, $dataA);
-        $adapter->set($nameB, $dataB);
+        self::assertCount(1, $_SESSION);
+        self::assertSame(['a' => 'some data', 'b' => 'other data'], array_values($_SESSION)[0]);
 
-        $this->assertTrue($adapter->has($nameA));
-        $this->assertEquals($dataA, $adapter->get($nameA));
-        $this->assertEquals($dataB, $adapter->get($nameB));
-        $this->assertCount(1, $_SESSION);
-
-        $values = array_values($_SESSION);
-        $this->assertCount(2, $values[0]);
-        $this->assertContains($dataA, $values[0]);
-        $this->assertContains($dataB, $values[0]);
-
-        $data = session_encode();
+        $encoded = session_encode();
         session_unset();
-        $this->assertCount(0, (array)$_SESSION);
+        self::assertCount(0, $_SESSION);
 
-        session_decode($data);
-        $this->assertCount(1, $_SESSION);
-
-        $values = array_values($_SESSION);
-        $this->assertCount(2, $values[0]);
+        self::assertNotFalse($encoded);
+        session_decode($encoded);
 
         $adapterNew = new SessionAdapter();
-
-        $this->assertTrue($adapterNew->has($nameA));
-        $this->assertTrue($adapterNew->has($nameB));
-        $this->assertEquals($dataA, $adapterNew->get($nameA));
-        $this->assertEquals($dataB, $adapterNew->get($nameB));
+        self::assertTrue($adapterNew->has('a'));
+        self::assertTrue($adapterNew->has('b'));
+        self::assertSame('some data', $adapterNew->get('a'));
+        self::assertSame('other data', $adapterNew->get('b'));
     }
 }

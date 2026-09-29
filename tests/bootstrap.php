@@ -1,3 +1,5 @@
 <?php
 
-$autoloader = require(__DIR__ . '/../vendor/autoload.php');
+declare(strict_types=1);
+
+require __DIR__.'/../vendor/autoload.php';

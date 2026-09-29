@@ -2,78 +2,46 @@
 
 declare(strict_types=1);
 
-
 namespace Skaut\Skautis\Test\Unit\Wsdl\Event;
-
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Skaut\Skautis\Wsdl\Event\RequestFailEvent;
 use SoapFault;
 
-class RequestFailEventTest extends TestCase
+final class RequestFailEventTest extends TestCase
 {
-
-    public function testExceptionMessage(): void
+    public function testExceptionDetails(): void
     {
         $throwable = new RuntimeException('my message');
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $event = new RequestFailEvent('asd', [], $throwable, 30, $trace);
-        $this->assertStringContainsString('my message', $event->getExceptionString());
-        $this->assertSame(RuntimeException::class, $event->getExceptionClass());
+        $event = new RequestFailEvent('asd', [], $throwable, 30, []);
+
+        self::assertSame($throwable, $event->getThrowable());
+        self::assertStringContainsString('my message', $event->getExceptionString());
+        self::assertSame(RuntimeException::class, $event->getExceptionClass());
     }
 
-    public function testDeserialization(): void
+    public function testSerializationKeepsDetailsWithoutTheThrowable(): void
     {
-        $throwable = new SoapFault('code-is-string', 'fault-string');
-        $args = [
-            [
-                'argument' => 'value',
-            ],
-        ];
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $event = new RequestFailEvent(
+            'asd',
+            [['argument' => 'value']],
+            new SoapFault('code-is-string', 'fault-string'),
+            30.22,
+            debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS),
+        );
 
-        $event = new RequestFailEvent('asd', $args, $throwable, 30.22, $trace);
+        $unserialized = unserialize(serialize(unserialize(serialize($event))));
 
-        $serialized = serialize($event);
-        /** @var RequestFailEvent $unserialized */
-        $unserialized = unserialize($serialized);
-
-        $this->assertSame('asd', $unserialized->getFname());
-        $this->assertSame(30.22, $unserialized->getDuration());
-        $this->assertArrayHasKey(0, $unserialized->getArgs());
-        $this->assertArrayHasKey('argument', $unserialized->getArgs()[0]);
-        $this->assertSame('value', $unserialized->getArgs()[0]['argument']);
-        $this->assertStringContainsString('code-is-string', $unserialized->getExceptionString());
-        $this->assertStringContainsString('fault-string', $unserialized->getExceptionString());
-        $this->assertSame(SoapFault::class, $unserialized->getExceptionClass());
-    }
-
-    public function testRepeatedSerializationDeserialization(): void
-    {
-        $throwable = new SoapFault('code-is-string', 'fault-string');
-        $args = [
-            [
-                'argument' => 'value',
-            ],
-        ];
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-
-        $event = new RequestFailEvent('asd', $args, $throwable, 30.22, $trace);
-
-        $serialized = serialize($event);
-        $unserialized = unserialize($serialized);
-        $serialized = serialize($unserialized);
-        $unserialized = unserialize($serialized);
-
-        $this->assertSame('asd', $unserialized->getFname());
-        $this->assertSame(30.22, $unserialized->getDuration());
-        $this->assertArrayHasKey(0, $unserialized->getArgs());
-        $this->assertArrayHasKey('argument', $unserialized->getArgs()[0]);
-        $this->assertSame('value', $unserialized->getArgs()[0]['argument']);
-        $this->assertStringContainsString('code-is-string', $unserialized->getExceptionString());
-        $this->assertStringContainsString('fault-string', $unserialized->getExceptionString());
-        $this->assertSame(SoapFault::class, $unserialized->getExceptionClass());
+        self::assertInstanceOf(RequestFailEvent::class, $unserialized);
+        self::assertSame('asd', $unserialized->getFname());
+        self::assertSame(30.22, $unserialized->getDuration());
+        self::assertSame([['argument' => 'value']], $unserialized->getArgs());
+        self::assertNull($unserialized->getThrowable());
+        self::assertStringContainsString('code-is-string', $unserialized->getExceptionString());
+        self::assertStringContainsString('fault-string', $unserialized->getExceptionString());
+        self::assertSame(SoapFault::class, $unserialized->getExceptionClass());
+        self::assertNotEmpty($unserialized->getTrace());
     }
 }

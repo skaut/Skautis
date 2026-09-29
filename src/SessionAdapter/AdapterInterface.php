@@ -1,30 +1,17 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\SessionAdapter;
 
 /**
- * Interface umoznujici vytvoreni adapteru pro ruzne implementace Session
+ * Storage for login data; implement it over the session of your framework.
  */
 interface AdapterInterface
 {
+    public function set(string $name, mixed $object): void;
 
-    /**
-     * Ulozi data do session
-     *
-     * @param mixed $object
-     */
-    public function set(string $name, $object): void ;
-
-    /**
-     * Overi existenci dat v session
-     */
     public function has(string $name): bool;
 
-    /**
-     * Ziska data ze session
-     *
-     * @return mixed
-     */
-    public function get(string $name);
+    public function get(string $name): mixed;
 }

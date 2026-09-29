@@ -1,176 +1,108 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl\Event;
 
-use Serializable;
 use Throwable;
 
-class RequestFailEvent implements Serializable
+/**
+ * Dispatched when a SOAP request fails.
+ *
+ * SoapFault cannot be serialized, so the exception class and its string form are kept separately;
+ * after unserialization getThrowable() returns null.
+ */
+final class RequestFailEvent
 {
+    private ?Throwable $throwable;
+    private string $exceptionClass;
+    private string $exceptionString;
 
     /**
-     * @var string Nazev funkce volane pomoci SOAP requestu
-     */
-    private $fname;
-
-    /**
-     * Parametry SOAP requestu na server
-     *
-     * @var array<int|string, mixed>
-     */
-    private $args;
-
-    /**
-     * @var float Pocet sekund trvani pozadvku
-     */
-    private $time;
-
-    /**
-     * Ne vsechny exceptions jdou serializovat.
-     * Po unserializaci je null.
-     *
-     * @var Throwable|null
-     */
-    private $throwable;
-
-    /**
-     * @var string
-     */
-    private $exceptionClass;
-
-    /**
-     * Pouziva __toString() methodu
-     *
-     * @var string
-     */
-    private $exceptionString;
-
-    /**
-     * @var array<int, array<string, mixed>> Zasobnik volanych funkci
-     */
-    private $trace;
-
-
-    /**
-     * @param string $fname Nazev volane funkce
-     * @param array<int|string, mixed> $args  Argumenty pozadavku
-     * @param array<int, array<string, mixed>> $trace Zasobnik volanych funkci
+     * @param string                           $fname    skautIS method name
+     * @param array<int|string, mixed>         $args     arguments as sent to SoapClient
+     * @param float                            $duration seconds
+     * @param array<int, array<string, mixed>> $trace    debug_backtrace() of the call
      */
     public function __construct(
-      string $fname,
-      array $args,
-      Throwable $throwable,
-      float $duration,
-      array $trace
+        private string $fname,
+        private array $args,
+        Throwable $throwable,
+        private float $duration,
+        private array $trace,
     ) {
-        $this->fname = $fname;
-        $this->args = $args;
         $this->throwable = $throwable;
-        $this->exceptionClass = get_class($throwable);
+        $this->exceptionClass = $throwable::class;
         $this->exceptionString = (string) $throwable;
-        $this->time = $duration;
-        $this->trace = $trace;
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
-    public function __serialize(): array {
+    public function __serialize(): array
+    {
         return [
             'fname' => $this->fname,
             'args' => $this->args,
-            'time' => $this->time,
-            'exception_class' =>  $this->exceptionClass,
+            'duration' => $this->duration,
+            'exception_class' => $this->exceptionClass,
             'exception_string' => $this->exceptionString,
             'trace' => $this->trace,
         ];
     }
 
-    public function serialize(): string
-    {
-        return serialize($this->__serialize());
-    }
-
     /**
-     * @param array<mixed> $data
+     * @param array<string, mixed> $data
      */
-    public function __unserialize(array $data): void {
-        $this->fname = (string) $data['fname'];
-        $this->args = (array) $data['args'];
-        $this->time = (float) $data['time'];
-        $this->exceptionClass = (string) $data['exception_class'];
-        $this->exceptionString = (string) $data['exception_string'];
-        $this->trace = (array) $data['trace'];
-    }
-
-    /**
-	 * @param string $data
-	 */
-    public function unserialize($data): void
+    public function __unserialize(array $data): void
     {
-        $data = unserialize($data, ['allowed_classes' => [self::class]]);
-        $this->__unserialize($data);
+        /** @var array{fname: string, args: array<int|string, mixed>, duration: float, exception_class: string, exception_string: string, trace: array<int, array<string, mixed>>} $data */
+        $this->fname = $data['fname'];
+        $this->args = $data['args'];
+        $this->duration = $data['duration'];
+        $this->throwable = null;
+        $this->exceptionClass = $data['exception_class'];
+        $this->exceptionString = $data['exception_string'];
+        $this->trace = $data['trace'];
     }
 
-    /**
-     * Vrati tridu exception
-     *
-     * Pouziva se tato metoda protoze SoapFault exception vyhozena SoapClientem nejde serializovat
-     */
     public function getExceptionClass(): string
     {
-        if ($this->throwable === null) {
-            return $this->exceptionClass;
-        }
-
-        return get_class($this->throwable);
+        return $this->exceptionClass;
     }
 
-    /**
-     * Vrati textovou podobu exception
-     */
     public function getExceptionString(): string
     {
-        if ($this->throwable === null) {
-            return $this->exceptionString;
-        }
-
-        return (string)$this->throwable;
+        return $this->exceptionString;
     }
 
     public function getFname(): string
     {
-      return $this->fname;
+        return $this->fname;
     }
-
 
     /**
      * @return array<int|string, mixed>
      */
     public function getArgs(): array
     {
-      return $this->args;
+        return $this->args;
     }
 
-
     /**
-     * Pocet sekund trvani pozadvku
+     * Seconds the request took.
      */
     public function getDuration(): float
     {
-      return $this->time;
+        return $this->duration;
     }
 
     /**
-     * @return Throwable|null null when object is de-serialized
-     *
-     * @see RequestFailEvent::getExceptionString()
-     * @see RequestFailEvent::getExceptionClass()
+     * @return Throwable|null null after unserialization
      */
     public function getThrowable(): ?Throwable
     {
-      return $this->throwable;
+        return $this->throwable;
     }
 
     /**

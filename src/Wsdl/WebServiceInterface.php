@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl;
 
@@ -7,28 +8,22 @@ use Skaut\Skautis\Exception as SkautisException;
 
 interface WebServiceInterface
 {
-
     /**
-     * Zavola funkci na Skautisu
+     * Calls a skautIS method.
      *
-     * @param string $functionName Jmeno funkce volane na skautisu
-     * @param array<string, mixed> $arguments    Argumenty funkce volane na skautisu
+     * @param string                   $functionName name of the skautIS method, e.g. UnitDetail
+     * @param array<int|string, mixed> $arguments    [0] => method arguments, optional [1] => custom input wrapper name
      *
      * @throws SkautisException
-     *
-     * @return mixed
      */
-    public function call(string $functionName, array $arguments = []);
+    public function call(string $functionName, array $arguments = []): mixed;
 
     /**
-     * Zavola funkci na Skautisu
+     * Same as call(): $service->UnitDetail(['ID' => 1]).
      *
-     * @param string $functionName Jmeno funkce volane na skautisu
-     * @param array<string, mixed> $arguments    Argumenty funkce volane na skautisu
+     * @param array<int|string, mixed> $arguments
      *
      * @throws SkautisException
-     *
-     * @return mixed
      */
-    public function __call(string $functionName, array $arguments);
+    public function __call(string $functionName, array $arguments): mixed;
 }

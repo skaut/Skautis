@@ -1,68 +1,71 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Skaut\Skautis\Test\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Skaut\Skautis\Config;
+use Skaut\Skautis\InvalidArgumentException;
 
-class ConfigTest extends TestCase
+final class ConfigTest extends TestCase
 {
-
     public function testDefaultConfiguration(): void
     {
         $config = new Config('asd123');
 
-        $this->assertEquals('asd123', $config->getAppId());
-        $this->assertTrue($config->isTestMode());
-        $this->assertTrue($config->isCacheEnabled());
-        $this->assertTrue($config->isCompressionEnabled());
+        self::assertSame('asd123', $config->getAppId());
+        self::assertTrue($config->isTestMode());
+        self::assertTrue($config->isCacheEnabled());
+        self::assertTrue($config->isCompressionEnabled());
     }
 
-    public function testTestModeEnabled(): void
+    public function testEmptyAppIdIsRejected(): void
     {
-        $config = new Config('asd123', Config::TEST_MODE_ENABLED);
-        $this->assertTrue($config->isTestMode());
+        $this->expectException(InvalidArgumentException::class);
+        new Config('');
     }
 
-    public function testTestModeDisabled(): void
+    public function testTestMode(): void
     {
-        $config = new Config('asd123', Config::TEST_MODE_DISABLED);
-        $this->assertFalse($config->isTestMode());
+        self::assertTrue((new Config('asd123', Config::TEST_MODE_ENABLED))->isTestMode());
+        self::assertFalse((new Config('asd123', Config::TEST_MODE_DISABLED))->isTestMode());
     }
 
-    public function testCacheEnabled(): void
+    public function testCache(): void
     {
-        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_ENABLED);
-        $this->assertTrue($config->isCacheEnabled());
+        self::assertTrue((new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_ENABLED))->isCacheEnabled());
+        self::assertFalse((new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED))->isCacheEnabled());
     }
 
-    public function testCacheDisabled(): void
+    public function testCompression(): void
     {
-        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED);
-        $this->assertFalse($config->isCacheEnabled());
+        $enabled = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED, Config::COMPRESSION_ENABLED);
+        $disabled = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED, Config::COMPRESSION_DISABLED);
+
+        self::assertTrue($enabled->isCompressionEnabled());
+        self::assertFalse($disabled->isCompressionEnabled());
     }
 
-    public function testCompressionEnabled(): void
+    public function testBaseUrl(): void
     {
-        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED, Config::COMPRESSION_ENABLED);
-        $this->assertTrue( $config->isCompressionEnabled());
+        self::assertSame('https://test-is.skaut.cz/', (new Config('sad', Config::TEST_MODE_ENABLED))->getBaseUrl());
+        self::assertSame('https://is.skaut.cz/', (new Config('sad', Config::TEST_MODE_DISABLED))->getBaseUrl());
     }
 
-    public function testCompressionDisabled(): void
+    public function testSoapOptions(): void
     {
-        $config = new Config('asd123', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED, Config::COMPRESSION_DISABLED);
-        $this->assertFalse( $config->isCompressionEnabled());
-    }
+        $options = (new Config('app-id', Config::TEST_MODE_ENABLED, Config::CACHE_DISABLED, Config::COMPRESSION_DISABLED))->getSoapOptions();
 
-    public function testBaseUrlTestModeEnabled(): void
-    {
-        $config = new Config('sad', Config::TEST_MODE_ENABLED);
-        $this->assertStringStartsWith('https://test', $config->getBaseUrl());
-    }
+        self::assertSame('app-id', $options['ID_Application']);
+        self::assertSame(\SOAP_1_2, $options['soap_version']);
+        self::assertSame(\WSDL_CACHE_NONE, $options['cache_wsdl']);
+        self::assertArrayNotHasKey('compression', $options);
+        self::assertIsResource($options['stream_context']);
 
-    public function testBaseUrlTestModeDisabled(): void
-    {
-        $config = new Config('sad', Config::TEST_MODE_DISABLED);
-        $this->assertStringStartsWith('https://is.', $config->getBaseUrl());
+        $withCache = (new Config('app-id', Config::TEST_MODE_ENABLED, Config::CACHE_ENABLED, Config::COMPRESSION_ENABLED))->getSoapOptions();
+
+        self::assertSame(\WSDL_CACHE_BOTH, $withCache['cache_wsdl']);
+        self::assertSame(\SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP, $withCache['compression']);
     }
 }

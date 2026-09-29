@@ -2,55 +2,34 @@
 
 declare(strict_types=1);
 
-
 namespace Skaut\Skautis\Wsdl;
 
-class MaintenanceErrorException
-  extends
-  WsdlException
+/**
+ * A PHP error (typically a network failure) while checking whether skautIS is in maintenance.
+ */
+class MaintenanceErrorException extends WsdlException
 {
+    public function __construct(
+        string $message,
+        private readonly int $errno,
+        private readonly string $errfile,
+        private readonly int $errline,
+    ) {
+        parent::__construct($message);
+    }
 
-  /**
-   * @var int
-   */
-  private $errno;
+    public function getErrorNumber(): int
+    {
+        return $this->errno;
+    }
 
-  /**
-   * @var string
-   */
-  private $errfile;
+    public function getErrorFile(): string
+    {
+        return $this->errfile;
+    }
 
-  /**
-   * @var int
-   */
-  private $errline;
-
-  public function __construct(
-    string $message,
-    int $errno,
-    string $errfile,
-    int $errline
-  ) {
-    parent::__construct($message, 0);
-
-    $this->errno = $errno;
-    $this->errfile = $errfile;
-    $this->errline = $errline;
-  }
-
-  public function getErrorNumber(): int
-  {
-    return $this->errno;
-  }
-
-  public function getErrorFile(): string
-  {
-    return $this->errfile;
-  }
-
-  public function getErrorLine(): int
-  {
-    return $this->errline;
-  }
-
+    public function getErrorLine(): int
+    {
+        return $this->errline;
+    }
 }

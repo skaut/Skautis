@@ -2,40 +2,46 @@
 
 declare(strict_types=1);
 
-
 namespace Skaut\Skautis\Test\Unit\Wsdl\Event;
-
 
 use PHPUnit\Framework\TestCase;
 use Skaut\Skautis\Wsdl\Event\RequestPostEvent;
+use stdClass;
 
-class RequestPostEventTest extends TestCase
+final class RequestPostEventTest extends TestCase
 {
-
-    public function testDeserialize(): void
+    public function testSerialization(): void
     {
-        $args = [
-          [
-            'argument' => 'value',
-          ],
-        ];
-        $result = [(object)['a' => 'b']];
-        $duration = 11.11;
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $record = new stdClass();
+        $record->a = 'b';
 
-        $event = new RequestPostEvent('asd', $args, $result, $duration, $trace);
+        $event = new RequestPostEvent('asd', [['argument' => 'value']], [$record], 11.11, debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS));
 
-        $serialized = serialize($event);
-        /** @var RequestPostEvent $unserialized */
-        $unserialized = unserialize($serialized);
+        $unserialized = unserialize(serialize($event));
 
-        $this->assertSame('asd', $unserialized->getFname());
-        $this->assertArrayHasKey(0, $unserialized->getArgs());
-        $this->assertArrayHasKey('argument', $unserialized->getArgs()[0]);
-        $this->assertArrayHasKey(0, $unserialized->getResult());
-        $this->assertObjectHasAttribute('a', $unserialized->getResult()[0]);
-        $this->assertSame('b', $unserialized->getResult()[0]->a);
-        $this->assertSame('value', $unserialized->getArgs()[0]['argument']);
-        $this->assertSame(11.11, $unserialized->getDuration());
+        self::assertInstanceOf(RequestPostEvent::class, $unserialized);
+        self::assertSame('asd', $unserialized->getFname());
+        self::assertSame([['argument' => 'value']], $unserialized->getArgs());
+        self::assertSame(11.11, $unserialized->getDuration());
+        self::assertNotEmpty($unserialized->getTrace());
+
+        $result = $unserialized->getResult();
+        self::assertIsArray($result);
+        self::assertInstanceOf(stdClass::class, $result[0]);
+        self::assertSame('b', $result[0]->a);
+    }
+
+    public function testSingleObjectAndNullResultsKeepTheirType(): void
+    {
+        $record = new stdClass();
+        $record->a = 'b';
+
+        $single = unserialize(serialize(new RequestPostEvent('asd', [], $record, 1.0, [])));
+        $missing = unserialize(serialize(new RequestPostEvent('asd', [], null, 1.0, [])));
+
+        self::assertInstanceOf(RequestPostEvent::class, $single);
+        self::assertInstanceOf(stdClass::class, $single->getResult());
+        self::assertInstanceOf(RequestPostEvent::class, $missing);
+        self::assertNull($missing->getResult());
     }
 }

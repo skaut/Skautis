@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis;
 
@@ -12,54 +13,40 @@ use Skaut\Skautis\Wsdl\WsdlException;
 use Skaut\Skautis\Wsdl\WsdlManager;
 
 /**
- * Třída pro práci se skautISem
- *
- * Sdružuje všechny komponenty a zprostředkovává jejich komunikaci.
+ * Entry point of the library: web services, the logged-in user and the configuration.
  *
  * @author Hána František <sinacek@gmail.com>
  *
- * @property-read WebServiceInterface $ApplicationManagement
- * @property-read WebServiceInterface $ContentManagement
- * @property-read WebServiceInterface $Evaluation
- * @property-read WebServiceInterface $Events
- * @property-read WebServiceInterface $Exports
- * @property-read WebServiceInterface $GoogleApps
- * @property-read WebServiceInterface $Journal
- * @property-read WebServiceInterface $Material
- * @property-read WebServiceInterface $Message
- * @property-read WebServiceInterface $OrganizationUnit
- * @property-read WebServiceInterface $Power
- * @property-read WebServiceInterface $Reports
- * @property-read WebServiceInterface $Summary
- * @property-read WebServiceInterface $Task
- * @property-read WebServiceInterface $Telephony
- * @property-read WebServiceInterface $UserManagement
- * @property-read WebServiceInterface $Vivant
- * @property-read WebServiceInterface $Welcome
+ * @property WebServiceInterface $ApplicationManagement
+ * @property WebServiceInterface $ContentManagement
+ * @property WebServiceInterface $DocumentStorage
+ * @property WebServiceInterface $Evaluation
+ * @property WebServiceInterface $Events
+ * @property WebServiceInterface $Exports
+ * @property WebServiceInterface $GoogleApps
+ * @property WebServiceInterface $Grants
+ * @property WebServiceInterface $Insurance
+ * @property WebServiceInterface $Journal
+ * @property WebServiceInterface $Material
+ * @property WebServiceInterface $Message
+ * @property WebServiceInterface $OrganizationUnit
+ * @property WebServiceInterface $Power
+ * @property WebServiceInterface $Reports
+ * @property WebServiceInterface $Summary
+ * @property WebServiceInterface $Task
+ * @property WebServiceInterface $Telephony
+ * @property WebServiceInterface $UserManagement
+ * @property WebServiceInterface $Vivant
+ * @property WebServiceInterface $Welcome
  */
 class Skautis
 {
-
     use HelperTrait;
 
-    /**
-     * @var WsdlManager
-     */
-    private $wsdlManager;
-
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * @param WsdlManager $wsdlManager
-     * @param User $user
-     */
-    public function __construct(WsdlManager $wsdlManager, User $user)
-    {
-        $this->wsdlManager = $wsdlManager;
-        $this->user = $user;
+    public function __construct(
+        private readonly WsdlManager $wsdlManager,
+        private readonly User $user,
+    ) {
     }
 
     public function getWsdlManager(): WsdlManager
@@ -78,115 +65,101 @@ class Skautis
     }
 
     /**
-     * Získá objekt webové služby
+     * @param string $name full name of the web service or its alias
+     *
+     * @throws WsdlException
      */
     public function getWebService(string $name): WebServiceInterface
     {
-        $realServiceName = $this->getWebServiceName($name);
-        return $this->wsdlManager->getWebService($realServiceName, $this->user->getLoginId());
+        return $this->wsdlManager->getWebService($this->getWebServiceName($name), $this->user->getLoginId());
     }
 
     /**
-     * Trocha magie pro snadnější přístup k webovým službám.
+     * Shortcut: $skautis->OrganizationUnit or $skautis->org.
      */
     public function __get(string $name): WebServiceInterface
     {
         return $this->getWebService($name);
     }
 
-  /**
-   * NEPOUŽÍVAT - vždy vyhodí výjimku
-   *
-   * @deprecated
-   * @param string $name
-   * @param mixed $value
-   *
-   * @return void
-   *
-   * @phpstan-return never
-   */
-    public function __set(
-      $name,
-      $value
-    ) {
-      throw new DynamicPropertiesDisabledException();
+    /**
+     * Web services are read-only; dynamic properties would silently shadow them.
+     */
+    public function __set(string $name, mixed $value): void
+    {
+        throw new DynamicPropertiesDisabledException();
     }
 
-
-  /**
-     * Vrací URL na přihlášení
-     */
     public function getLoginUrl(string $backlink = ''): string
     {
-        $query = [];
-        $query['appid'] = $this->getConfig()->getAppId();
-        if (!empty($backlink)) {
-            $query['ReturnUrl'] = $backlink;
-        }
-        return $this->getConfig()->getBaseUrl() . 'Login/?' . http_build_query($query, '', '&');
+        return $this->getConfig()->getBaseUrl().'Login/?'.$this->buildQuery($backlink);
     }
 
-    /**
-     * Vrací URL na odhlášení
-     */
     public function getLogoutUrl(): string
     {
-        $query = [];
-        $query['appid'] = $this->getConfig()->getAppId();
-        $query['token'] = $this->user->getLoginId();
-        return $this->getConfig()->getBaseUrl() . 'Login/LogOut.aspx?' . http_build_query($query, '', '&');
+        $query = [
+            'appid' => $this->getConfig()->getAppId(),
+            'token' => $this->user->getLoginId(),
+        ];
+
+        return $this->getConfig()->getBaseUrl().'Login/LogOut.aspx?'.http_build_query($query, '', '&');
     }
 
-    /**
-     * Vrací URL k registraci
-     */
     public function getRegisterUrl(string $backlink = ''): string
     {
-        $query = [];
-        $query['appid'] = $this->getConfig()->getAppId();
-        if (!empty($backlink)) {
-            $query['ReturnUrl'] = $backlink;
-        }
-        return $this->getConfig()->getBaseUrl() . 'Login/Registration.aspx?' . http_build_query($query, '', '&');
+        return $this->getConfig()->getBaseUrl().'Login/Registration.aspx?'.$this->buildQuery($backlink);
     }
 
     /**
-     * Hromadné nastavení po přihlášení
+     * Stores the data skautIS posts back after login.
      *
-     * @param array<string, mixed> $data
+     * @param array<string, mixed> $data usually $_POST
+     *
+     * @throws UnexpectedValueException
      */
     public function setLoginData(array $data): void
     {
         $data = Helpers::parseLoginData($data);
-        $this->getUser()->setLoginData($data[User::ID_LOGIN], $data[User::ID_ROLE], $data[User::ID_UNIT], $data[User::LOGOUT_DATE]);
+        if ($data[User::ID_LOGIN] === null) {
+            throw new UnexpectedValueException('Login data do not contain skautIS_Token.');
+        }
+
+        $this->user->setLoginData($data[User::ID_LOGIN], $data[User::ID_ROLE], $data[User::ID_UNIT], $data[User::LOGOUT_DATE]);
     }
 
     /**
-     * Ověřuje, zda je skautIS odstaven pro údržbu
+     * @throws Wsdl\MaintenanceErrorException
      */
     public function isMaintenance(): bool
     {
         return $this->wsdlManager->isMaintenance();
     }
 
-  /**
-   * Vrací celé jméno webové služby
-   *
-   * @param string $name jméno nebo alias webové služby
-   *
-   * @throws WsdlException
-   */
-  protected function getWebServiceName(string $name): string
-  {
-    if (WebServiceName::isValidServiceName($name)) {
-      return $name;
+    /**
+     * @param string $name full name or alias of a web service
+     *
+     * @throws WebServiceNotFoundException
+     */
+    protected function getWebServiceName(string $name): string
+    {
+        if (WebServiceName::isValidServiceName($name)) {
+            return $name;
+        }
+
+        try {
+            return WebServiceAlias::resolveAlias($name);
+        } catch (WebServiceAliasNotFoundException $exception) {
+            throw new WebServiceNotFoundException($name, 0, $exception);
+        }
     }
 
-    try {
-      return WebServiceAlias::resolveAlias($name);
+    private function buildQuery(string $backlink): string
+    {
+        $query = ['appid' => $this->getConfig()->getAppId()];
+        if ($backlink !== '') {
+            $query['ReturnUrl'] = $backlink;
+        }
+
+        return http_build_query($query, '', '&');
     }
-    catch (WebServiceAliasNotFoundException $ex) {
-      throw new WebServiceNotFoundException($name, 0, $ex);
-    }
-  }
 }

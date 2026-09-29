@@ -1,6 +1,6 @@
-vendor
-composer.lock
-composer.phar
-.php_cs.cache
-.phpunit.result.cache
-clover.xml
+/vendor/
+/composer.lock
+/.phpunit.cache/
+/.php-cs-fixer.cache
+/make.local
+/.idea/
