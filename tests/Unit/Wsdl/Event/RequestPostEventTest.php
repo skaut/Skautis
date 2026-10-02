@@ -44,4 +44,17 @@ final class RequestPostEventTest extends TestCase
         self::assertInstanceOf(RequestPostEvent::class, $missing);
         self::assertNull($missing->getResult());
     }
+
+    public function testEventSerializedBy30CanBeUnserialized(): void
+    {
+        // 3.0 stored the duration under 'time'
+        $legacy = 'O:41:"Skaut\Skautis\Wsdl\Event\RequestPostEvent":5:{s:5:"fname";s:3:"asd";s:4:"args";a:0:{}s:4:"time";d:11.11;s:6:"result";a:0:{}s:5:"trace";a:0:{}}';
+
+        $unserialized = unserialize($legacy);
+
+        self::assertInstanceOf(RequestPostEvent::class, $unserialized);
+        self::assertSame('asd', $unserialized->getFname());
+        self::assertSame(11.11, $unserialized->getDuration());
+        self::assertSame([], $unserialized->getResult());
+    }
 }

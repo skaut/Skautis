@@ -46,11 +46,12 @@ final class RequestPostEvent
      */
     public function __unserialize(array $data): void
     {
-        /** @var array{fname: string, args: array<int|string, mixed>, result: array<int|string, mixed>|stdClass|bool|int|float|string|null, duration: float, trace: array<int, array<string, mixed>>} $data */
+        /** @var array{fname: string, args: array<int|string, mixed>, result: array<int|string, mixed>|stdClass|bool|int|float|string|null, duration?: float, time?: float, trace: array<int, array<string, mixed>>} $data */
         $this->fname = $data['fname'];
         $this->args = $data['args'];
         $this->result = $data['result'];
-        $this->duration = $data['duration'];
+        // 3.0 stored the duration under 'time'
+        $this->duration = $data['duration'] ?? $data['time'];
         $this->trace = $data['trace'];
     }
 

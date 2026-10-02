@@ -56,10 +56,11 @@ final class RequestFailEvent
      */
     public function __unserialize(array $data): void
     {
-        /** @var array{fname: string, args: array<int|string, mixed>, duration: float, exception_class: string, exception_string: string, trace: array<int, array<string, mixed>>} $data */
+        /** @var array{fname: string, args: array<int|string, mixed>, duration?: float, time?: float, exception_class: string, exception_string: string, trace: array<int, array<string, mixed>>} $data */
         $this->fname = $data['fname'];
         $this->args = $data['args'];
-        $this->duration = $data['duration'];
+        // 3.0 stored the duration under 'time'
+        $this->duration = $data['duration'] ?? $data['time'];
         $this->throwable = null;
         $this->exceptionClass = $data['exception_class'];
         $this->exceptionString = $data['exception_string'];

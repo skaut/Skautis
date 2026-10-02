@@ -9,7 +9,7 @@
 * Název balíčku je ``skaut/skautis`` (přejmenováno už v 3.0.0-alpha; na Packagistu je zatím jen starší ``skautis/skautis``).
 * Typované vlastnosti, parametry a návratové typy v celé knihovně; ``Config`` je ``readonly``.
 * Zpětně nekompatibilní: ``WebServiceInterface::call()`` a ``__call()`` deklarují návratový typ ``mixed``; ``SessionAdapter\AdapterInterface::set()`` přijímá ``mixed`` a ``get()`` vrací ``mixed``. Vlastní implementace musí signatury doplnit.
-* Zpětně nekompatibilní: události ``RequestPreEvent``, ``RequestPostEvent`` a ``RequestFailEvent`` jsou ``final`` a už neimplementují ``Serializable`` (``serialize()``/``unserialize()`` odstraněny, ``__serialize()``/``__unserialize()`` zůstávají). ``RequestPostEvent`` po deserializaci zachová typ výsledku (``stdClass``, pole nebo ``null``).
+* Zpětně nekompatibilní: události ``RequestPreEvent``, ``RequestPostEvent`` a ``RequestFailEvent`` jsou ``final`` a už neimplementují ``Serializable`` (``serialize()``/``unserialize()`` odstraněny, ``__serialize()``/``__unserialize()`` zůstávají). ``RequestPostEvent`` po deserializaci zachová typ výsledku (``stdClass``, pole nebo ``null``). Délka požadavku se serializuje pod klíčem ``duration`` místo ``time``; události serializované verzí 3.0 jdou stále deserializovat, opačně ne.
 * Zpětně nekompatibilní: ``User::updateLogoutTime()`` volá ``LoginUpdateRefresh`` přes ``WebServiceInterface::call()`` místo magické metody (dopad jen na mocky v testech).
 * ``Skautis::setLoginData()`` vyhodí ``UnexpectedValueException``, když v datech chybí ``skautIS_Token``.
 * ``User::confirmAuth()`` vyhazuje ``Wsdl\AuthenticationException`` místo ``RuntimeException``, když není co potvrdit.
