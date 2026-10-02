@@ -118,6 +118,18 @@ final class UserTest extends TestCase
         self::assertFalse($user->updateLogoutTime());
     }
 
+    public function testNotLoggedInWithEmptyLoginId(): void
+    {
+        $wsdlManager = Mockery::mock(WsdlManager::class);
+        $wsdlManager->shouldNotReceive('getWebService');
+
+        $user = new User($wsdlManager);
+        $user->setLoginData('', 33, 100, new DateTimeImmutable('+1 day'));
+
+        self::assertFalse($user->isLoggedIn());
+        self::assertFalse($user->isLoggedIn(true));
+    }
+
     /**
      * @return WsdlManager&MockInterface
      */

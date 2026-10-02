@@ -139,8 +139,12 @@ class WebService implements WebServiceInterface
         }
 
         // array or a scalar value (bool, number, string) is returned as is
-        if (! $result instanceof stdClass) {
+        if (\is_array($result) || \is_scalar($result)) {
             return $result;
+        }
+
+        if (! $result instanceof stdClass) {
+            throw new ParsingFailedException('Unexpected output from Skautis');
         }
 
         $output = $result->{$fname.'Output'} ?? null;
