@@ -137,7 +137,8 @@ class User
      */
     public function isLoggedIn(bool $hardCheck = false): bool
     {
-        if ($this->getLoginId() === null) {
+        $loginId = $this->getLoginId();
+        if ($loginId === null || $loginId === '') {
             return false;
         }
 
