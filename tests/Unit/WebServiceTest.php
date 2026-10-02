@@ -136,6 +136,31 @@ final class WebServiceTest extends TestCase
         $service->call('UnitDetail', [['ID' => 1]]);
     }
 
+    #[DataProvider('provideScalarResults')]
+    public function testScalarResultIsReturnedAsIs(bool|int|string $value): void
+    {
+        $response = new stdClass();
+        $response->UserUpdateResult = $value;
+
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertSame($value, $service->call('UserUpdate', [[]]));
+    }
+
+    /**
+     * @return iterable<string, array{bool|int|string}>
+     */
+    public static function provideScalarResults(): iterable
+    {
+        yield 'true' => [true];
+        yield 'false' => [false];
+        yield 'number' => [123];
+        yield 'string' => ['ok'];
+    }
+
     private function singleRecord(string $method): stdClass
     {
         $record = new stdClass();

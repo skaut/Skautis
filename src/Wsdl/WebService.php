@@ -47,7 +47,7 @@ class WebService implements WebServiceInterface
      * @param array<int, mixed>        $inputHeaders
      * @param array<int|string, mixed> $outputHeaders
      *
-     * @return array<int|string, mixed>|stdClass|null
+     * @return array<int|string, mixed>|stdClass|bool|int|float|string|null
      *
      * @throws WsdlException
      */
@@ -57,7 +57,7 @@ class WebService implements WebServiceInterface
         array $options = [],
         array $inputHeaders = [],
         array &$outputHeaders = [],
-    ): array|stdClass|null {
+    ): array|stdClass|bool|int|float|string|null {
         $fname = ucfirst($functionName);
         $args = $this->prepareArgs($fname, $arguments);
         $trace = [];
@@ -118,11 +118,11 @@ class WebService implements WebServiceInterface
      * a missing record as an empty self-closing element, a collection as <{Method}Output> elements
      * (one element is a single object, not an array) and an empty collection as an empty <{Method}Result>.
      *
-     * @return array<int|string, mixed>|stdClass|null null for a missing record, [] for an empty collection
+     * @return array<int|string, mixed>|stdClass|bool|int|float|string|null null for a missing record, [] for an empty collection, a scalar as is
      *
      * @throws ParsingFailedException
      */
-    protected function parseOutput(string $fname, mixed $ret): array|stdClass|null
+    protected function parseOutput(string $fname, mixed $ret): array|stdClass|bool|int|float|string|null
     {
         if (! $ret instanceof stdClass) {
             throw new ParsingFailedException('Unexpected output from Skautis');
@@ -138,8 +138,9 @@ class WebService implements WebServiceInterface
             throw new ParsingFailedException('Unexpected output from Skautis');
         }
 
+        // array or a scalar value (bool, number, string) is returned as is
         if (! $result instanceof stdClass) {
-            return \is_array($result) ? $result : [$result];
+            return $result;
         }
 
         $output = $result->{$fname.'Output'} ?? null;
