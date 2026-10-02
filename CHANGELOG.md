@@ -11,7 +11,7 @@
 * Zpětně nekompatibilní: ``WebServiceInterface::call()`` a ``__call()`` deklarují návratový typ ``mixed``; ``SessionAdapter\AdapterInterface::set()`` přijímá ``mixed`` a ``get()`` vrací ``mixed``. Vlastní implementace musí signatury doplnit.
 * Zpětně nekompatibilní: události ``RequestPreEvent``, ``RequestPostEvent`` a ``RequestFailEvent`` jsou ``final`` a už neimplementují ``Serializable`` (``serialize()``/``unserialize()`` odstraněny, ``__serialize()``/``__unserialize()`` zůstávají). ``RequestPostEvent`` po deserializaci zachová typ výsledku (``stdClass``, pole nebo ``null``). Délka požadavku se serializuje pod klíčem ``duration`` místo ``time``; události serializované verzí 3.0 jdou stále deserializovat, opačně ne.
 * Zpětně nekompatibilní: ``User::updateLogoutTime()`` volá ``LoginUpdateRefresh`` přes ``WebServiceInterface::call()`` místo magické metody (dopad jen na mocky v testech).
-* ``Skautis::setLoginData()`` vyhodí ``UnexpectedValueException``, když v datech chybí ``skautIS_Token``.
+* ``Skautis::setLoginData()`` vyhodí ``UnexpectedValueException``, když v datech chybí ``skautIS_Token`` nebo je prázdný. ``User::getLoginId()`` vrací pro prázdný token ``null``.
 * ``User::confirmAuth()`` vyhazuje ``Wsdl\AuthenticationException`` místo ``RuntimeException``, když není co potvrdit.
 * ``WsdlManager::isMaintenance()`` rozpozná stav 200 i u HTTP/2 odpovědi (dříve jen ``HTTP/1.1 200 OK``).
 * Překlad SOAP faultů: ``AuthenticationException`` i pro „Přihlášení vypršelo/neexistuje“ a „není přihlášen“, ``PermissionException`` i pro „nemá oprávnění“ a „nedostatečná práva“; výjimka nese původní zprávu a ``getPrevious()``. Výjimky knihovny vyhozené uvnitř požadavku se už nebalí do obecné ``WsdlException``.

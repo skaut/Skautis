@@ -126,8 +126,10 @@ final class UserTest extends TestCase
         $user = new User($wsdlManager);
         $user->setLoginData('', 33, 100, new DateTimeImmutable('+1 day'));
 
+        self::assertNull($user->getLoginId());
         self::assertFalse($user->isLoggedIn());
         self::assertFalse($user->isLoggedIn(true));
+        self::assertFalse($user->updateLogoutTime());
     }
 
     /**

@@ -120,7 +120,7 @@ class Skautis
     public function setLoginData(array $data): void
     {
         $data = Helpers::parseLoginData($data);
-        if ($data[User::ID_LOGIN] === null) {
+        if ($data[User::ID_LOGIN] === null || $data[User::ID_LOGIN] === '') {
             throw new UnexpectedValueException('Login data do not contain skautIS_Token.');
         }
 

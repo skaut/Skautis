@@ -8,11 +8,13 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Skaut\Skautis\Config;
 use Skaut\Skautis\DynamicPropertiesDisabledException;
 use Skaut\Skautis\SessionAdapter\FakeAdapter;
 use Skaut\Skautis\Skautis;
+use Skaut\Skautis\UnexpectedValueException;
 use Skaut\Skautis\User;
 use Skaut\Skautis\Wsdl\WebServiceFactoryInterface;
 use Skaut\Skautis\Wsdl\WebServiceInterface;
@@ -107,6 +109,28 @@ final class SkautisTest extends TestCase
         self::assertSame(33, $user->getRoleId());
         self::assertSame(100, $user->getUnitId());
         self::assertEquals(new DateTimeImmutable('2044-12-02 23:56:02', new DateTimeZone('Europe/Prague')), $user->getLogoutDate());
+    }
+
+    /**
+     * @param array<string, mixed> $post
+     */
+    #[DataProvider('provideLoginDataWithoutToken')]
+    public function testSetLoginDataRejectsMissingToken(array $post): void
+    {
+        $skautis = $this->createSkautis();
+
+        $this->expectException(UnexpectedValueException::class);
+        $skautis->setLoginData($post);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function provideLoginDataWithoutToken(): iterable
+    {
+        yield 'missing' => [['skautIS_IDRole' => '33']];
+        yield 'empty' => [['skautIS_Token' => '']];
+        yield 'not a scalar' => [['skautIS_Token' => ['nested']]];
     }
 
     private function createSkautis(bool $testMode = Config::TEST_MODE_ENABLED): Skautis

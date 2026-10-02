@@ -49,7 +49,7 @@ class User
     {
         $loginId = $this->loginData[self::ID_LOGIN] ?? null;
 
-        return \is_string($loginId) ? $loginId : null;
+        return \is_string($loginId) && $loginId !== '' ? $loginId : null;
     }
 
     public function getRoleId(): ?int
@@ -137,8 +137,7 @@ class User
      */
     public function isLoggedIn(bool $hardCheck = false): bool
     {
-        $loginId = $this->getLoginId();
-        if ($loginId === null || $loginId === '') {
+        if ($this->getLoginId() === null) {
             return false;
         }
 
