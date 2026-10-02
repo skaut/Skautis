@@ -171,7 +171,7 @@ class WebService implements WebServiceInterface
             return new AuthenticationException($message, (int) $throwable->getCode(), $throwable);
         }
 
-        if (preg_match('~(nem(?:áte|á) oprávnění|nedostatečná práva|není povoleno)~ui', $message) === 1) {
+        if (preg_match('~(nem(?:áte|á) oprávnění|nedostatečná práva)~ui', $message) === 1) {
             return new PermissionException($message, (int) $throwable->getCode(), $throwable);
         }
 

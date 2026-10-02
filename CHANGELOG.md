@@ -14,7 +14,7 @@
 * ``Skautis::setLoginData()`` vyhodí ``UnexpectedValueException``, když v datech chybí ``skautIS_Token``.
 * ``User::confirmAuth()`` vyhazuje ``Wsdl\AuthenticationException`` místo ``RuntimeException``, když není co potvrdit.
 * ``WsdlManager::isMaintenance()`` rozpozná stav 200 i u HTTP/2 odpovědi (dříve jen ``HTTP/1.1 200 OK``).
-* Překlad SOAP faultů: ``AuthenticationException`` i pro „Přihlášení vypršelo/neexistuje“ a „není přihlášen“, ``PermissionException`` i pro „nemá oprávnění“, „nedostatečná práva“ a „není povoleno“; výjimka nese původní zprávu a ``getPrevious()``. Výjimky knihovny vyhozené uvnitř požadavku se už nebalí do obecné ``WsdlException``.
+* Překlad SOAP faultů: ``AuthenticationException`` i pro „Přihlášení vypršelo/neexistuje“ a „není přihlášen“, ``PermissionException`` i pro „nemá oprávnění“ a „nedostatečná práva“; výjimka nese původní zprávu a ``getPrevious()``. Výjimky knihovny vyhozené uvnitř požadavku se už nebalí do obecné ``WsdlException``.
 * ``WebServiceFactory::setEventDispatcher()`` porovnává striktně.
 * ``-read`` anotace třídy ``Skautis`` doplněny o ``DocumentStorage``, ``Grants`` a ``Insurance``.
 * ``psr/simple-cache`` ^1.0 || ^2.0 || ^3.0.

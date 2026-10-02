@@ -121,7 +121,7 @@ final class WebServiceTest extends TestCase
         yield 'no permission' => ['Nemáte oprávnění k akci OU_PersonContact_ALL_Person nad záznamem ID=1!', PermissionException::class];
         yield 'role has no permission' => ['Role nemá oprávnění k akci.', PermissionException::class];
         yield 'insufficient rights' => ['Nedostatečná práva.', PermissionException::class];
-        yield 'not allowed' => ['Toto není povoleno.', PermissionException::class];
+        yield 'generic not allowed is not a permission error' => ['Vložení duplicitního záznamu není povoleno.', WsdlException::class];
         yield 'anything else' => ['Chyba validace (Participant_PersonIsAllreadyParticipantGeneral)', WsdlException::class];
     }
 
