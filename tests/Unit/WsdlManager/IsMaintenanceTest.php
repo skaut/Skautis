@@ -87,7 +87,14 @@ final class IsMaintenanceTest extends TestCase
     #[Depends('testNoHeaders')]
     public function testNetworkErrorBecomesException(): void
     {
-        $this->expectException(MaintenanceErrorException::class);
-        $this->manager->isMaintenance();
+        try {
+            $this->manager->isMaintenance();
+            self::fail('MaintenanceErrorException expected');
+        } catch (MaintenanceErrorException $exception) {
+            self::assertStringContainsString('getaddrinfo failed', $exception->getMessage());
+            self::assertSame(\E_USER_WARNING, $exception->getErrorNumber());
+            self::assertSame(__FILE__, $exception->getErrorFile());
+            self::assertGreaterThan(0, $exception->getErrorLine());
+        }
     }
 }

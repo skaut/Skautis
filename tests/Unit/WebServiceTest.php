@@ -193,6 +193,37 @@ final class WebServiceTest extends TestCase
         yield 'string' => ['ok'];
     }
 
+    public function testMagicCallIsAnAliasOfCall(): void
+    {
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')
+            ->once()
+            ->withArgs(static fn (string $name, array $args): bool => $name === 'UnitDetail'
+                && $args === [['unitDetailInput' => ['ID_Application' => 'app', User::ID_LOGIN => 'token', 'ID' => 1]]])
+            ->andReturn($this->singleRecord('UnitDetail'));
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertInstanceOf(stdClass::class, $service->__call('UnitDetail', [['ID' => 1]]));
+    }
+
+    public function testSingleOutputElementBecomesOneElementArray(): void
+    {
+        $record = new stdClass();
+        $record->ID = 1;
+        $result = new stdClass();
+        $result->UnitAllOutput = $record;
+        $response = new stdClass();
+        $response->UnitAllResult = $result;
+
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertSame([$record], $service->call('UnitAll', [['ID_UnitParent' => 1]]));
+    }
+
     private function singleRecord(string $method): stdClass
     {
         $record = new stdClass();

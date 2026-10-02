@@ -132,6 +132,41 @@ final class UserTest extends TestCase
         self::assertFalse($user->updateLogoutTime());
     }
 
+    public function testUpdateLogoutTimeRejectsResponseWithoutDateLogout(): void
+    {
+        $user = new User($this->createWsdlManager(new stdClass()));
+        $user->setLoginData('token');
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('did not return DateLogout');
+        $user->updateLogoutTime();
+    }
+
+    public function testConfirmedLoginWithoutLogoutDateIsNotLoggedIn(): void
+    {
+        // session written without a logout date, e.g. by an older version
+        $session = new FakeAdapter();
+        $session->set('skautis_user_data', [User::ID_LOGIN => 'token', 'AUTH_Confirmed' => true]);
+
+        $wsdlManager = Mockery::mock(WsdlManager::class);
+        $wsdlManager->shouldNotReceive('getWebService');
+
+        self::assertFalse((new User($wsdlManager, $session))->isLoggedIn());
+    }
+
+    public function testConfirmAuthRejectsMissingLogin(): void
+    {
+        $user = new class($this->createWsdlManager()) extends User {
+            public function confirmAuthPublic(): void
+            {
+                $this->confirmAuth();
+            }
+        };
+
+        $this->expectException(AuthenticationException::class);
+        $user->confirmAuthPublic();
+    }
+
     /**
      * @return WsdlManager&MockInterface
      */
