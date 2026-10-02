@@ -118,14 +118,14 @@ class WebService implements WebServiceInterface
      * a missing record as an empty self-closing element, a collection as <{Method}Output> elements
      * (one element is a single object, not an array) and an empty collection as an empty <{Method}Result>.
      *
-     * @return array<int|string, mixed>|stdClass|bool|int|float|string|null null for a missing record, [] for an empty collection, a scalar as is
+     * @return array<int|string, mixed>|stdClass|bool|int|float|string|null null for a missing record or a nil result, [] for an empty collection, a scalar as is
      *
      * @throws ParsingFailedException
      */
     protected function parseOutput(string $fname, mixed $ret): array|stdClass|bool|int|float|string|null
     {
         if (! $ret instanceof stdClass) {
-            throw new ParsingFailedException('Unexpected output from Skautis');
+            throw new ParsingFailedException(\sprintf('Unexpected response to %s: %s', $fname, get_debug_type($ret)));
         }
 
         // empty self-closing element: the record does not exist
@@ -133,9 +133,14 @@ class WebService implements WebServiceInterface
             return null;
         }
 
-        $result = $ret->{$fname.'Result'} ?? null;
+        if (! property_exists($ret, $fname.'Result')) {
+            throw new ParsingFailedException(\sprintf('Response to %s has no %sResult', $fname, $fname));
+        }
+
+        // <{Method}Result xsi:nil="true"/>: no value
+        $result = $ret->{$fname.'Result'};
         if ($result === null) {
-            throw new ParsingFailedException('Unexpected output from Skautis');
+            return null;
         }
 
         // array or a scalar value (bool, number, string) is returned as is
@@ -144,7 +149,7 @@ class WebService implements WebServiceInterface
         }
 
         if (! $result instanceof stdClass) {
-            throw new ParsingFailedException('Unexpected output from Skautis');
+            throw new ParsingFailedException(\sprintf('Unexpected %sResult type: %s', $fname, get_debug_type($result)));
         }
 
         $output = $result->{$fname.'Output'} ?? null;

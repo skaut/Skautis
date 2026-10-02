@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Skaut\Skautis\Test\Unit;
 
+use DateTimeImmutable;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -14,6 +15,7 @@ use Skaut\Skautis\Wsdl\AuthenticationException;
 use Skaut\Skautis\Wsdl\Event\RequestFailEvent;
 use Skaut\Skautis\Wsdl\Event\RequestPostEvent;
 use Skaut\Skautis\Wsdl\Event\RequestPreEvent;
+use Skaut\Skautis\Wsdl\ParsingFailedException;
 use Skaut\Skautis\Wsdl\PermissionException;
 use Skaut\Skautis\Wsdl\WebService;
 use Skaut\Skautis\Wsdl\WsdlException;
@@ -125,15 +127,45 @@ final class WebServiceTest extends TestCase
         yield 'anything else' => ['Chyba validace (Participant_PersonIsAllreadyParticipantGeneral)', WsdlException::class];
     }
 
-    public function testUnexpectedResponseIsRejected(): void
+    #[DataProvider('provideUnexpectedResponses')]
+    public function testUnexpectedResponseIsRejected(mixed $response): void
     {
         $client = Mockery::mock(SoapClient::class);
-        $client->shouldReceive('__soapCall')->once()->andReturn('garbage');
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
 
         $service = new WebService($client, self::INIT);
 
-        $this->expectException(WsdlException::class);
+        $this->expectException(ParsingFailedException::class);
         $service->call('UnitDetail', [['ID' => 1]]);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideUnexpectedResponses(): iterable
+    {
+        yield 'not an object' => ['garbage'];
+
+        $withoutResult = new stdClass();
+        $withoutResult->Something = 1;
+        yield 'no result element' => [$withoutResult];
+
+        $wrongType = new stdClass();
+        $wrongType->UnitDetailResult = new DateTimeImmutable();
+        yield 'result of unexpected type' => [$wrongType];
+    }
+
+    public function testNilResultIsNull(): void
+    {
+        $response = new stdClass();
+        $response->UnitDetailResult = null;
+
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertNull($service->call('UnitDetail', [['ID' => 1]]));
     }
 
     #[DataProvider('provideScalarResults')]

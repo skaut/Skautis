@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Skaut\Skautis\Test\Unit\Wsdl\Event;
 
 use PHPUnit\Framework\TestCase;
+use Skaut\Skautis\UnexpectedValueException;
 use Skaut\Skautis\Wsdl\Event\RequestPostEvent;
 use stdClass;
 
@@ -56,5 +57,13 @@ final class RequestPostEventTest extends TestCase
         self::assertSame('asd', $unserialized->getFname());
         self::assertSame(11.11, $unserialized->getDuration());
         self::assertSame([], $unserialized->getResult());
+    }
+
+    public function testPayloadWithoutDurationIsRejected(): void
+    {
+        $broken = 'O:41:"Skaut\Skautis\Wsdl\Event\RequestPostEvent":4:{s:5:"fname";s:3:"asd";s:4:"args";a:0:{}s:6:"result";a:0:{}s:5:"trace";a:0:{}}';
+
+        $this->expectException(UnexpectedValueException::class);
+        unserialize($broken);
     }
 }

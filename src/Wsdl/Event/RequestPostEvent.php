@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl\Event;
 
+use Skaut\Skautis\UnexpectedValueException;
 use stdClass;
 
 /**
@@ -46,12 +47,12 @@ final class RequestPostEvent
      */
     public function __unserialize(array $data): void
     {
-        /** @var array{fname: string, args: array<int|string, mixed>, result: array<int|string, mixed>|stdClass|bool|int|float|string|null, duration: float, trace: array<int, array<string, mixed>>}|array{fname: string, args: array<int|string, mixed>, result: array<int|string, mixed>|stdClass|bool|int|float|string|null, time: float, trace: array<int, array<string, mixed>>} $data */
+        /** @var array{fname: string, args: array<int|string, mixed>, result: array<int|string, mixed>|stdClass|bool|int|float|string|null, duration?: float, time?: float, trace: array<int, array<string, mixed>>} $data */
         $this->fname = $data['fname'];
         $this->args = $data['args'];
         $this->result = $data['result'];
         // 3.0 stored the duration under 'time'
-        $this->duration = \array_key_exists('duration', $data) ? $data['duration'] : $data['time'];
+        $this->duration = $data['duration'] ?? $data['time'] ?? throw new UnexpectedValueException('Serialized event has no duration.');
         $this->trace = $data['trace'];
     }
 

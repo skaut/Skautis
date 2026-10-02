@@ -6,6 +6,7 @@ namespace Skaut\Skautis\Test\Unit\Wsdl\Event;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Skaut\Skautis\UnexpectedValueException;
 use Skaut\Skautis\Wsdl\Event\RequestFailEvent;
 use SoapFault;
 
@@ -57,5 +58,13 @@ final class RequestFailEventTest extends TestCase
         self::assertSame(30.22, $unserialized->getDuration());
         self::assertSame(SoapFault::class, $unserialized->getExceptionClass());
         self::assertSame('fault-string', $unserialized->getExceptionString());
+    }
+
+    public function testPayloadWithoutDurationIsRejected(): void
+    {
+        $broken = 'O:41:"Skaut\Skautis\Wsdl\Event\RequestFailEvent":5:{s:5:"fname";s:3:"asd";s:4:"args";a:0:{}s:15:"exception_class";s:9:"SoapFault";s:16:"exception_string";s:12:"fault-string";s:5:"trace";a:0:{}}';
+
+        $this->expectException(UnexpectedValueException::class);
+        unserialize($broken);
     }
 }
