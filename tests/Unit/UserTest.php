@@ -1,81 +1,188 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Skaut\Skautis\Test\Unit;
 
+use DateTimeImmutable;
+use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
+use Skaut\Skautis\SessionAdapter\FakeAdapter;
+use Skaut\Skautis\UnexpectedValueException;
 use Skaut\Skautis\User;
-use Skaut\Skautis\Wsdl\WebService;
+use Skaut\Skautis\Wsdl\AuthenticationException;
+use Skaut\Skautis\Wsdl\WebServiceInterface;
+use Skaut\Skautis\Wsdl\WebServiceName;
 use Skaut\Skautis\Wsdl\WsdlManager;
+use stdClass;
+use Throwable;
 
-class UserTest extends TestCase
+final class UserTest extends TestCase
 {
-
-    protected function tearDown(): void
-    {
-        \Mockery::close();
-    }
-
-    protected function makeWsdlManager()
-    {
-        return \Mockery::mock(WsdlManager::class);
-    }
-
-    protected function makeUser(): User
-    {
-        return new User($this->makeWsdlManager());
-    }
+    use MockeryPHPUnitIntegration;
 
     public function testSetLoginData(): void
     {
-        $dt = new \DateTimeImmutable;
-        $user = $this->makeUser();
-        $this->assertFalse($user->isLoggedIn());
+        $logoutDate = new DateTimeImmutable('+1 hour');
+        $user = new User($this->createWsdlManager());
+        self::assertFalse($user->isLoggedIn());
 
-        $user->setLoginData('token', 33, 100, $dt);
-        $this->assertEquals('token', $user->getLoginId());
-        $this->assertEquals(33, $user->getRoleId());
-        $this->assertEquals(100, $user->getUnitId());
-        $this->assertEquals($dt->format('Y-m-d H:i:s'), $user->getLogoutDate()->format('Y-m-d H:i:s'));
+        $user->setLoginData('token', 33, 100, $logoutDate);
+
+        self::assertSame('token', $user->getLoginId());
+        self::assertSame(33, $user->getRoleId());
+        self::assertSame(100, $user->getUnitId());
+        self::assertSame($logoutDate, $user->getLogoutDate());
     }
 
-
-    public function testIsLoggedHardCheck(): void
+    public function testUpdateLoginDataKeepsOtherValues(): void
     {
-        $soapResponse = new \StdClass();
-        $soapResponse->DateLogout = '2044-02-12T15:19:21.996';
+        $user = new User($this->createWsdlManager());
+        $user->setLoginData('token', 33, 100);
 
-        $ws = \Mockery::mock(WebService::class);
-        $ws->shouldReceive('LoginUpdateRefresh')->once()->andReturn($soapResponse);
+        $user->updateLoginData(roleId: 44);
 
-        $wsdlManager = $this->makeWsdlManager();
-        $wsdlManager->shouldReceive('getWebService')->once()->andReturn($ws);
+        self::assertSame('token', $user->getLoginId());
+        self::assertSame(44, $user->getRoleId());
+        self::assertSame(100, $user->getUnitId());
+    }
 
-        $user = new User($wsdlManager);
-        $user->setLoginData('token', 33, 100, new \DateTimeImmutable('+1 day'));
+    public function testLoginDataArePersistedInSession(): void
+    {
+        $session = new FakeAdapter();
+        $wsdlManager = $this->createWsdlManager();
 
-        $this->assertTrue($user->isLoggedIn(true));
+        (new User($wsdlManager, $session))->setLoginData('token', 33, 100);
+        $restored = new User($wsdlManager, $session);
+
+        self::assertSame('token', $restored->getLoginId());
+        self::assertSame(33, $restored->getRoleId());
+        self::assertSame(100, $restored->getUnitId());
+    }
+
+    public function testHardCheckExtendsLogin(): void
+    {
+        $response = new stdClass();
+        $response->DateLogout = '2044-02-12T15:19:21.996';
+
+        $user = new User($this->createWsdlManager($response));
+        $user->setLoginData('token', 33, 100, new DateTimeImmutable('+1 day'));
+
+        self::assertTrue($user->isLoggedIn(true));
+        self::assertSame('2044-02-12 15:19:21', $user->getLogoutDate()?->format('Y-m-d H:i:s'));
+    }
+
+    public function testLoginIsNotConfirmedWhenSkautisRejectsIt(): void
+    {
+        $user = new User($this->createWsdlManager(new AuthenticationException('Uživatel byl odhlášen')));
+        $user->setLoginData('token', 33, 100, new DateTimeImmutable('+1 day'));
+
+        $this->expectException(AuthenticationException::class);
+        $user->isLoggedIn();
+    }
+
+    public function testUnparsableLogoutDateIsRejected(): void
+    {
+        $response = new stdClass();
+        $response->DateLogout = 'nonsense';
+
+        $user = new User($this->createWsdlManager($response));
+        $user->setLoginData('token');
+
+        $this->expectException(UnexpectedValueException::class);
+        $user->updateLogoutTime();
     }
 
     public function testResetLoginData(): void
     {
-        $user = $this->makeUser();
-
-        $user->setLoginData('token', 33, 100, new \DateTimeImmutable);
-        $this->assertEquals(33, $user->getRoleId());
+        $user = new User($this->createWsdlManager());
+        $user->setLoginData('token', 33, 100, new DateTimeImmutable());
 
         $user->resetLoginData();
-        $this->assertEmpty($user->getLoginId());
-        $this->assertEmpty($user->getRoleId());
-        $this->assertEmpty($user->getUnitId());
-        $this->assertNull($user->getLogoutDate());
+
+        self::assertNull($user->getLoginId());
+        self::assertNull($user->getRoleId());
+        self::assertNull($user->getUnitId());
+        self::assertNull($user->getLogoutDate());
     }
 
-    public function testIsLoggedInWithoutUserId(): void
+    public function testNotLoggedInWithoutLoginId(): void
     {
-      $user = $this->makeUser();
-      $this->assertNull($user->getLoginId());
-      $this->assertFalse($user->isLoggedIn());
-      $this->assertFalse($user->isLoggedIn(true));
+        $user = new User($this->createWsdlManager());
+
+        self::assertNull($user->getLoginId());
+        self::assertFalse($user->isLoggedIn());
+        self::assertFalse($user->isLoggedIn(true));
+        self::assertFalse($user->updateLogoutTime());
     }
 
+    public function testNotLoggedInWithEmptyLoginId(): void
+    {
+        $wsdlManager = Mockery::mock(WsdlManager::class);
+        $wsdlManager->shouldNotReceive('getWebService');
+
+        $user = new User($wsdlManager);
+        $user->setLoginData('', 33, 100, new DateTimeImmutable('+1 day'));
+
+        self::assertNull($user->getLoginId());
+        self::assertFalse($user->isLoggedIn());
+        self::assertFalse($user->isLoggedIn(true));
+        self::assertFalse($user->updateLogoutTime());
+    }
+
+    public function testUpdateLogoutTimeRejectsResponseWithoutDateLogout(): void
+    {
+        $user = new User($this->createWsdlManager(new stdClass()));
+        $user->setLoginData('token');
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('did not return DateLogout');
+        $user->updateLogoutTime();
+    }
+
+    public function testConfirmedLoginWithoutLogoutDateIsNotLoggedIn(): void
+    {
+        // session written without a logout date, e.g. by an older version
+        $session = new FakeAdapter();
+        $session->set('skautis_user_data', [User::ID_LOGIN => 'token', 'AUTH_Confirmed' => true]);
+
+        $wsdlManager = Mockery::mock(WsdlManager::class);
+        $wsdlManager->shouldNotReceive('getWebService');
+
+        self::assertFalse((new User($wsdlManager, $session))->isLoggedIn());
+    }
+
+    public function testConfirmAuthRejectsMissingLogin(): void
+    {
+        $user = new class($this->createWsdlManager()) extends User {
+            public function confirmAuthPublic(): void
+            {
+                $this->confirmAuth();
+            }
+        };
+
+        $this->expectException(AuthenticationException::class);
+        $user->confirmAuthPublic();
+    }
+
+    /**
+     * @return WsdlManager&MockInterface
+     */
+    private function createWsdlManager(stdClass|Throwable|null $loginUpdateRefreshResult = null): WsdlManager
+    {
+        $webService = Mockery::mock(WebServiceInterface::class);
+        $expectation = $webService->shouldReceive('call')->with('LoginUpdateRefresh', [['ID' => 'token']]);
+        if ($loginUpdateRefreshResult instanceof Throwable) {
+            $expectation->andThrow($loginUpdateRefreshResult);
+        } else {
+            $expectation->andReturn($loginUpdateRefreshResult);
+        }
+
+        $wsdlManager = Mockery::mock(WsdlManager::class);
+        $wsdlManager->shouldReceive('getWebService')->with(WebServiceName::USER_MANAGEMENT, 'token')->andReturn($webService);
+
+        return $wsdlManager;
+    }
 }

@@ -2,78 +2,69 @@
 
 declare(strict_types=1);
 
-
 namespace Skaut\Skautis\Test\Unit\Wsdl\Event;
-
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Skaut\Skautis\UnexpectedValueException;
 use Skaut\Skautis\Wsdl\Event\RequestFailEvent;
 use SoapFault;
 
-class RequestFailEventTest extends TestCase
+final class RequestFailEventTest extends TestCase
 {
-
-    public function testExceptionMessage(): void
+    public function testExceptionDetails(): void
     {
         $throwable = new RuntimeException('my message');
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $event = new RequestFailEvent('asd', [], $throwable, 30, $trace);
-        $this->assertStringContainsString('my message', $event->getExceptionString());
-        $this->assertSame(RuntimeException::class, $event->getExceptionClass());
+        $event = new RequestFailEvent('asd', [], $throwable, 30, []);
+
+        self::assertSame($throwable, $event->getThrowable());
+        self::assertStringContainsString('my message', $event->getExceptionString());
+        self::assertSame(RuntimeException::class, $event->getExceptionClass());
     }
 
-    public function testDeserialization(): void
+    public function testSerializationKeepsDetailsWithoutTheThrowable(): void
     {
-        $throwable = new SoapFault('code-is-string', 'fault-string');
-        $args = [
-            [
-                'argument' => 'value',
-            ],
-        ];
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        $event = new RequestFailEvent(
+            'asd',
+            [['argument' => 'value']],
+            new SoapFault('code-is-string', 'fault-string'),
+            30.22,
+            debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS),
+        );
 
-        $event = new RequestFailEvent('asd', $args, $throwable, 30.22, $trace);
+        $unserialized = unserialize(serialize(unserialize(serialize($event))));
 
-        $serialized = serialize($event);
-        /** @var RequestFailEvent $unserialized */
-        $unserialized = unserialize($serialized);
-
-        $this->assertSame('asd', $unserialized->getFname());
-        $this->assertSame(30.22, $unserialized->getDuration());
-        $this->assertArrayHasKey(0, $unserialized->getArgs());
-        $this->assertArrayHasKey('argument', $unserialized->getArgs()[0]);
-        $this->assertSame('value', $unserialized->getArgs()[0]['argument']);
-        $this->assertStringContainsString('code-is-string', $unserialized->getExceptionString());
-        $this->assertStringContainsString('fault-string', $unserialized->getExceptionString());
-        $this->assertSame(SoapFault::class, $unserialized->getExceptionClass());
+        self::assertInstanceOf(RequestFailEvent::class, $unserialized);
+        self::assertSame('asd', $unserialized->getFname());
+        self::assertSame(30.22, $unserialized->getDuration());
+        self::assertSame([['argument' => 'value']], $unserialized->getArgs());
+        self::assertNull($unserialized->getThrowable());
+        self::assertStringContainsString('code-is-string', $unserialized->getExceptionString());
+        self::assertStringContainsString('fault-string', $unserialized->getExceptionString());
+        self::assertSame(SoapFault::class, $unserialized->getExceptionClass());
+        self::assertNotEmpty($unserialized->getTrace());
     }
 
-    public function testRepeatedSerializationDeserialization(): void
+    public function testEventSerializedBy30CanBeUnserialized(): void
     {
-        $throwable = new SoapFault('code-is-string', 'fault-string');
-        $args = [
-            [
-                'argument' => 'value',
-            ],
-        ];
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        // 3.0 stored the duration under 'time'
+        $legacy = 'O:41:"Skaut\Skautis\Wsdl\Event\RequestFailEvent":6:{s:5:"fname";s:3:"asd";s:4:"args";a:0:{}s:4:"time";d:30.22;s:15:"exception_class";s:9:"SoapFault";s:16:"exception_string";s:12:"fault-string";s:5:"trace";a:0:{}}';
 
-        $event = new RequestFailEvent('asd', $args, $throwable, 30.22, $trace);
+        $unserialized = unserialize($legacy);
 
-        $serialized = serialize($event);
-        $unserialized = unserialize($serialized);
-        $serialized = serialize($unserialized);
-        $unserialized = unserialize($serialized);
+        self::assertInstanceOf(RequestFailEvent::class, $unserialized);
+        self::assertSame('asd', $unserialized->getFname());
+        self::assertSame(30.22, $unserialized->getDuration());
+        self::assertSame(SoapFault::class, $unserialized->getExceptionClass());
+        self::assertSame('fault-string', $unserialized->getExceptionString());
+    }
 
-        $this->assertSame('asd', $unserialized->getFname());
-        $this->assertSame(30.22, $unserialized->getDuration());
-        $this->assertArrayHasKey(0, $unserialized->getArgs());
-        $this->assertArrayHasKey('argument', $unserialized->getArgs()[0]);
-        $this->assertSame('value', $unserialized->getArgs()[0]['argument']);
-        $this->assertStringContainsString('code-is-string', $unserialized->getExceptionString());
-        $this->assertStringContainsString('fault-string', $unserialized->getExceptionString());
-        $this->assertSame(SoapFault::class, $unserialized->getExceptionClass());
+    public function testPayloadWithoutDurationIsRejected(): void
+    {
+        $broken = 'O:41:"Skaut\Skautis\Wsdl\Event\RequestFailEvent":5:{s:5:"fname";s:3:"asd";s:4:"args";a:0:{}s:15:"exception_class";s:9:"SoapFault";s:16:"exception_string";s:12:"fault-string";s:5:"trace";a:0:{}}';
+
+        $this->expectException(UnexpectedValueException::class);
+        unserialize($broken);
     }
 }

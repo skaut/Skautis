@@ -1,21 +1,22 @@
-# Jak se zucastnit vyvoje
+# Jak se zúčastnit vývoje
 
-## Jsem zacatecnik a nevim co delat
-Idealni prvni krok je otevrit issue a napsat co by jsi chtel zmenit. Vhodne informace jsou co chces zmenit, proc to chces zmenit a jestli chces zmenu provest sam nebo ji jen navrhujes. Issue muzes napsat [tady](https://github.com/skaut/Skautis/issues/new)
+## Jsem začátečník a nevím, co dělat
+Ideální první krok je otevřít issue a napsat, co byste chtěli změnit: co, proč a jestli chcete změnu provést sami,
+nebo ji jen navrhujete. Issue založíte [tady](https://github.com/skaut/Skautis/issues/new).
 
-## Jsem pokrocily clovek
-Zacni tim ze [vytvoris issue](https://github.com/skaut/Skautis/issues/new) s informacemi jako ``zacatecnik`` a pote pokracuj jako ``programator`` a v te issue se ptej na veci ktere ti nejsou jasne
+## Jsem pokročilý
+Začněte tím, že [vytvoříte issue](https://github.com/skaut/Skautis/issues/new) jako začátečník, a potom pokračujte
+jako programátor; v issue se ptejte na věci, které nejsou jasné.
 
-## Jsem programator a vim co delam
-Predpokladam znalost PHP, git a GitHub. Idealne PHPUnit take.
+## Jsem programátor a vím, co dělám
+Předpokládáme znalost PHP, Gitu, GitHubu a ideálně PHPUnitu.
 
-* Forkni tento repositar
-* naklonuj si repositar do sveho pocitace
-* Pokud jsi fanousek Test Driven Development napis testy (pokud nevis o cem mluvim preskoc tento radek)
-* Nakoduj zmeny ktere chces provest. Nezapomen dusledne psat `@phpdocs`. A napis komentare u slozitych casti.
-* Dopln testy (pokud nevis o cem mluvim preskoc tento radek)
-* Pridej informace o zmenach do CHANGELOG.md
-* Pokud se jedna o vyznamnou zmenu/novou feature uprav dokumentaci ve slozce /docs
-* Git ``pre-commit`` hook opravuje formatovani, je dobre zkontrolovat jeho upravy
-* Posli Pull Request
-
+* Forkněte tento repozitář a naklonujte si ho.
+* Napište testy (pokud nevíte, o čem je řeč, tento řádek přeskočte).
+* Nakódujte změny. Komentáře pište jen tam, kde není zřejmé proč.
+* Doplňte testy.
+* Přidejte informace o změnách do `CHANGELOG.md`.
+* Pokud jde o významnou změnu nebo novou funkci, upravte dokumentaci ve složce `docs`.
+* Spusťte `make ci` (nebo `composer ci`, máte-li PHP lokálně): lint, coding standard, PHPStan a PHPUnit musí projít
+  na PHP 8.4 i 8.5 (`make ci PHP=8.5`).
+* Pošlete pull request.

@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl\Decorator\Cache;
 
@@ -8,55 +9,41 @@ use Skaut\Skautis\User;
 use Skaut\Skautis\Wsdl\Decorator\AbstractDecorator;
 use Skaut\Skautis\Wsdl\WebServiceInterface;
 
+/**
+ * Caches responses per method and arguments in any PSR-16 cache.
+ */
 class CacheDecorator extends AbstractDecorator
 {
     /**
-     * @var CacheInterface
+     * Login ids that already made one real request through this process; a cached response must not
+     * hide an invalid login.
+     *
+     * @var list<string>
      */
-    protected $cache;
+    protected static array $checkedLoginIds = [];
 
-    /**
-     * @var array<int, string>
-     */
-    protected static $checkedLoginIds = [];
-
-    /**
-     * @var int
-     */
-    private $ttl;
-
-  /**
-   * @param WebServiceInterface $webService
-   * @param CacheInterface $cache
-   * @param int $ttlSeconds
-   */
     public function __construct(
-      WebServiceInterface $webService,
-      CacheInterface $cache,
-      int $ttlSeconds
+        WebServiceInterface $webService,
+        protected readonly CacheInterface $cache,
+        private readonly int $ttl,
     ) {
         $this->webService = $webService;
-        $this->cache = $cache;
-        $this->ttl = $ttlSeconds;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function call(string $functionName, array $arguments = [])
+    public function call(string $functionName, array $arguments = []): mixed
     {
         $callHash = $this->hashCall($functionName, $arguments);
 
-        // Pozaduj alespon 1 upesny request na server (zadna Exception) - Kontrola prihlaseni
-        if (isset($arguments[User::ID_LOGIN]) && !in_array($arguments[User::ID_LOGIN], static::$checkedLoginIds, true)) {
+        $loginId = $arguments[User::ID_LOGIN] ?? null;
+        if (\is_string($loginId) && ! \in_array($loginId, static::$checkedLoginIds, true)) {
             $response = $this->webService->call($functionName, $arguments);
             $this->cache->set($callHash, $response, $this->ttl);
-            static::$checkedLoginIds[] = $arguments[User::ID_LOGIN];
+            static::$checkedLoginIds[] = $loginId;
 
             return $response;
         }
 
-        $cachedResponse = $this->cache->get($callHash, null);
+        $cachedResponse = $this->cache->get($callHash);
         if ($cachedResponse !== null) {
             return $cachedResponse;
         }
@@ -67,11 +54,11 @@ class CacheDecorator extends AbstractDecorator
         return $response;
     }
 
-	/**
-	 * @param array<string, mixed> $arguments
-	 */
+    /**
+     * @param array<int|string, mixed> $arguments
+     */
     protected function hashCall(string $functionName, array $arguments): string
     {
-        return $functionName . '?' . http_build_query($arguments);
+        return $functionName.'?'.http_build_query($arguments);
     }
 }

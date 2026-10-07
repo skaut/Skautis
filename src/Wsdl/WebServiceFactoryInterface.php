@@ -1,31 +1,26 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Skaut\Skautis\InvalidArgumentException;
 
-/**
- * Interface továrny pro vytváření objektů webových služeb
- */
 interface WebServiceFactoryInterface
 {
-
     /**
-     * Vytvoř nový objekt webové služby
+     * @param string               $url     WSDL address
+     * @param array<string, mixed> $options SoapClient options plus ID_Application and ID_Login
      *
-     * @param string $url Adresa WSDL souboru
-     * @param array<string, mixed> $options Globální nastavení pro všechny požadavky
-     *
-     * @return WebServiceInterface
+     * @throws InvalidArgumentException
      */
     public function createWebService(string $url, array $options): WebServiceInterface;
 
     /**
-     * Nastaví event dispatcher, pokud uz neni nastaven.
+     * Sets the dispatcher for the web services created from now on. Only one dispatcher can be set.
      *
-     * @param EventDispatcherInterface $eventDispatcher
-     * @return void
+     * @throws InvalidArgumentException when a dispatcher is already set
      */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void;
 }

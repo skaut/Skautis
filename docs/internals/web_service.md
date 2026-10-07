@@ -1,41 +1,44 @@
 # WebService
-Předpokládejme že chceme logovat každý request na SkautIS a máme třídu ``Logger``.
+Předpokládejme, že chceme logovat každý požadavek na skautIS a máme třídu ``Logger``.
 
-## DecoratorPattern
-Decorator funguje tak že dostane objekt který dekoruje a on sám implementuje jeho interface a dá se tedy nadále používat místo něj.
+## Dekorátor
+Dekorátor dostane objekt, který obaluje, a sám implementuje jeho rozhraní; dá se tedy používat místo něj.
 
 ## Implementace
 ```PHP
-class LoggerDecorator extends \Skaut\Skautis\Wsdl\Decorator\AbstractDecorator
-{
-    protected $logger;
+use Skaut\Skautis\Wsdl\Decorator\AbstractDecorator;
+use Skaut\Skautis\Wsdl\WebServiceInterface;
 
-    public function __construct($webService, Logger $logger) {
-        $this->webService = $webService; //protected $this->webService od rodiče
-        $this->logger = $logger;
+final class LoggerDecorator extends AbstractDecorator
+{
+    public function __construct(WebServiceInterface $webService, private readonly Logger $logger)
+    {
+        $this->webService = $webService; // protected vlastnost rodiče
     }
 
-    public function call($functionName, array $arguments = [])
+    public function call(string $functionName, array $arguments = []): mixed
     {
         try {
-            $this->webService->call($functionName, $arguments);
-            $this->logger->info("Function '$functionName' with $arguments");
-        }
-        catch (\Exception $e) {
-            $this->logger->error("Function '$functionName' with $arguments and exception $e");
+            $result = $this->webService->call($functionName, $arguments);
+            $this->logger->info("Function '$functionName' succeeded");
+
+            return $result;
+        } catch (\Throwable $exception) {
+            $this->logger->error("Function '$functionName' failed: $exception");
+
+            throw $exception;
         }
     }
 }
 ```
 
-Takhle nějak by vypadalo použití. Pro správnou implementaci se podívejte na [WebServiceFactory](./web_service_factory.md)
+Použití; pro správné zapojení do knihovny se podívejte na [WebServiceFactory](./web_service_factory.md):
 ```PHP
-$logger = new Logger();
-$webService = $skautis->UserManagement;
+$webService = new LoggerDecorator($skautis->UserManagement, new Logger());
 
-//Obalí objekt
-$webService = new LoggerDecorator($webService, $logger);
-
-//Bez jakékoliv změny použije WebService.
-$webService->UserDetail(['ID_UnitParent' => '24404']);
+// dál se používá jako obyčejná webová služba
+$webService->UserDetail();
 ```
+
+Pro pouhé logování ale dekorátor nepotřebujete: knihovna vysílá PSR-14 události ``RequestPreEvent``,
+``RequestPostEvent`` a ``RequestFailEvent`` (viz ``WsdlManager::setEventDispatcher()``).

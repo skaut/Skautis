@@ -1,106 +1,64 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl\Event;
 
-use Serializable;
+use Skaut\Skautis\UnexpectedValueException;
 use stdClass;
 
-class RequestPostEvent implements Serializable
+/**
+ * Dispatched after a successful SOAP request.
+ */
+final class RequestPostEvent
 {
-
     /**
-     * @var string Nazev funkce volane pomoci SOAP requestu
-     */
-    private $fname;
-
-    /**
-     * Parametry SOAP requestu na server
-     *
-     * @var array<int|string, mixed>
-     */
-    private $args;
-
-
-    /**
-     * @var float Pocet sekund trvani pozadvku
-     */
-    private $time;
-
-	  /**
-     * @var array<int|string, mixed>|\stdClass|null
-     */
-    private $result;
-
-    /**
-     * @var array<int, array<string, mixed>> Zasobnik volanych funkci
-     */
-    private $trace;
-
-
-    /**
-     * @param string $fname Nazev volane funkce
-     * @param array<int|string, mixed> $args  Argumenty pozadavku
-     * @param array<int|string, mixed>|stdClass|null $result
-     * @param array<int, array<string, mixed>> $trace Zasobnik volanych funkci
+     * @param string                                                       $fname    skautIS method name
+     * @param array<int|string, mixed>                                     $args     arguments as sent to SoapClient
+     * @param array<int|string, mixed>|stdClass|bool|int|float|string|null $result   parsed response
+     * @param float                                                        $duration seconds
+     * @param array<int, array<string, mixed>>                             $trace    debug_backtrace() of the call
      */
     public function __construct(
-      string $fname,
-      array $args,
-      $result,
-      float $duration,
-      array $trace
+        private string $fname,
+        private array $args,
+        private array|stdClass|bool|int|float|string|null $result,
+        private float $duration,
+        private array $trace,
     ) {
-        $this->fname = $fname;
-        $this->args = $args;
-        $this->result = $result;
-        $this->time = $duration;
-        $this->trace = $trace;
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function __serialize(): array
     {
         return [
             'fname' => $this->fname,
             'args' => $this->args,
-            'time' => $this->time,
             'result' => $this->result,
+            'duration' => $this->duration,
             'trace' => $this->trace,
         ];
     }
 
-    public function serialize(): string
-    {
-        return serialize($this->__serialize());
-    }
-
     /**
-     * @param array<mixed> $data
+     * @param array<string, mixed> $data
      */
     public function __unserialize(array $data): void
     {
-        $this->fname = (string) $data['fname'];
-        $this->args = (array) $data['args'];
-        $this->time = (float) $data['time'];
-        $this->result = (array) $data['result'];
-        $this->trace = (array) $data['trace'];
-    }
-
-    /**
-     * @param string $data
-     */
-    public function unserialize($data): void
-    {
-        $data = unserialize($data, ['allowed_classes' => [self::class, stdClass::class]]);
-        $this->__unserialize($data);
+        /** @var array{fname: string, args: array<int|string, mixed>, result: array<int|string, mixed>|stdClass|bool|int|float|string|null, duration?: float, time?: float, trace: array<int, array<string, mixed>>} $data */
+        $this->fname = $data['fname'];
+        $this->args = $data['args'];
+        $this->result = $data['result'];
+        // 3.0 stored the duration under 'time'
+        $this->duration = $data['duration'] ?? $data['time'] ?? throw new UnexpectedValueException('Serialized event has no duration.');
+        $this->trace = $data['trace'];
     }
 
     public function getFname(): string
     {
-      return $this->fname;
+        return $this->fname;
     }
 
     /**
@@ -108,23 +66,23 @@ class RequestPostEvent implements Serializable
      */
     public function getArgs(): array
     {
-      return $this->args;
+        return $this->args;
     }
 
     /**
-     * Pocet sekund trvani pozadvku
+     * Seconds the request took.
      */
     public function getDuration(): float
     {
-      return $this->time;
+        return $this->duration;
     }
 
     /**
-     * @return array<int|string, mixed>|\stdClass|null
+     * @return array<int|string, mixed>|stdClass|bool|int|float|string|null
      */
-    public function getResult()
+    public function getResult(): array|stdClass|bool|int|float|string|null
     {
-      return $this->result;
+        return $this->result;
     }
 
     /**

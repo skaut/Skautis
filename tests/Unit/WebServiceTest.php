@@ -1,62 +1,237 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Skaut\Skautis\Test\Unit;
 
+use DateTimeImmutable;
 use Mockery;
-use Mockery\MockInterface;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Skaut\Skautis;
-use Skaut\Skautis\Exception as SkautisException;
+use Skaut\Skautis\User;
+use Skaut\Skautis\Wsdl\AuthenticationException;
+use Skaut\Skautis\Wsdl\Event\RequestFailEvent;
+use Skaut\Skautis\Wsdl\Event\RequestPostEvent;
+use Skaut\Skautis\Wsdl\Event\RequestPreEvent;
+use Skaut\Skautis\Wsdl\ParsingFailedException;
+use Skaut\Skautis\Wsdl\PermissionException;
 use Skaut\Skautis\Wsdl\WebService;
-use Skaut\Skautis\Wsdl\WebServiceFactory;
+use Skaut\Skautis\Wsdl\WsdlException;
+use SoapClient;
+use SoapFault;
+use stdClass;
 
-class WebServiceTest extends TestCase
+final class WebServiceTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
 
-    /**
-     * @var WebServiceFactory
-     */
-    private $wsFactory;
+    private const array INIT = ['ID_Application' => 'app', User::ID_LOGIN => 'token'];
 
-    /**
-     * @var MockInterface|EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    protected function setUp(): void
+    public function testArgumentsAreWrappedAndMergedWithDefaults(): void
     {
-        $this->eventDispatcher = Mockery::mock(EventDispatcherInterface::class);
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')
+            ->once()
+            ->withArgs(static fn (string $name, array $args): bool => $name === 'UnitDetail'
+                && $args === [['unitDetailInput' => ['ID_Application' => 'app', User::ID_LOGIN => 'token', 'ID' => 1]]])
+            ->andReturn($this->singleRecord('UnitDetail'));
 
-        $this->wsFactory = new WebServiceFactory(
-          WebService::class,
-          $this->eventDispatcher
-        );
+        $service = new WebService($client, self::INIT);
+
+        self::assertInstanceOf(stdClass::class, $service->call('UnitDetail', [['ID' => 1]]));
     }
 
-    public function testFailCall(): void
+    public function testCustomInputWrapper(): void
     {
-        $data = [
-          'ID_Application' => 123,
-          Skautis\User::ID_LOGIN => 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-        ];
-        $webService = $this->wsFactory->createWebService(
-          'https://test-is.skaut.cz/JunakWebservice/UserManagement.asmx?WSDL',
-          $data
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')
+            ->once()
+            ->withArgs(static fn (string $name, array $args): bool => $args === [['eventGeneral' => ['ID_Application' => 'app', User::ID_LOGIN => 'token', 'ID' => 1]]])
+            ->andReturn($this->singleRecord('EventGeneralInsert'));
+
+        $service = new WebService($client, self::INIT);
+
+        $service->call('EventGeneralInsert', [['ID' => 1], 'eventGeneral']);
+    }
+
+    public function testEventsAreDispatchedAroundSuccessfulRequest(): void
+    {
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($this->singleRecord('UnitDetail'));
+
+        $dispatcher = Mockery::mock(EventDispatcherInterface::class);
+        $dispatcher->shouldReceive('dispatch')->once()->ordered()->withArgs(
+            static fn (object $event): bool => $event instanceof RequestPreEvent && $event->getFname() === 'UnitDetail',
+        );
+        $dispatcher->shouldReceive('dispatch')->once()->ordered()->withArgs(
+            static fn (object $event): bool => $event instanceof RequestPostEvent && $event->getResult() instanceof stdClass && $event->getTrace() !== [],
         );
 
-        $preEventCheck = static function ($obj): bool {
-            return $obj instanceof Skautis\Wsdl\Event\RequestPreEvent;
-        };
+        $service = new WebService($client, self::INIT, $dispatcher);
+        $service->call('UnitDetail', [['ID' => 1]]);
+    }
 
-        $failEventCheck = static function ($obj): bool {
-            return $obj instanceof Skautis\Wsdl\Event\RequestFailEvent;
-        };
+    public function testFailedRequestDispatchesFailEventAndThrows(): void
+    {
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andThrow(new SoapFault('Server', 'Nemáte oprávnění k akci OU_Person_ALL nad záznamem ID=1!'));
 
-        $this->eventDispatcher->expects('dispatch')->withArgs($preEventCheck)->once();
-        $this->eventDispatcher->expects('dispatch')->withArgs($failEventCheck)->once();
+        $dispatcher = Mockery::mock(EventDispatcherInterface::class);
+        $dispatcher->shouldReceive('dispatch')->once()->ordered()->withArgs(static fn (object $event): bool => $event instanceof RequestPreEvent);
+        $dispatcher->shouldReceive('dispatch')->once()->ordered()->withArgs(
+            static fn (object $event): bool => $event instanceof RequestFailEvent && $event->getExceptionClass() === SoapFault::class,
+        );
 
-        $this->expectException(SkautisException::class);
-        $webService->UserDetail();
+        $service = new WebService($client, self::INIT, $dispatcher);
+
+        $this->expectException(PermissionException::class);
+        $service->call('PersonAll', [['ID_Unit' => 1]]);
+    }
+
+    /**
+     * @param class-string<WsdlException> $expectedException
+     */
+    #[DataProvider('provideFaults')]
+    public function testFaultsAreTranslated(string $message, string $expectedException): void
+    {
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andThrow(new SoapFault('Server', $message));
+
+        $service = new WebService($client, self::INIT);
+
+        try {
+            $service->call('UnitDetail', [['ID' => 1]]);
+            self::fail('Exception expected');
+        } catch (WsdlException $exception) {
+            self::assertSame($expectedException, $exception::class);
+            self::assertSame($message, $exception->getMessage());
+            self::assertInstanceOf(SoapFault::class, $exception->getPrevious());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, class-string<WsdlException>}>
+     */
+    public static function provideFaults(): iterable
+    {
+        yield 'logged out' => ['Uživatel byl odhlášen', AuthenticationException::class];
+        yield 'login expired' => ['Přihlášení vypršelo.', AuthenticationException::class];
+        yield 'login does not exist' => ['Přihlášení neexistuje.', AuthenticationException::class];
+        yield 'not logged in' => ['Uživatel není přihlášen.', AuthenticationException::class];
+        yield 'no permission' => ['Nemáte oprávnění k akci OU_PersonContact_ALL_Person nad záznamem ID=1!', PermissionException::class];
+        yield 'role has no permission' => ['Role nemá oprávnění k akci.', PermissionException::class];
+        yield 'insufficient rights' => ['Nedostatečná práva.', PermissionException::class];
+        yield 'generic not allowed is not a permission error' => ['Vložení duplicitního záznamu není povoleno.', WsdlException::class];
+        yield 'anything else' => ['Chyba validace (Participant_PersonIsAllreadyParticipantGeneral)', WsdlException::class];
+    }
+
+    #[DataProvider('provideUnexpectedResponses')]
+    public function testUnexpectedResponseIsRejected(mixed $response): void
+    {
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
+
+        $service = new WebService($client, self::INIT);
+
+        $this->expectException(ParsingFailedException::class);
+        $service->call('UnitDetail', [['ID' => 1]]);
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function provideUnexpectedResponses(): iterable
+    {
+        yield 'not an object' => ['garbage'];
+
+        $withoutResult = new stdClass();
+        $withoutResult->Something = 1;
+        yield 'no result element' => [$withoutResult];
+
+        $wrongType = new stdClass();
+        $wrongType->UnitDetailResult = new DateTimeImmutable();
+        yield 'result of unexpected type' => [$wrongType];
+    }
+
+    public function testNilResultIsNull(): void
+    {
+        $response = new stdClass();
+        $response->UnitDetailResult = null;
+
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertNull($service->call('UnitDetail', [['ID' => 1]]));
+    }
+
+    #[DataProvider('provideScalarResults')]
+    public function testScalarResultIsReturnedAsIs(bool|int|string $value): void
+    {
+        $response = new stdClass();
+        $response->UserUpdateResult = $value;
+
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertSame($value, $service->call('UserUpdate', [[]]));
+    }
+
+    /**
+     * @return iterable<string, array{bool|int|string}>
+     */
+    public static function provideScalarResults(): iterable
+    {
+        yield 'true' => [true];
+        yield 'false' => [false];
+        yield 'number' => [123];
+        yield 'string' => ['ok'];
+    }
+
+    public function testMagicCallIsAnAliasOfCall(): void
+    {
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')
+            ->once()
+            ->withArgs(static fn (string $name, array $args): bool => $name === 'UnitDetail'
+                && $args === [['unitDetailInput' => ['ID_Application' => 'app', User::ID_LOGIN => 'token', 'ID' => 1]]])
+            ->andReturn($this->singleRecord('UnitDetail'));
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertInstanceOf(stdClass::class, $service->__call('UnitDetail', [['ID' => 1]]));
+    }
+
+    public function testSingleOutputElementBecomesOneElementArray(): void
+    {
+        $record = new stdClass();
+        $record->ID = 1;
+        $result = new stdClass();
+        $result->UnitAllOutput = $record;
+        $response = new stdClass();
+        $response->UnitAllResult = $result;
+
+        $client = Mockery::mock(SoapClient::class);
+        $client->shouldReceive('__soapCall')->once()->andReturn($response);
+
+        $service = new WebService($client, self::INIT);
+
+        self::assertSame([$record], $service->call('UnitAll', [['ID_UnitParent' => 1]]));
+    }
+
+    private function singleRecord(string $method): stdClass
+    {
+        $record = new stdClass();
+        $record->ID = 1;
+
+        $response = new stdClass();
+        $response->{$method.'Result'} = $record;
+
+        return $response;
     }
 }

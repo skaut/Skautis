@@ -1,104 +1,104 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis;
 
 use DateTimeImmutable;
 use DateTimeZone;
 use Skaut\Skautis\SessionAdapter\AdapterInterface;
+use Skaut\Skautis\Wsdl\AuthenticationException;
 use Skaut\Skautis\Wsdl\WebServiceName;
 use Skaut\Skautis\Wsdl\WsdlManager;
+use stdClass;
+use Throwable;
 
 /**
+ * Login data of the current user, kept in the session adapter.
+ *
  * @author Petr Morávek <petr@pada.cz>
  */
 class User
 {
+    public const string ID_LOGIN = 'ID_Login';
+    public const string ID_ROLE = 'ID_Role';
+    public const string ID_UNIT = 'ID_Unit';
+    public const string LOGOUT_DATE = 'LOGOUT_Date';
 
-    public const ID_LOGIN = 'ID_Login';
-    public const ID_ROLE = 'ID_Role';
-    public const ID_UNIT = 'ID_Unit';
-    public const LOGOUT_DATE = 'LOGOUT_Date';
-    private const AUTH_CONFIRMED = 'AUTH_Confirmed';
-    private const SESSION_ID = 'skautis_user_data';
+    private const string AUTH_CONFIRMED = 'AUTH_Confirmed';
+    private const string SESSION_ID = 'skautis_user_data';
 
-    /**
-     * @var WsdlManager
-     */
-    private $wsdlManager;
+    /** @var array<string, mixed> */
+    protected array $loginData = [];
 
-    /**
-     * @var AdapterInterface|null
-     */
-    private $session;
-
-    /**
-     * Informace o přihlášení uživatele
-     *
-     * @var array<string, mixed>
-     */
-    protected $loginData = [];
-
-    /**
-     * @param WsdlManager $wsdlManager
-     * @param AdapterInterface|null $session
-     */
-    public function __construct(WsdlManager $wsdlManager, AdapterInterface $session = null)
-    {
-        $this->wsdlManager = $wsdlManager;
-        $this->session = $session;
-
-        if ($session !== null && $session->has(self::SESSION_ID)) {
-            $this->loginData = (array)$session->get(self::SESSION_ID);
+    public function __construct(
+        private readonly WsdlManager $wsdlManager,
+        private readonly ?AdapterInterface $session = null,
+    ) {
+        $stored = $session?->get(self::SESSION_ID);
+        if (\is_array($stored)) {
+            foreach ($stored as $key => $value) {
+                if (\is_string($key)) {
+                    $this->loginData[$key] = $value;
+                }
+            }
         }
     }
 
     public function getLoginId(): ?string
     {
-        return $this->loginData[self::ID_LOGIN] ?? null;
+        $loginId = $this->loginData[self::ID_LOGIN] ?? null;
+
+        return \is_string($loginId) && $loginId !== '' ? $loginId : null;
     }
 
     public function getRoleId(): ?int
     {
-        return $this->loginData[self::ID_ROLE] ?? null;
+        $roleId = $this->loginData[self::ID_ROLE] ?? null;
+
+        return \is_int($roleId) ? $roleId : null;
     }
 
     public function getUnitId(): ?int
     {
-        return $this->loginData[self::ID_UNIT] ?? null;
+        $unitId = $this->loginData[self::ID_UNIT] ?? null;
+
+        return \is_int($unitId) ? $unitId : null;
     }
 
     /**
-     * Vrací datum a čas automatického odhlášení ze skautISu
+     * When skautIS logs the user out automatically.
      */
     public function getLogoutDate(): ?DateTimeImmutable
     {
-        return $this->loginData[self::LOGOUT_DATE] ?? null;
+        $logoutDate = $this->loginData[self::LOGOUT_DATE] ?? null;
+
+        return $logoutDate instanceof DateTimeImmutable ? $logoutDate : null;
     }
 
-    /**+
-     * Hromadné nastavení po přihlášení
+    /**
+     * Replaces all login data, typically right after skautIS posts the login back.
      */
     public function setLoginData(
-      string $loginId,
-      ?int $roleId = null,
-      ?int $unitId = null,
-      ?DateTimeImmutable $logoutDate = null
-    ): self {
+        string $loginId,
+        ?int $roleId = null,
+        ?int $unitId = null,
+        ?DateTimeImmutable $logoutDate = null,
+    ): static {
         $this->loginData = [];
 
         return $this->updateLoginData($loginId, $roleId, $unitId, $logoutDate);
     }
 
     /**
-     * Hromadná změna údajů, bez vymazání stávajících
+     * Changes the given values and keeps the rest.
      */
     public function updateLoginData(
-      ?string $loginId = null,
-      ?int $roleId = null,
-      ?int $unitId = null,
-      ?DateTimeImmutable $logoutDate = null
-    ): self {
+        ?string $loginId = null,
+        ?int $roleId = null,
+        ?int $unitId = null,
+        ?DateTimeImmutable $logoutDate = null,
+    ): static {
         if ($loginId !== null) {
             $this->loginData[self::ID_LOGIN] = $loginId;
         }
@@ -120,10 +120,7 @@ class User
         return $this;
     }
 
-    /**
-     * Hromadný reset dat po odhlášení
-     */
-    public function resetLoginData(): self
+    public function resetLoginData(): static
     {
         $this->loginData = [];
         $this->saveToSession();
@@ -132,34 +129,61 @@ class User
     }
 
     /**
-     * Kontoluje, jestli je přihlášení platné.
-     * Pro správné fungování je nezbytně nutné, aby byl na serveru nastaven správný čas.
+     * Whether the login is still valid. The server clock must be right for this to work.
      *
-     * @param bool $hardCheck vynutí kontrolu přihlášení na serveru
+     * @param bool $hardCheck ask skautIS even when the login was confirmed before
+     *
+     * @throws Throwable when skautIS rejects the login
      */
     public function isLoggedIn(bool $hardCheck = false): bool
     {
-        if (empty($this->loginData[self::ID_LOGIN])) {
+        if ($this->getLoginId() === null) {
             return false;
         }
 
-        if ($hardCheck || !$this->isAuthConfirmed()) {
+        if ($hardCheck || ! $this->isAuthConfirmed()) {
             $this->confirmAuth();
         }
 
-        if ($this->getLogoutDate() === null) {
-          return false;
+        $logoutDate = $this->getLogoutDate();
+        if ($logoutDate === null) {
+            return false;
         }
 
-        return $this->isAuthConfirmed() && $this->getLogoutDate()->getTimestamp() > time();
+        return $this->isAuthConfirmed() && $logoutDate->getTimestamp() > time();
     }
 
     /**
-     * Bylo potvrzeno přihlášení dotazem na skautIS?
+     * Extends the login by 30 minutes.
+     *
+     * @return bool false when there is no login to extend
+     *
+     * @throws UnexpectedValueException when skautIS returns an unparsable date
      */
+    public function updateLogoutTime(): bool
+    {
+        $loginId = $this->getLoginId();
+        if ($loginId === null) {
+            return false;
+        }
+
+        $result = $this->wsdlManager
+            ->getWebService(WebServiceName::USER_MANAGEMENT, $loginId)
+            ->call('LoginUpdateRefresh', [['ID' => $loginId]]);
+
+        if (! $result instanceof stdClass || ! isset($result->DateLogout) || ! \is_string($result->DateLogout)) {
+            throw new UnexpectedValueException('LoginUpdateRefresh did not return DateLogout.');
+        }
+
+        $this->loginData[self::LOGOUT_DATE] = $this->parseDate($result->DateLogout);
+        $this->saveToSession();
+
+        return true;
+    }
+
     protected function isAuthConfirmed(): bool
     {
-        return !empty($this->loginData[self::AUTH_CONFIRMED]);
+        return ($this->loginData[self::AUTH_CONFIRMED] ?? false) === true;
     }
 
     protected function setAuthConfirmed(bool $isConfirmed): void
@@ -168,73 +192,45 @@ class User
         $this->saveToSession();
     }
 
-  /**
-   * Potvrdí (a prodlouží) přihlášení dotazem na skautIS.
-   *
-   * @throws \Exception Pokud se authentikace nepovede
-   */
+    /**
+     * Confirms (and extends) the login by asking skautIS.
+     *
+     * @throws Throwable when skautIS rejects the login
+     */
     protected function confirmAuth(): void
     {
         try {
-          $logoutTimeUpdated = $this->updateLogoutTime();
-          if(!$logoutTimeUpdated) {
-              throw new \RuntimeException('Updating logout time failed');
+            if (! $this->updateLogoutTime()) {
+                throw new AuthenticationException('There is no login to confirm.');
             }
             $this->setAuthConfirmed(true);
-        } catch (\Exception $e) {
+        } catch (Throwable $exception) {
             $this->setAuthConfirmed(false);
-            throw $e;
+            throw $exception;
         }
     }
 
-    /**
-     * Prodloužení přihlášení o 30 min
-     *
-     * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
-     */
-    public function updateLogoutTime(): bool
-    {
-        $loginId = $this->getLoginId();
-        if ($loginId === null) {
-            // Nemáme token, uživatel není přihlášen a není, co prodlužovat
-            return false;
-        }
-
-        $result = $this->wsdlManager->getWebService(WebServiceName::USER_MANAGEMENT, $loginId)->LoginUpdateRefresh(['ID' => $loginId]);
-
-        $logoutDate = $this->parseDate($result->DateLogout);
-        $this->loginData[self::LOGOUT_DATE] = $logoutDate;
-
-        $this->saveToSession();
-
-        return true;
-    }
-
-    /**
-     * Uloží nastavení do session
-     */
     protected function saveToSession(): void
     {
-        if ($this->session !== null) {
-            $this->session->set(self::SESSION_ID, $this->loginData);
-        }
+        $this->session?->set(self::SESSION_ID, $this->loginData);
     }
 
-    private function parseDate(string $dateText): DateTimeImmutable {
-      //skautIS vrací sekundy včetně desetinné části
-      $dateTextWithoutDecimals = preg_replace('/\.(\d*)$/', '', $dateText);
+    /**
+     * @throws UnexpectedValueException
+     */
+    private function parseDate(string $dateText): DateTimeImmutable
+    {
+        // skautIS returns seconds with a fractional part, e.g. 2044-02-12T15:19:21.996
+        $withoutFraction = preg_replace('/\.\d*$/', '', $dateText);
+        if ($withoutFraction === null) {
+            throw new UnexpectedValueException("Could not parse date '$dateText'.");
+        }
 
-      if (!is_string($dateTextWithoutDecimals)) {
-        throw new UnexpectedValueException("Could not parse date '$dateText'.");
-      }
+        $dateTime = DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $withoutFraction, new DateTimeZone('Europe/Prague'));
+        if ($dateTime === false) {
+            throw new UnexpectedValueException("Could not parse date '$dateText'.");
+        }
 
-      $tz = new DateTimeZone('Europe/Prague');
-      $dateTime =  DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s', $dateTextWithoutDecimals, $tz);
-
-      if ($dateTime === false) {
-        throw new UnexpectedValueException("Could not parse date '$dateText'.");
-      }
-
-      return $dateTime;
+        return $dateTime;
     }
 }

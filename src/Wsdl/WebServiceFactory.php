@@ -1,60 +1,48 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\Wsdl;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Skaut\Skautis\InvalidArgumentException;
+use SoapClient;
 
 final class WebServiceFactory implements WebServiceFactoryInterface
 {
+    /** @var class-string<WebServiceInterface> */
+    private readonly string $class;
+
+    private ?EventDispatcherInterface $eventDispatcher;
 
     /**
-     * @var string Třída webové služby
+     * @param string $className class whose constructor accepts SoapClient, the options array and ?EventDispatcherInterface
+     *
+     * @throws InvalidArgumentException
      */
-    private $class;
-
-    /**
-     * @var EventDispatcherInterface|null
-     */
-    private $eventDispatcher;
-
-
-    /**
-     * @param string $className Constructor must accept SoapClient, SOAP options array and EventDispatcherInterface
-     */
-    public function __construct(
-      string $className = WebService::class,
-      ?EventDispatcherInterface $eventDispatcher = null
-    ) {
-        if (!is_a($className, WebServiceInterface::class, true)) {
-          throw new InvalidArgumentException("Argument must be class name of a class implementing WebServiceInterface. '$className' given");
+    public function __construct(string $className = WebService::class, ?EventDispatcherInterface $eventDispatcher = null)
+    {
+        if (! is_a($className, WebServiceInterface::class, true)) {
+            throw new InvalidArgumentException("Argument must be class name of a class implementing WebServiceInterface. '$className' given");
         }
 
         $this->class = $className;
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function createWebService(string $url, array $options): WebServiceInterface
     {
-        if (empty($url)) {
-          throw new InvalidArgumentException('WSDL URL cannot be empty.');
+        if ($url === '') {
+            throw new InvalidArgumentException('WSDL URL cannot be empty.');
         }
 
-        $soapClient = new \SoapClient($url, $options);
-        return new $this->class($soapClient, $options, $this->eventDispatcher);
+        return new ($this->class)(new SoapClient($url, $options), $options, $this->eventDispatcher);
     }
 
-    /**
-     * @inheritdoc
-     */
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher): void
     {
-        if ($this->eventDispatcher != null) {
-            throw new InvalidArgumentException("Event dispatcher is already set.");
+        if ($this->eventDispatcher !== null) {
+            throw new InvalidArgumentException('Event dispatcher is already set.');
         }
 
         $this->eventDispatcher = $eventDispatcher;

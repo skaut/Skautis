@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis;
 
@@ -11,38 +12,45 @@ use DateTimeZone;
  */
 final class Helpers
 {
-
-    final private function __construct()
+    private function __construct()
     {
     }
 
     /**
-     * Parsuje pole dat zaslaných skautISem (například $_SESSION)
+     * Parses the fields skautIS posts back after login (skautIS_Token, skautIS_IDRole, skautIS_IDUnit, skautIS_DateLogout).
      *
      * @param array<string, mixed> $data
      *
-     * @return array<string, mixed>
+     * @return array{ID_Login: string|null, ID_Role: int|null, ID_Unit: int|null, LOGOUT_Date: DateTimeImmutable|null}
      *
-     * @throws UnexpectedValueException pokud se nepodaří naparsovat datum
+     * @throws UnexpectedValueException when the logout date cannot be parsed
      */
     public static function parseLoginData(array $data): array
     {
-        $loginData = [];
-        $loginData[User::ID_LOGIN] = isset($data['skautIS_Token']) ? (string)$data['skautIS_Token'] : null;
-        $loginData[User::ID_ROLE] = isset($data['skautIS_IDRole']) ? (int) $data['skautIS_IDRole'] : null;
-        $loginData[User::ID_UNIT] = isset($data['skautIS_IDUnit']) ? (int) $data['skautIS_IDUnit'] : null;
-
+        $logoutDate = null;
         if (isset($data['skautIS_DateLogout'])) {
-            $tz = new DateTimeZone('Europe/Prague');
-            $logoutDate = DateTimeImmutable::createFromFormat('j. n. Y H:i:s', $data['skautIS_DateLogout'], $tz);
+            $dateText = self::toString($data['skautIS_DateLogout']);
+            $logoutDate = DateTimeImmutable::createFromFormat('j. n. Y H:i:s', $dateText, new DateTimeZone('Europe/Prague'));
             if ($logoutDate === false) {
-                throw new UnexpectedValueException("Could not parse logout date '{$data['skautIS_DateLogout']}'.");
+                throw new UnexpectedValueException("Could not parse logout date '$dateText'.");
             }
-            $loginData[User::LOGOUT_DATE] = $logoutDate;
-        } else {
-            $loginData[User::LOGOUT_DATE] = null;
         }
 
-        return $loginData;
+        return [
+            User::ID_LOGIN => isset($data['skautIS_Token']) ? self::toString($data['skautIS_Token']) : null,
+            User::ID_ROLE => isset($data['skautIS_IDRole']) ? self::toInt($data['skautIS_IDRole']) : null,
+            User::ID_UNIT => isset($data['skautIS_IDUnit']) ? self::toInt($data['skautIS_IDUnit']) : null,
+            User::LOGOUT_DATE => $logoutDate,
+        ];
+    }
+
+    private static function toString(mixed $value): string
+    {
+        return \is_scalar($value) ? (string) $value : '';
+    }
+
+    private static function toInt(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
     }
 }

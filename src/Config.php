@@ -1,73 +1,43 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis;
 
 /**
- * Třída pro uživatelské nastavení
+ * Immutable configuration of one skautIS application.
  */
-final class Config
+final readonly class Config
 {
+    public const bool CACHE_ENABLED = true;
+    public const bool CACHE_DISABLED = false;
 
-    public const CACHE_ENABLED = true;
-    public const CACHE_DISABLED = false;
+    public const bool TEST_MODE_ENABLED = true;
+    public const bool TEST_MODE_DISABLED = false;
 
-    public const TEST_MODE_ENABLED = true;
-    public const TEST_MODE_DISABLED = false;
+    public const bool COMPRESSION_ENABLED = true;
+    public const bool COMPRESSION_DISABLED = false;
 
-    public const COMPRESSION_ENABLED = true;
-    public const COMPRESSION_DISABLED = false;
-
-    private const URL_TEST = 'https://test-is.skaut.cz/';
-    private const URL_PRODUCTION = 'https://is.skaut.cz/';
-
-    /**
-     * @var string
-     */
-    private $appId;
+    private const string URL_TEST = 'https://test-is.skaut.cz/';
+    private const string URL_PRODUCTION = 'https://is.skaut.cz/';
 
     /**
-     * Používat testovací SkautIS?
+     * @param string $appId       ID aplikace přidělené správcem skautISu
+     * @param bool   $testMode    používat testovací skautIS?
+     * @param bool   $cache       cachovat WSDL?
+     * @param bool   $compression komprimovat SOAP požadavky?
      *
-     * @var bool
-     */
-    private $testMode;
-
-    /**
-     * Používat kompresi?
-     *
-     * @var bool
-     */
-    private $compression;
-
-    /**
-     * Cachovat WSDL?
-     *
-     * @var bool
-     */
-    protected $cache;
-
-
-    /**
-     * @param string $appId Id aplikace od správce skautISu
-     * @param bool $isTestMode používat testovací SkautIS?
-     * @param bool $cache použít kompresi?
-     * @param bool $compression cachovat WDSL?
      * @throws InvalidArgumentException
      */
     public function __construct(
-      string $appId,
-      bool $isTestMode = self::TEST_MODE_ENABLED,
-      bool $cache = self::CACHE_ENABLED,
-      bool $compression = self::COMPRESSION_ENABLED
+        private string $appId,
+        private bool $testMode = self::TEST_MODE_ENABLED,
+        private bool $cache = self::CACHE_ENABLED,
+        private bool $compression = self::COMPRESSION_ENABLED,
     ) {
-        if (empty($appId)) {
+        if ($appId === '') {
             throw new InvalidArgumentException('AppId cannot be empty.');
         }
-        $this->appId = $appId;
-        $this->testMode = $isTestMode;
-        $this->cache = $cache;
-        $this->compression = $compression;
     }
 
     public function getAppId(): string
@@ -80,35 +50,23 @@ final class Config
         return $this->testMode;
     }
 
-    /**
-     * Zjistí, jestli je WSDL cachované
-     */
     public function isCacheEnabled(): bool
     {
         return $this->cache;
     }
 
-    /**
-     * Zjistí, jestli se používá komprese dotazů na WSDL
-     */
     public function isCompressionEnabled(): bool
     {
         return $this->compression;
     }
 
-    /**
-     * Vací začátek URL adresy
-     */
     public function getBaseUrl(): string
     {
         return $this->testMode ? self::URL_TEST : self::URL_PRODUCTION;
     }
 
     /**
-     * Na základě nastavení vrací argumenty pro SoapClient
-     * Neumožňujeme uživateli primo modifikovat options aby byly vzdy validni a kompatibilni se Skautis API
-     *
-     * @see \SoapClient
+     * Options for SoapClient. They are not user-editable so that every request stays valid for the skautIS API.
      *
      * @return array<string, mixed>
      */
@@ -116,22 +74,21 @@ final class Config
     {
         $soapOptions = [
             'ID_Application' => $this->appId,
-            'soap_version' => SOAP_1_2,
+            'soap_version' => \SOAP_1_2,
             'encoding' => 'utf-8',
             'stream_context' => stream_context_create([
-                'ssl' => ['crypto_method' => STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT]
+                'ssl' => ['crypto_method' => \STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT],
             ]),
             'exceptions' => true,
             'trace' => true,
             'user_agent' => 'Skautis PHP library',
-            'keep_alive' => true
+            'keep_alive' => true,
+            'cache_wsdl' => $this->cache ? \WSDL_CACHE_BOTH : \WSDL_CACHE_NONE,
         ];
 
         if ($this->compression) {
-            $soapOptions['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
+            $soapOptions['compression'] = \SOAP_COMPRESSION_ACCEPT | \SOAP_COMPRESSION_GZIP;
         }
-
-        $soapOptions['cache_wsdl'] = $this->cache ? WSDL_CACHE_BOTH : WSDL_CACHE_NONE;
 
         return $soapOptions;
     }

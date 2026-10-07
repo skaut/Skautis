@@ -1,8 +1,5 @@
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/skaut/Skautis/main)
-[![Coverage Status](https://coveralls.io/repos/github/skaut/Skautis/badge.svg?branch=3.x)](https://coveralls.io/github/skaut/Skautis?branch=3.x)
-[![Latest Stable Version](https://poser.pugx.org/skautis/skautis/v/stable.svg)](https://packagist.org/packages/skautis/skautis)
-[![Latest Unstable Version](https://poser.pugx.org/skautis/skautis/v/unstable.svg)](https://packagist.org/packages/skautis/skautis)
-[![License](https://poser.pugx.org/skautis/skautis/license.svg)](https://packagist.org/packages/skautis/skautis)
+[![main](https://github.com/skaut/Skautis/actions/workflows/main.yml/badge.svg)](https://github.com/skaut/Skautis/actions/workflows/main.yml)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](./LICENSE)
 
 # SkautIS
 PHP knihovna pro připojení do [Skautisu](https://is.skaut.cz/)
@@ -11,11 +8,23 @@ PHP knihovna pro připojení do [Skautisu](https://is.skaut.cz/)
 ```PHP
 //získání podřízených jednotek k té kde jsem přihlášen rolí
 $myUnitId = $skautis->getUser()->getUnitId();
-$skautis->org->unitAll(array("ID_UnitParent"=>$myUnitId))
+$skautis->org->unitAll(['ID_UnitParent' => $myUnitId]);
 ```
 
 ## Návod na použití
-Podrobný návod v [dokumentaci](docs/README.md).
+Podrobný návod v [dokumentaci](docs/README.md). Přehled změn ve [CHANGELOG.md](CHANGELOG.md).
 
 ## Požadavky
-PHP 7.1 a novější. Detaily v [composer.json](./composer.json)
+PHP 8.4 a novější s rozšířením `soap`. Detaily v [composer.json](./composer.json).
+
+## Vývoj
+Na počítači stačí Docker, PHP ani Composer nejsou potřeba:
+
+```bash
+make build            # vývojový obraz (PHP=8.5 pro druhou verzi)
+make install          # composer install
+make ci               # lint, coding standard, PHPStan, PHPUnit
+```
+
+`make help` vypíše všechny cíle. Lokální nastavení, například `DOCKER_ROOTLESS=1` pro rootless Docker,
+patří do git-ignorovaného souboru `make.local`.

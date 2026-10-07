@@ -2,79 +2,80 @@
 
 declare(strict_types=1);
 
-
 namespace Skaut\Skautis\Test\Unit\WebService;
 
-
-
+use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Skaut\Skautis\Wsdl\WebService;
 use Skaut\Skautis\Wsdl\WebServiceInterface;
+use SoapClient;
+use stdClass;
 
-class ParsingSOAPOutputTest extends TestCase
+/**
+ * Responses recorded from the test skautIS, serialized as SoapClient returns them.
+ */
+final class ParsingSOAPOutputTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
 
-    protected function tearDown(): void
+    public function testObjectForExistentRecord(): void
     {
-        \Mockery::close();
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
+
+        $result = $service->call('UnitDetail', [['ID' => 24404]]);
+
+        self::assertInstanceOf(stdClass::class, $result);
+        self::assertSame('Středisko', $result->UnitType);
     }
 
-    private function loadData(string $methodName): \stdClass {
-        $filePath = __DIR__.'/resources/'.$methodName.'.txt';
+    public function testNullForNonExistentRecord(): void
+    {
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
 
-        if (!file_exists($filePath) || !is_readable($filePath)) {
-            throw new \RuntimeException("Cannot access file '$filePath'");
+        self::assertNull($service->call('UnitDetail', [['ID' => 999]]));
+    }
+
+    public function testArrayOfResults(): void
+    {
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
+
+        $results = $service->call('UnitAll', [['ID_UnitParent' => 24404]]);
+
+        self::assertIsArray($results);
+        self::assertCount(5, $results);
+        self::assertContainsOnlyInstancesOf(stdClass::class, $results);
+    }
+
+    public function testEmptyArrayOfResults(): void
+    {
+        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
+
+        self::assertSame([], $service->call('UnitAll', [['ID_UnitParent' => 999]]));
+    }
+
+    private function loadData(string $methodName): stdClass
+    {
+        $filePath = __DIR__.'/resources/'.$methodName.'.txt';
+        $text = @file_get_contents($filePath);
+        if ($text === false) {
+            throw new RuntimeException("Cannot read file '$filePath'");
         }
 
-        $text = file_get_contents($filePath);
+        $data = unserialize(rtrim($text), ['allowed_classes' => [stdClass::class]]);
+        if (! $data instanceof stdClass) {
+            throw new RuntimeException("Unexpected content of '$filePath'");
+        }
 
-        return unserialize($text, ['allowed_classes' => [\stdClass::class]]);
+        return $data;
     }
 
-    private function createMockedWebService(\stdClass $data): WebServiceInterface {
-        $client = \Mockery::mock(\SoapClient::class);
+    private function createMockedWebService(stdClass $data): WebServiceInterface
+    {
+        $client = Mockery::mock(SoapClient::class);
         $client->shouldReceive('__soapCall')->once()->andReturn($data);
 
-        return new WebService($client, [], null);
-    }
-
-    public function testObjectForExistentRecord(): void {
-        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
-
-        $result = $service->unitDetail(['ID' => 24404]);
-
-        $this->assertNotNull($result);
-        $this->assertInstanceOf(\stdClass::class, $result);
-        $this->assertSame('Středisko', $result->UnitType);
-    }
-
-    public function testNullForNonExistentRecord(): void {
-        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
-
-        $result = $service->unitDetail(['ID' => 999]);
-
-        $this->assertNull($result);
-    }
-
-    public function testArrayOfResults(): void {
-        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
-
-        $results = $service->unitAll(['ID_UnitParent' => 24404]);
-
-        $this->assertIsArray($results);
-        $this->assertCount(5, $results);
-
-        foreach ($results as $result) {
-            $this->assertInstanceOf(\stdClass::class, $result);
-        }
-    }
-
-    public function testEmptyArrayOfResults(): void {
-        $service = $this->createMockedWebService($this->loadData(__FUNCTION__));
-
-        $result = $service->unitAll(['ID_UnitParent' => 999]);
-
-        $this->assertIsArray($result);
-        $this->assertCount(0, $result);
+        return new WebService($client, []);
     }
 }

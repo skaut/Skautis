@@ -4,6 +4,23 @@
 
 ## Verze 3.x
 
+### v3.1.0
+* Požadováno PHP 8.4 a novější; CI běží na PHP 8.4 a 8.5 a testy selžou na jakoukoli deprecation.
+* Název balíčku je ``skaut/skautis`` (přejmenováno už v 3.0.0-alpha; na Packagistu je zatím jen starší ``skautis/skautis``).
+* Typované vlastnosti, parametry a návratové typy v celé knihovně; ``Config`` je ``readonly``.
+* Zpětně nekompatibilní: ``WebServiceInterface::call()`` a ``__call()`` deklarují návratový typ ``mixed``; ``SessionAdapter\AdapterInterface::set()`` přijímá ``mixed`` a ``get()`` vrací ``mixed``. Vlastní implementace musí signatury doplnit.
+* Zpětně nekompatibilní: události ``RequestPreEvent``, ``RequestPostEvent`` a ``RequestFailEvent`` jsou ``final`` a už neimplementují ``Serializable`` (``serialize()``/``unserialize()`` odstraněny, ``__serialize()``/``__unserialize()`` zůstávají). ``RequestPostEvent`` po deserializaci zachová typ výsledku (``stdClass``, pole nebo ``null``). Délka požadavku se serializuje pod klíčem ``duration`` místo ``time``; události serializované verzí 3.0 jdou stále deserializovat, opačně ne. Payload bez délky požadavku vyhodí ``UnexpectedValueException``.
+* ``WebService`` vrací ``null`` i pro ``<{Method}Result xsi:nil="true"/>`` a hlášky ``ParsingFailedException`` říkají, co přesně v odpovědi nesedí.
+* Zpětně nekompatibilní: ``User::updateLogoutTime()`` volá ``LoginUpdateRefresh`` přes ``WebServiceInterface::call()`` místo magické metody (dopad jen na mocky v testech).
+* ``Skautis::setLoginData()`` vyhodí ``UnexpectedValueException``, když v datech chybí ``skautIS_Token`` nebo je prázdný. ``User::getLoginId()`` vrací pro prázdný token ``null``.
+* ``User::confirmAuth()`` vyhazuje ``Wsdl\AuthenticationException`` místo ``RuntimeException``, když není co potvrdit.
+* ``WsdlManager::isMaintenance()`` rozpozná stav 200 i u HTTP/2 odpovědi (dříve jen ``HTTP/1.1 200 OK``).
+* Překlad SOAP faultů: ``AuthenticationException`` i pro „Přihlášení vypršelo/neexistuje“ a „není přihlášen“, ``PermissionException`` i pro „nemá oprávnění“ a „nedostatečná práva“; výjimka nese původní zprávu a ``getPrevious()``. Výjimky knihovny vyhozené uvnitř požadavku se už nebalí do obecné ``WsdlException``.
+* ``WebServiceFactory::setEventDispatcher()`` porovnává striktně.
+* ``-read`` anotace třídy ``Skautis`` doplněny o ``DocumentStorage``, ``Grants`` a ``Insurance``.
+* ``psr/simple-cache`` ^1.0 || ^2.0 || ^3.0.
+* Vývoj: PHPUnit 12, PHPStan 2 (level max bez výjimek), php-cs-fixer 3 (````), GitHub Actions na PHP 8.4 a 8.5, ``Makefile`` a ``docker/Dockerfile`` pro běh bez PHP na hostiteli. Odstraněn pre-commit hook, ``fix_syle.sh`` a ``.scrutinizer.yml``.
+
 ### v3.0.0
 * Požadována verze PHP >=7.2
 * Změna namespace ``\Skautis`` je nyní ``\Skaut\Skautis``

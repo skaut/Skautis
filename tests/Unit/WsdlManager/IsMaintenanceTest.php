@@ -1,101 +1,100 @@
 <?php
 
-/**
- * Mocks built-in get_headers function
+declare(strict_types=1);
+
+/*
+ * Overrides the built-in get_headers() for the Skaut\Skautis\Wsdl namespace; the responses
+ * follow the order of the tests below.
  */
+
 namespace Skaut\Skautis\Wsdl;
 
-$GLOBALS['callNumber'] = 0;
+/**
+ * @return array<int, string>|false
+ */
+function get_headers(string $url): array|false
+{
+    /** @var list<array<int, string>|false|'network-error'> $responses */
+    static $responses = [
+        ['HTTP/1.1 200 OK'],
+        ['HTTP/2 200'],
+        ['HTTP/1.1 503 Service Unavailable'],
+        false,
+        'network-error',
+    ];
+    /** @var int $call */
+    static $call = 0;
 
-function get_headers(string $url){
+    $response = $responses[$call] ?? false;
+    ++$call;
+    if ($response === 'network-error') {
+        trigger_error(
+            'get_headers(): php_network_getaddresses: getaddrinfo failed: Temporary failure in name resolution',
+            \E_USER_WARNING,
+        );
 
-  try {
-    // Pro testNotMaintenance
-    if ($GLOBALS['callNumber'] === 0) {
-      return ['HTTP/1.1 200 OK'];
+        return false;
     }
 
-    // Pro testMaintenance
-    if ($GLOBALS['callNumber'] === 1) {
-      return ['HTTP/1.1 503 Service Unavailable'];
-    }
-
-    // Pro testMaintenanceNoHeaders
-    if ($GLOBALS['callNumber'] === 2) {
-      return false;
-    }
-
-    // Pro testDNSError
-    if ($GLOBALS['callNumber'] === 3) {
-      trigger_error(
-        'get_headers(): php_network_getaddresses: getaddrinfo failed: Temporary failure in name resolution',
-        E_USER_WARNING
-      );
-    }
-  }
-  finally {
-    $GLOBALS['callNumber']++;
-  }
+    return $response;
 }
-
 
 namespace Skaut\Skautis\Test\Unit\WsdlManager;
 
 use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Skaut\Skautis\Config;
 use Skaut\Skautis\Wsdl\MaintenanceErrorException;
 use Skaut\Skautis\Wsdl\WebServiceFactoryInterface;
 use Skaut\Skautis\Wsdl\WsdlManager;
 
-class IsMaintenanceTest extends TestCase
+final class IsMaintenanceTest extends TestCase
 {
+    use MockeryPHPUnitIntegration;
 
-  /**
-   * @var WsdlManager
-   */
-  private $manager;
+    private WsdlManager $manager;
 
-  protected function setUp(): void
-  {
-    $factory = Mockery::mock(WebServiceFactoryInterface::class);
-    $config = new Config('42');
-    $this->manager = new WsdlManager($factory, $config);
-  }
+    protected function setUp(): void
+    {
+        $this->manager = new WsdlManager(Mockery::mock(WebServiceFactoryInterface::class), new Config('42'));
+    }
 
-  /**
-   * Když get_headers vrátí pole obsahující HTTP status code OK
-   */
-  public function testNotMaintenance(): void {
-    $this->assertFalse($this->manager->isMaintenance());
-  }
+    public function testHttp1Ok(): void
+    {
+        self::assertFalse($this->manager->isMaintenance());
+    }
 
-  /**
-   * Když get_headers vráti pole neobsahující HTTP status code OK
-   *
-   * @depends testNotMaintenance
-   */
-  public function testMaintenance(): void {
-    $this->assertTrue($this->manager->isMaintenance());
-  }
+    #[Depends('testHttp1Ok')]
+    public function testHttp2Ok(): void
+    {
+        self::assertFalse($this->manager->isMaintenance());
+    }
 
-  /**
-   * Když get_headers vrátí false místo pole
-   *
-   * @depends testNotMaintenance
-   */
-  public function testMaintenanceNoHeaders(): void {
-    $this->assertTrue($this->manager->isMaintenance());
-  }
+    #[Depends('testHttp2Ok')]
+    public function testServiceUnavailable(): void
+    {
+        self::assertTrue($this->manager->isMaintenance());
+    }
 
-  /**
-   * Když get_headers způsobí PHP Warning
-   *
-   * @depends testMaintenanceNoHeaders
-   */
-  public function testDNSError(): void {
-    $this->expectException(MaintenanceErrorException::class);
-    $this->manager->isMaintenance();
-  }
+    #[Depends('testServiceUnavailable')]
+    public function testNoHeaders(): void
+    {
+        self::assertTrue($this->manager->isMaintenance());
+    }
+
+    #[Depends('testNoHeaders')]
+    public function testNetworkErrorBecomesException(): void
+    {
+        try {
+            $this->manager->isMaintenance();
+            self::fail('MaintenanceErrorException expected');
+        } catch (MaintenanceErrorException $exception) {
+            self::assertStringContainsString('getaddrinfo failed', $exception->getMessage());
+            self::assertSame(\E_USER_WARNING, $exception->getErrorNumber());
+            self::assertSame(__FILE__, $exception->getErrorFile());
+            self::assertGreaterThan(0, $exception->getErrorLine());
+        }
+    }
 }
-

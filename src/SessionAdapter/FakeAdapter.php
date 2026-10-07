@@ -1,41 +1,29 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Skaut\Skautis\SessionAdapter;
 
 /**
- * Nepersestinenti adapter - vhodne jako stub pro testy nebo kdyz neni potreba ukladat
+ * In-memory adapter for tests and scripts that do not need persistence.
  */
 class FakeAdapter implements AdapterInterface
 {
-    /**
-     * Inmemory storage
-     *
-     * @var array<string, mixed>
-     */
-    protected $data = [];
+    /** @var array<string, mixed> */
+    protected array $data = [];
 
-    /**
-     * @inheritdoc
-     */
-    public function set(string $name, $object): void
+    public function set(string $name, mixed $object): void
     {
         $this->data[$name] = $object;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function has(string $name): bool
     {
         return isset($this->data[$name]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function get(string $name)
+    public function get(string $name): mixed
     {
-        return $this->data[$name];
+        return $this->data[$name] ?? null;
     }
 }
